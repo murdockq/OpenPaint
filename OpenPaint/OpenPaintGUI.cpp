@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Sep  6 2007)
+// C++ code generated with wxFormBuilder (version Aug  4 2008)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -23,160 +23,227 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-MainFrame::MainFrame( wxWindow* parent, int id, wxString title, wxPoint pos, wxSize size, int style ) : wxAuiMDIParentFrame( parent, id, title, pos, size, style )
+MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxAuiMDIParentFrame( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
-	this->Centre( wxBOTH );
 	
 	m_statusBar1 = this->CreateStatusBar( 1, wxST_SIZEGRIP, wxID_ANY );
 	m_menubar1 = new wxMenuBar( 0 );
 	m_menuFile = new wxMenu();
 	m_menuNew = new wxMenu();
-	wxMenuItem* menuItemNewFile320 = new wxMenuItem( m_menuNew, IDX_NEW_FILE_320, wxString( wxT("320x240") ) , wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemNewFile320;
+	menuItemNewFile320 = new wxMenuItem( m_menuNew, IDX_NEW_FILE_320, wxString( wxT("320x240") ) , wxEmptyString, wxITEM_NORMAL );
 	m_menuNew->Append( menuItemNewFile320 );
-	wxMenuItem* menuItemNewFile640 = new wxMenuItem( m_menuNew, IDX_NEW_FILE_640, wxString( wxT("640x480") ) , wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemNewFile640;
+	menuItemNewFile640 = new wxMenuItem( m_menuNew, IDX_NEW_FILE_640, wxString( wxT("640x480") ) , wxEmptyString, wxITEM_NORMAL );
 	m_menuNew->Append( menuItemNewFile640 );
-	wxMenuItem* menuItemNewFile = new wxMenuItem( m_menuNew, wxID_NEW, wxString( wxT("800x600") ) + wxT('\t') + wxT("Ctrl+N"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemNewFile;
+	menuItemNewFile = new wxMenuItem( m_menuNew, wxID_NEW, wxString( wxT("800x600") ) + wxT('\t') + wxT("Ctrl+N"), wxEmptyString, wxITEM_NORMAL );
 	m_menuNew->Append( menuItemNewFile );
-	wxMenuItem* menuItemNewFile1024 = new wxMenuItem( m_menuNew, IDX_NEW_FILE_1024, wxString( wxT("1024x768") ) , wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemNewFile1024;
+	menuItemNewFile1024 = new wxMenuItem( m_menuNew, IDX_NEW_FILE_1024, wxString( wxT("1024x768") ) , wxEmptyString, wxITEM_NORMAL );
 	m_menuNew->Append( menuItemNewFile1024 );
+	
 	m_menuFile->Append( -1, wxT("New"), m_menuNew );
 	
-	wxMenuItem* menuItemOpen = new wxMenuItem( m_menuFile, wxID_OPEN, wxString( wxT("Open...") ) + wxT('\t') + wxT("Ctrl+O"), wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemOpen;
+	menuItemOpen = new wxMenuItem( m_menuFile, wxID_OPEN, wxString( wxT("Open...") ) + wxT('\t') + wxT("Ctrl+O"), wxEmptyString, wxITEM_NORMAL );
 	m_menuFile->Append( menuItemOpen );
-	wxMenuItem* menuItemSave = new wxMenuItem( m_menuFile, wxID_SAVE, wxString( wxT("Save") ) + wxT('\t') + wxT("Ctrl+S"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemSave;
+	menuItemSave = new wxMenuItem( m_menuFile, wxID_SAVE, wxString( wxT("Save") ) + wxT('\t') + wxT("Ctrl+S"), wxEmptyString, wxITEM_NORMAL );
 	m_menuFile->Append( menuItemSave );
-	wxMenuItem* menuItemSaveAs = new wxMenuItem( m_menuFile, wxID_SAVEAS, wxString( wxT("Save As...") ) + wxT('\t') + wxT("Ctrl+Shift+S"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemSaveAs;
+	menuItemSaveAs = new wxMenuItem( m_menuFile, wxID_SAVEAS, wxString( wxT("Save As...") ) + wxT('\t') + wxT("Ctrl+Shift+S"), wxEmptyString, wxITEM_NORMAL );
 	m_menuFile->Append( menuItemSaveAs );
 	
 	m_menuFile->AppendSeparator();
+	
 	m_menuRecentImages = new wxMenu();
-	wxMenuItem* menuItemEMPTYFile = new wxMenuItem( m_menuRecentImages, IDX_MENU_EMPTY, wxString( wxT("Empty") ) , wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemEMPTYFile;
+	menuItemEMPTYFile = new wxMenuItem( m_menuRecentImages, IDX_MENU_EMPTY, wxString( wxT("Empty") ) , wxEmptyString, wxITEM_NORMAL );
 	m_menuRecentImages->Append( menuItemEMPTYFile );
 	menuItemEMPTYFile->Enable( false );
 	
 	m_menuFile->Append( -1, wxT("Recent Files"), m_menuRecentImages );
 	
-	
 	m_menuFile->AppendSeparator();
-	wxMenuItem* menuItemExit = new wxMenuItem( m_menuFile, wxID_EXIT, wxString( wxT("Exit") ) + wxT('\t') + wxT("Alt+F4"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemExit;
+	menuItemExit = new wxMenuItem( m_menuFile, wxID_EXIT, wxString( wxT("Exit") ) + wxT('\t') + wxT("Alt+F4"), wxEmptyString, wxITEM_NORMAL );
 	m_menuFile->Append( menuItemExit );
+	
 	m_menubar1->Append( m_menuFile, wxT("&File") );
 	
 	m_menuEdit = new wxMenu();
-	wxMenuItem* menuItemUndo = new wxMenuItem( m_menuEdit, wxID_UNDO, wxString( wxT("Undo") ) + wxT('\t') + wxT("Ctrl+Z"), wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemUndo;
+	menuItemUndo = new wxMenuItem( m_menuEdit, wxID_UNDO, wxString( wxT("Undo") ) + wxT('\t') + wxT("Ctrl+Z"), wxEmptyString, wxITEM_NORMAL );
 	m_menuEdit->Append( menuItemUndo );
 	menuItemUndo->Enable( false );
 	
-	wxMenuItem* menuItemRedo = new wxMenuItem( m_menuEdit, wxID_REDO, wxString( wxT("Redo") ) + wxT('\t') + wxT("Ctrl+Y"), wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemRedo;
+	menuItemRedo = new wxMenuItem( m_menuEdit, wxID_REDO, wxString( wxT("Redo") ) + wxT('\t') + wxT("Ctrl+Y"), wxEmptyString, wxITEM_NORMAL );
 	m_menuEdit->Append( menuItemRedo );
 	menuItemRedo->Enable( false );
 	
-	
 	m_menuEdit->AppendSeparator();
-	wxMenuItem* menuItemCut = new wxMenuItem( m_menuEdit, wxID_CUT, wxString( wxT("Cut") ) + wxT('\t') + wxT("Ctrl+X"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemCut;
+	menuItemCut = new wxMenuItem( m_menuEdit, wxID_CUT, wxString( wxT("Cut") ) + wxT('\t') + wxT("Ctrl+X"), wxEmptyString, wxITEM_NORMAL );
 	m_menuEdit->Append( menuItemCut );
-	wxMenuItem* menuItemCopy = new wxMenuItem( m_menuEdit, wxID_COPY, wxString( wxT("Copy") ) + wxT('\t') + wxT("Ctrl+C"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemCopy;
+	menuItemCopy = new wxMenuItem( m_menuEdit, wxID_COPY, wxString( wxT("Copy") ) + wxT('\t') + wxT("Ctrl+C"), wxEmptyString, wxITEM_NORMAL );
 	m_menuEdit->Append( menuItemCopy );
-	wxMenuItem* menuItemPaste = new wxMenuItem( m_menuEdit, wxID_PASTE, wxString( wxT("Paste") ) + wxT('\t') + wxT("Ctrl+V"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemPaste;
+	menuItemPaste = new wxMenuItem( m_menuEdit, wxID_PASTE, wxString( wxT("Paste") ) + wxT('\t') + wxT("Ctrl+V"), wxEmptyString, wxITEM_NORMAL );
 	m_menuEdit->Append( menuItemPaste );
-	wxMenuItem* menuItemDelete = new wxMenuItem( m_menuEdit, wxID_DELETE, wxString( wxT("Delete") ) + wxT('\t') + wxT("Del"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemDelete;
+	menuItemDelete = new wxMenuItem( m_menuEdit, wxID_DELETE, wxString( wxT("Delete") ) + wxT('\t') + wxT("Del"), wxEmptyString, wxITEM_NORMAL );
 	m_menuEdit->Append( menuItemDelete );
 	
 	m_menuEdit->AppendSeparator();
-	wxMenuItem* menuItemSelectAll = new wxMenuItem( m_menuEdit, IDX_SELECT_ALL, wxString( wxT("Select All") ) + wxT('\t') + wxT("Ctrl+A"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemSelectAll;
+	menuItemSelectAll = new wxMenuItem( m_menuEdit, IDX_SELECT_ALL, wxString( wxT("Select All") ) + wxT('\t') + wxT("Ctrl+A"), wxEmptyString, wxITEM_NORMAL );
 	m_menuEdit->Append( menuItemSelectAll );
 	
 	m_menuEdit->AppendSeparator();
-	wxMenuItem* menuItemClear = new wxMenuItem( m_menuEdit, wxID_ANY, wxString( wxT("Clear") ) + wxT('\t') + wxT("Ctrl+K"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemClear;
+	menuItemClear = new wxMenuItem( m_menuEdit, wxID_ANY, wxString( wxT("Clear") ) + wxT('\t') + wxT("Ctrl+K"), wxEmptyString, wxITEM_NORMAL );
 	m_menuEdit->Append( menuItemClear );
-	wxMenuItem* menuItemFillFGColor = new wxMenuItem( m_menuEdit, IDX_FILL_FG_COLOR, wxString( wxT("Fill with FG Color") ) + wxT('\t') + wxT("Ctrl+,"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemFillFGColor;
+	menuItemFillFGColor = new wxMenuItem( m_menuEdit, IDX_FILL_FG_COLOR, wxString( wxT("Fill with FG Color") ) + wxT('\t') + wxT("Ctrl+,"), wxEmptyString, wxITEM_NORMAL );
 	m_menuEdit->Append( menuItemFillFGColor );
-	wxMenuItem* menuItemFillBGColor = new wxMenuItem( m_menuEdit, IDX_FILL_BG_COLOR, wxString( wxT("Fill with BG Color") ) + wxT('\t') + wxT("Ctrl+."), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemFillBGColor;
+	menuItemFillBGColor = new wxMenuItem( m_menuEdit, IDX_FILL_BG_COLOR, wxString( wxT("Fill with BG Color") ) + wxT('\t') + wxT("Ctrl+."), wxEmptyString, wxITEM_NORMAL );
 	m_menuEdit->Append( menuItemFillBGColor );
+	
 	m_menubar1->Append( m_menuEdit, wxT("&Edit") );
 	
 	m_menuView = new wxMenu();
-	wxMenuItem* menuItemZoomOut = new wxMenuItem( m_menuView, IDX_ZOOM_OUT, wxString( wxT("Zoom Out") ) + wxT('\t') + wxT("-"), wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemZoomOut;
+	menuItemZoomOut = new wxMenuItem( m_menuView, IDX_ZOOM_OUT, wxString( wxT("Zoom Out") ) + wxT('\t') + wxT("-"), wxEmptyString, wxITEM_NORMAL );
 	m_menuView->Append( menuItemZoomOut );
-	wxMenuItem* menuItemZoomIn = new wxMenuItem( m_menuView, IDX_ZOOM_IN, wxString( wxT("Zoom In") ) + wxT('\t') + wxT("+"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemZoomIn;
+	menuItemZoomIn = new wxMenuItem( m_menuView, IDX_ZOOM_IN, wxString( wxT("Zoom In") ) + wxT('\t') + wxT("+"), wxEmptyString, wxITEM_NORMAL );
 	m_menuView->Append( menuItemZoomIn );
-	wxMenuItem* menuItemNormalZoom = new wxMenuItem( m_menuView, IDX_NORMAL_ZOOM, wxString( wxT("Normal Zoom") ) + wxT('\t') + wxT("1"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemNormalZoom;
+	menuItemNormalZoom = new wxMenuItem( m_menuView, IDX_NORMAL_ZOOM, wxString( wxT("Normal Zoom") ) + wxT('\t') + wxT("1"), wxEmptyString, wxITEM_NORMAL );
 	m_menuView->Append( menuItemNormalZoom );
 	
 	m_menuView->AppendSeparator();
-	wxMenuItem* menuItemFullscreen = new wxMenuItem( m_menuView, IDX_FULLSCREEN, wxString( wxT("Fullscreen") ) + wxT('\t') + wxT("F12"), wxEmptyString, wxITEM_CHECK );
+	
+	wxMenuItem* menuItemFullscreen;
+	menuItemFullscreen = new wxMenuItem( m_menuView, IDX_FULLSCREEN, wxString( wxT("Fullscreen") ) + wxT('\t') + wxT("F12"), wxEmptyString, wxITEM_CHECK );
 	m_menuView->Append( menuItemFullscreen );
+	
 	m_menubar1->Append( m_menuView, wxT("&View") );
 	
 	m_menuImage = new wxMenu();
-	wxMenuItem* menuItemFlipHorizontal = new wxMenuItem( m_menuImage, IDX_FLIP_HORIZONTAL, wxString( wxT("Flip Horizontal") ) + wxT('\t') + wxT("Ctrl+Shift+H"), wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemFlipHorizontal;
+	menuItemFlipHorizontal = new wxMenuItem( m_menuImage, IDX_FLIP_HORIZONTAL, wxString( wxT("Flip Horizontal") ) + wxT('\t') + wxT("Ctrl+Shift+H"), wxEmptyString, wxITEM_NORMAL );
 	m_menuImage->Append( menuItemFlipHorizontal );
-	wxMenuItem* menuItemFlipVertical = new wxMenuItem( m_menuImage, IDX_FLIP_VERTICAL, wxString( wxT("Flip Vertical") ) + wxT('\t') + wxT("Ctrl+Shift+V"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemFlipVertical;
+	menuItemFlipVertical = new wxMenuItem( m_menuImage, IDX_FLIP_VERTICAL, wxString( wxT("Flip Vertical") ) + wxT('\t') + wxT("Ctrl+Shift+V"), wxEmptyString, wxITEM_NORMAL );
 	m_menuImage->Append( menuItemFlipVertical );
 	
 	m_menuImage->AppendSeparator();
-	wxMenuItem* menuItemRotate = new wxMenuItem( m_menuImage, IDX_ROTATE, wxString( wxT("Rotate") ) + wxT('\t') + wxT("Ctrl+Shift+R"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemRotate;
+	menuItemRotate = new wxMenuItem( m_menuImage, IDX_ROTATE, wxString( wxT("Rotate") ) + wxT('\t') + wxT("Ctrl+Shift+R"), wxEmptyString, wxITEM_NORMAL );
 	m_menuImage->Append( menuItemRotate );
 	
 	m_menuImage->AppendSeparator();
-	wxMenuItem* menuItemImageSize = new wxMenuItem( m_menuImage, IDX_IMAGE_SIZE, wxString( wxT("Image Size...") ) + wxT('\t') + wxT("Ctrl+W"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemImageSize;
+	menuItemImageSize = new wxMenuItem( m_menuImage, IDX_IMAGE_SIZE, wxString( wxT("Image Size...") ) + wxT('\t') + wxT("Ctrl+W"), wxEmptyString, wxITEM_NORMAL );
 	m_menuImage->Append( menuItemImageSize );
-	wxMenuItem* menuItemCanvasSize = new wxMenuItem( m_menuImage, IDX_CANVAS_SIZE, wxString( wxT("Canvas Size...") ) + wxT('\t') + wxT("Ctrl+E"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemCanvasSize;
+	menuItemCanvasSize = new wxMenuItem( m_menuImage, IDX_CANVAS_SIZE, wxString( wxT("Canvas Size...") ) + wxT('\t') + wxT("Ctrl+E"), wxEmptyString, wxITEM_NORMAL );
 	m_menuImage->Append( menuItemCanvasSize );
+	
 	m_menubar1->Append( m_menuImage, wxT("&Image") );
 	
 	m_menuTools = new wxMenu();
-	wxMenuItem* menuItemBrush = new wxMenuItem( m_menuTools, IDX_TOOL_BRUSH, wxString( wxT("Brush") ) + wxT('\t') + wxT("B"), wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemBrush;
+	menuItemBrush = new wxMenuItem( m_menuTools, IDX_TOOL_BRUSH, wxString( wxT("Brush") ) + wxT('\t') + wxT("B"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemBrush->SetBitmaps( wxICON( IDI_ICON_DRAW_BRUSH ) );
 	#elif defined( __WXGTK__ )
 	menuItemBrush->SetBitmap( wxICON( IDI_ICON_DRAW_BRUSH ) );
 	#endif
 	m_menuTools->Append( menuItemBrush );
-	wxMenuItem* menuItemEllipse = new wxMenuItem( m_menuTools, IDX_TOOL_ELLIPSE, wxString( wxT("Ellipse") ) + wxT('\t') + wxT("O"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemEllipse;
+	menuItemEllipse = new wxMenuItem( m_menuTools, IDX_TOOL_ELLIPSE, wxString( wxT("Ellipse") ) + wxT('\t') + wxT("O"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemEllipse->SetBitmaps( wxICON( IDI_ICON_DRAW_ELLIPSE ) );
 	#elif defined( __WXGTK__ )
 	menuItemEllipse->SetBitmap( wxICON( IDI_ICON_DRAW_ELLIPSE ) );
 	#endif
 	m_menuTools->Append( menuItemEllipse );
-	wxMenuItem* menuItemEraser = new wxMenuItem( m_menuTools, IDX_TOOL_ERASER, wxString( wxT("Eraser") ) + wxT('\t') + wxT("E"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemEraser;
+	menuItemEraser = new wxMenuItem( m_menuTools, IDX_TOOL_ERASER, wxString( wxT("Eraser") ) + wxT('\t') + wxT("E"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemEraser->SetBitmaps( wxICON( IDI_ICON_DRAW_ERASER ) );
 	#elif defined( __WXGTK__ )
 	menuItemEraser->SetBitmap( wxICON( IDI_ICON_DRAW_ERASER ) );
 	#endif
 	m_menuTools->Append( menuItemEraser );
-	wxMenuItem* menuItemFill = new wxMenuItem( m_menuTools, IDX_TOOL_FILL, wxString( wxT("Fill Bucket") ) + wxT('\t') + wxT("F"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemFill;
+	menuItemFill = new wxMenuItem( m_menuTools, IDX_TOOL_FILL, wxString( wxT("Fill Bucket") ) + wxT('\t') + wxT("F"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemFill->SetBitmaps( wxICON( IDI_ICON_COLOR_FILL ) );
 	#elif defined( __WXGTK__ )
 	menuItemFill->SetBitmap( wxICON( IDI_ICON_COLOR_FILL ) );
 	#endif
 	m_menuTools->Append( menuItemFill );
-	wxMenuItem* menuItemMagnify = new wxMenuItem( m_menuTools, IDX_TOOL_MAGNIFY, wxString( wxT("Magnify") ) + wxT('\t') + wxT("M"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemMagnify;
+	menuItemMagnify = new wxMenuItem( m_menuTools, IDX_TOOL_MAGNIFY, wxString( wxT("Magnify") ) + wxT('\t') + wxT("M"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemMagnify->SetBitmaps( wxICON( IDI_ICON_PAGE_MAGNIFIER ) );
 	#elif defined( __WXGTK__ )
 	menuItemMagnify->SetBitmap( wxICON( IDI_ICON_PAGE_MAGNIFIER ) );
 	#endif
 	m_menuTools->Append( menuItemMagnify );
-	wxMenuItem* menuItemPencil = new wxMenuItem( m_menuTools, IDX_TOOL_PENCIL, wxString( wxT("Pencil") ) + wxT('\t') + wxT("P"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemPencil;
+	menuItemPencil = new wxMenuItem( m_menuTools, IDX_TOOL_PENCIL, wxString( wxT("Pencil") ) + wxT('\t') + wxT("P"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemPencil->SetBitmaps( wxICON( IDI_ICON_DRAW_FREEHAND ) );
 	#elif defined( __WXGTK__ )
 	menuItemPencil->SetBitmap( wxICON( IDI_ICON_DRAW_FREEHAND ) );
 	#endif
 	m_menuTools->Append( menuItemPencil );
-	wxMenuItem* menuItemPickColor = new wxMenuItem( m_menuTools, IDX_TOOL_PICK_COLOR, wxString( wxT("Pick Color") ) + wxT('\t') + wxT("C"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemPickColor;
+	menuItemPickColor = new wxMenuItem( m_menuTools, IDX_TOOL_PICK_COLOR, wxString( wxT("Pick Color") ) + wxT('\t') + wxT("C"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemPickColor->SetBitmaps( wxICON( IDI_ICON_COLOR_PICKER ) );
 	#elif defined( __WXGTK__ )
 	menuItemPickColor->SetBitmap( wxICON( IDI_ICON_COLOR_PICKER ) );
 	#endif
 	m_menuTools->Append( menuItemPickColor );
-	wxMenuItem* menuItemPolyline = new wxMenuItem( m_menuTools, IDX_TOOL_POLYLINE, wxString( wxT("Polyline") ) + wxT('\t') + wxT("P"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemPolyline;
+	menuItemPolyline = new wxMenuItem( m_menuTools, IDX_TOOL_POLYLINE, wxString( wxT("Polyline") ) + wxT('\t') + wxT("P"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemPolyline->SetBitmaps( wxICON( IDI_ICON_DRAW_POLYLINE ) );
 	#elif defined( __WXGTK__ )
@@ -185,28 +252,35 @@ MainFrame::MainFrame( wxWindow* parent, int id, wxString title, wxPoint pos, wxS
 	m_menuTools->Append( menuItemPolyline );
 	menuItemPolyline->Enable( false );
 	
-	wxMenuItem* menuItemRectangle = new wxMenuItem( m_menuTools, IDX_TOOL_RECTANGLE, wxString( wxT("Rectangle") ) + wxT('\t') + wxT("R"), wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemRectangle;
+	menuItemRectangle = new wxMenuItem( m_menuTools, IDX_TOOL_RECTANGLE, wxString( wxT("Rectangle") ) + wxT('\t') + wxT("R"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemRectangle->SetBitmaps( wxICON( IDI_ICON_DRAW_RECTANGLE ) );
 	#elif defined( __WXGTK__ )
 	menuItemRectangle->SetBitmap( wxICON( IDI_ICON_DRAW_RECTANGLE ) );
 	#endif
 	m_menuTools->Append( menuItemRectangle );
-	wxMenuItem* menuItemRectangleRounded = new wxMenuItem( m_menuTools, IDX_TOOL_RECTANGLE_ROUNDED, wxString( wxT("Rounded Rectangle") ) + wxT('\t') + wxT("Q"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemRectangleRounded;
+	menuItemRectangleRounded = new wxMenuItem( m_menuTools, IDX_TOOL_RECTANGLE_ROUNDED, wxString( wxT("Rounded Rectangle") ) + wxT('\t') + wxT("Q"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemRectangleRounded->SetBitmaps( wxICON( IDI_ICON_DRAW_RECTANGLE_ROUNDED ) );
 	#elif defined( __WXGTK__ )
 	menuItemRectangleRounded->SetBitmap( wxICON( IDI_ICON_DRAW_RECTANGLE_ROUNDED ) );
 	#endif
 	m_menuTools->Append( menuItemRectangleRounded );
-	wxMenuItem* menuItemSelect = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT, wxString( wxT("Select") ) + wxT('\t') + wxT("S"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemSelect;
+	menuItemSelect = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT, wxString( wxT("Select") ) + wxT('\t') + wxT("S"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemSelect->SetBitmaps( wxICON( IDI_ICON_SELECT_RECTANGULAR ) );
 	#elif defined( __WXGTK__ )
 	menuItemSelect->SetBitmap( wxICON( IDI_ICON_SELECT_RECTANGULAR ) );
 	#endif
 	m_menuTools->Append( menuItemSelect );
-	wxMenuItem* menuItemSelectLasso = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT_LASSO, wxString( wxT("Select Lasso") ) + wxT('\t') + wxT("L"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemSelectLasso;
+	menuItemSelectLasso = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT_LASSO, wxString( wxT("Select Lasso") ) + wxT('\t') + wxT("L"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemSelectLasso->SetBitmaps( wxICON( IDI_ICON_SELECT_LASSO ) );
 	#elif defined( __WXGTK__ )
@@ -215,60 +289,82 @@ MainFrame::MainFrame( wxWindow* parent, int id, wxString title, wxPoint pos, wxS
 	m_menuTools->Append( menuItemSelectLasso );
 	menuItemSelectLasso->Enable( false );
 	
-	wxMenuItem* menuItemSprayCan = new wxMenuItem( m_menuTools, IDX_TOOL_SPRAY_CAN, wxString( wxT("Spray Can") ) + wxT('\t') + wxT("A"), wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemSprayCan;
+	menuItemSprayCan = new wxMenuItem( m_menuTools, IDX_TOOL_SPRAY_CAN, wxString( wxT("Spray Can") ) + wxT('\t') + wxT("A"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemSprayCan->SetBitmaps( wxICON( IDI_ICON_DRAW_AIRBRUSH ) );
 	#elif defined( __WXGTK__ )
 	menuItemSprayCan->SetBitmap( wxICON( IDI_ICON_DRAW_AIRBRUSH ) );
 	#endif
 	m_menuTools->Append( menuItemSprayCan );
-	wxMenuItem* menuItemText = new wxMenuItem( m_menuTools, IDX_TOOL_TEXT, wxString( wxT("Text") ) + wxT('\t') + wxT("T"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemText;
+	menuItemText = new wxMenuItem( m_menuTools, IDX_TOOL_TEXT, wxString( wxT("Text") ) + wxT('\t') + wxT("T"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	menuItemText->SetBitmaps( wxICON( IDI_ICON_DRAW_TEXT ) );
 	#elif defined( __WXGTK__ )
 	menuItemText->SetBitmap( wxICON( IDI_ICON_DRAW_TEXT ) );
 	#endif
 	m_menuTools->Append( menuItemText );
+	
 	m_menubar1->Append( m_menuTools, wxT("&Tools") );
 	
 	m_menuFilters = new wxMenu();
-	wxMenuItem* menuItemInvert = new wxMenuItem( m_menuFilters, wxID_ANY, wxString( wxT("Invert Colors") ) + wxT('\t') + wxT("Ctrl+I"), wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemInvert;
+	menuItemInvert = new wxMenuItem( m_menuFilters, wxID_ANY, wxString( wxT("Invert Colors") ) + wxT('\t') + wxT("Ctrl+I"), wxEmptyString, wxITEM_NORMAL );
 	m_menuFilters->Append( menuItemInvert );
-	wxMenuItem* menuItemBlur = new wxMenuItem( m_menuFilters, IDX_BLUR, wxString( wxT("Blur") ) + wxT('\t') + wxT("Ctrl+B"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemBlur;
+	menuItemBlur = new wxMenuItem( m_menuFilters, IDX_BLUR, wxString( wxT("Blur") ) + wxT('\t') + wxT("Ctrl+B"), wxEmptyString, wxITEM_NORMAL );
 	m_menuFilters->Append( menuItemBlur );
-	wxMenuItem* menuItemPixelize = new wxMenuItem( m_menuFilters, IDX_PIXELIZE, wxString( wxT("Pixelize") ) + wxT('\t') + wxT("Ctrl+P"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemPixelize;
+	menuItemPixelize = new wxMenuItem( m_menuFilters, IDX_PIXELIZE, wxString( wxT("Pixelize") ) + wxT('\t') + wxT("Ctrl+P"), wxEmptyString, wxITEM_NORMAL );
 	m_menuFilters->Append( menuItemPixelize );
-	wxMenuItem* menuItemGreyscale = new wxMenuItem( m_menuFilters, IDX_GREYSCALE, wxString( wxT("Greyscale") ) + wxT('\t') + wxT("Ctrl+G"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemGreyscale;
+	menuItemGreyscale = new wxMenuItem( m_menuFilters, IDX_GREYSCALE, wxString( wxT("Greyscale") ) + wxT('\t') + wxT("Ctrl+G"), wxEmptyString, wxITEM_NORMAL );
 	m_menuFilters->Append( menuItemGreyscale );
-	wxMenuItem* menuItemMonochrome = new wxMenuItem( m_menuFilters, IDX_MONOCHROME, wxString( wxT("Monochrome") ) + wxT('\t') + wxT("Ctrl+M"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemMonochrome;
+	menuItemMonochrome = new wxMenuItem( m_menuFilters, IDX_MONOCHROME, wxString( wxT("Monochrome") ) + wxT('\t') + wxT("Ctrl+M"), wxEmptyString, wxITEM_NORMAL );
 	m_menuFilters->Append( menuItemMonochrome );
+	
 	m_menubar1->Append( m_menuFilters, wxT("Filte&rs") );
 	
 	m_menuColors = new wxMenu();
-	wxMenuItem* menuItemForeground = new wxMenuItem( m_menuColors, IDX_FOREGROUND, wxString( wxT("Set Foreground...") ) + wxT('\t') + wxT("Ctrl+Shift+F"), wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemForeground;
+	menuItemForeground = new wxMenuItem( m_menuColors, IDX_FOREGROUND, wxString( wxT("Set Foreground...") ) + wxT('\t') + wxT("Ctrl+Shift+F"), wxEmptyString, wxITEM_NORMAL );
 	m_menuColors->Append( menuItemForeground );
-	wxMenuItem* menuItemBackground = new wxMenuItem( m_menuColors, IDX_BACKGROUND, wxString( wxT("Set Background...") ) + wxT('\t') + wxT("Ctrl+Shift+B"), wxEmptyString, wxITEM_NORMAL );
+	
+	wxMenuItem* menuItemBackground;
+	menuItemBackground = new wxMenuItem( m_menuColors, IDX_BACKGROUND, wxString( wxT("Set Background...") ) + wxT('\t') + wxT("Ctrl+Shift+B"), wxEmptyString, wxITEM_NORMAL );
 	m_menuColors->Append( menuItemBackground );
+	
 	m_menubar1->Append( m_menuColors, wxT("&Colors") );
 	
 	m_menuHelp = new wxMenu();
-	wxMenuItem* menuItemAbout = new wxMenuItem( m_menuHelp, wxID_ABOUT, wxString( wxT("About...") ) + wxT('\t') + wxT("F1"), wxEmptyString, wxITEM_NORMAL );
+	wxMenuItem* menuItemAbout;
+	menuItemAbout = new wxMenuItem( m_menuHelp, wxID_ABOUT, wxString( wxT("About...") ) + wxT('\t') + wxT("F1"), wxEmptyString, wxITEM_NORMAL );
 	m_menuHelp->Append( menuItemAbout );
+	
 	m_menubar1->Append( m_menuHelp, wxT("&Help") );
 	
 	this->SetMenuBar( m_menubar1 );
 	
 	m_toolBar1 = this->CreateToolBar( wxTB_DOCKABLE|wxTB_FLAT, wxID_ANY );
 	m_toolBar1->SetToolBitmapSize( wxSize( 32,32 ) );
-	m_toolBar1->AddTool( wxID_NEW, wxT("New"), wxICON( IDI_ICON_NEW ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Create a new 800x600 image.") );
-	m_toolBar1->AddTool( wxID_OPEN, wxT("Open"), wxICON( IDI_ICON_OPEN ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Open an image file.") );
-	m_toolBar1->AddTool( wxID_SAVE, wxT("Save"), wxICON( IDI_ICON_SAVE ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Save current file.") );
+	m_toolBar1->AddTool( wxID_NEW, wxT("New"), wxIcon( wxT("IDI_ICON_NEW"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32 ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Create a new 800x600 image.") );
+	m_toolBar1->AddTool( wxID_OPEN, wxT("Open"), wxIcon( wxT("IDI_ICON_OPEN"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32 ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Open an image file.") );
+	m_toolBar1->AddTool( wxID_SAVE, wxT("Save"), wxIcon( wxT("IDI_ICON_SAVE"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32 ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Save current file.") );
 	m_toolBar1->AddSeparator();
-	m_toolBar1->AddTool( wxID_UNDO, wxT("Undo"), wxICON( IDI_ICON_UNDO ), wxNullBitmap, wxITEM_NORMAL, wxT("Undo (Ctrl +Z)"), wxT("Undo the last action.") );
-	m_toolBar1->AddTool( wxID_REDO, wxT("Redo"), wxICON( IDI_ICON_REDO ), wxNullBitmap, wxITEM_NORMAL, wxT("Redo (Ctrl +Z)"), wxT("Redo the last action that was undone.") );
+	m_toolBar1->AddTool( wxID_UNDO, wxT("Undo"), wxIcon( wxT("IDI_ICON_UNDO"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32 ), wxNullBitmap, wxITEM_NORMAL, wxT("Undo (Ctrl +Z)"), wxT("Undo the last action.") );
+	m_toolBar1->AddTool( wxID_REDO, wxT("Redo"), wxIcon( wxT("IDI_ICON_REDO"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32 ), wxNullBitmap, wxITEM_NORMAL, wxT("Redo (Ctrl +Z)"), wxT("Redo the last action that was undone.") );
 	m_toolBar1->AddSeparator();
 	m_toolBar1->Realize();
 	
+	
+	this->Centre( wxBOTH );
 	
 	// Connect Events
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( MainFrame::OnClose ) );
@@ -324,13 +420,69 @@ MainFrame::MainFrame( wxWindow* parent, int id, wxString title, wxPoint pos, wxS
 	this->Connect( wxID_REDO, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( MainFrame::OnRunProcess ) );
 }
 
-ColorPanel::ColorPanel( wxWindow* parent, int id, wxPoint pos, wxSize size, int style ) : wxPanel( parent, id, pos, size, style )
+MainFrame::~MainFrame()
+{
+	// Disconnect Events
+	this->Disconnect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( MainFrame::OnClose ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnNewFile320 ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnNewFile640 ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnNewFile ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnNewFile1024 ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnOpenFile ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnSave ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnSaveAs ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnExit ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnUndo ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnRedo ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnCut ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnCopy ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPaste ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnDelete ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnSelectAll ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnClear ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnFillFGColor ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnFillBGColor ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnZoomOut ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnZoomIn ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnNormalZoom ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnFullscreen ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnFlipHorizontal ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnFlipVertical ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnRotate ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnImageSize ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnCanvasSize ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnBrush ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnEllipse ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnEraser ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnFill ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnMagnify ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPencil ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPickColor ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPolyline ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnRectangle ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnRectangleRounded ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnSelect ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnSelectLasso ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnSprayCan ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnText ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnInvertColors ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnBlur ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPixelize ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnGreyscale ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnMonochrome ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnForeground ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnBackground ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnAbout ) );
+	this->Disconnect( wxID_REDO, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( MainFrame::OnRunProcess ) );
+}
+
+ColorPanel::ColorPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
 {
 	wxBoxSizer* bSizer4;
 	bSizer4 = new wxBoxSizer( wxHORIZONTAL );
 	
 	wxStaticBoxSizer* sbSizer3;
-	sbSizer3 = new wxStaticBoxSizer( new wxStaticBox( this, -1, wxEmptyString ), wxVERTICAL );
+	sbSizer3 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxEmptyString ), wxVERTICAL );
 	
 	wxFlexGridSizer* fgSizer4;
 	fgSizer4 = new wxFlexGridSizer( 2, 2, 0, 0 );
@@ -354,7 +506,7 @@ ColorPanel::ColorPanel( wxWindow* parent, int id, wxPoint pos, wxSize size, int 
 	bSizer4->Add( sbSizer3, 0, 0, 0 );
 	
 	wxStaticBoxSizer* sbSizer4;
-	sbSizer4 = new wxStaticBoxSizer( new wxStaticBox( this, -1, wxEmptyString ), wxVERTICAL );
+	sbSizer4 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxEmptyString ), wxVERTICAL );
 	
 	wxFlexGridSizer* fgSizer3;
 	fgSizer3 = new wxFlexGridSizer( 2, 10, 0, 0 );
@@ -364,7 +516,7 @@ ColorPanel::ColorPanel( wxWindow* parent, int id, wxPoint pos, wxSize size, int 
 	m_panelPalette0 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
 	m_panelPalette0->SetBackgroundColour( wxColour( 0, 0, 0 ) );
 	
-	fgSizer3->Add( m_panelPalette0, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette0, 1, wxALL|wxEXPAND, 0 );
 	
 	m_panelPalette1 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
 	m_panelPalette1->SetBackgroundColour( wxColour( 128, 128, 128 ) );
@@ -467,13 +619,21 @@ ColorPanel::ColorPanel( wxWindow* parent, int id, wxPoint pos, wxSize size, int 
 	
 	this->SetSizer( bSizer4 );
 	this->Layout();
+	bSizer4->Fit( this );
 	
 	// Connect Events
 	m_colourPickerForeground->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( ColorPanel::OnForegroundSet ), NULL, this );
 	m_colourPickerBackground->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( ColorPanel::OnBackgroundSet ), NULL, this );
 }
 
-ToolPanel::ToolPanel( wxWindow* parent, int id, wxPoint pos, wxSize size, int style ) : wxPanel( parent, id, pos, size, style )
+ColorPanel::~ColorPanel()
+{
+	// Disconnect Events
+	m_colourPickerForeground->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( ColorPanel::OnForegroundSet ), NULL, this );
+	m_colourPickerBackground->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( ColorPanel::OnBackgroundSet ), NULL, this );
+}
+
+ToolPanel::ToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
 {
 	wxBoxSizer* bSizer3;
 	bSizer3 = new wxBoxSizer( wxVERTICAL );
@@ -535,15 +695,16 @@ ToolPanel::ToolPanel( wxWindow* parent, int id, wxPoint pos, wxSize size, int st
 	
 	bSizer3->Add( fgSizer2, 0, 0, 5 );
 	
-	m_sbSizerToolProperties = new wxStaticBoxSizer( new wxStaticBox( this, -1, wxT("Pencil") ), wxVERTICAL );
+	m_sbSizerToolProperties = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Pencil") ), wxVERTICAL );
 	
 	m_panelTestTool = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( 55,-1 ), wxTAB_TRAVERSAL );
-	m_sbSizerToolProperties->Add( m_panelTestTool, 1, wxALL|wxEXPAND, 0 );
+	m_sbSizerToolProperties->Add( m_panelTestTool, 0, wxALL, 0 );
 	
-	bSizer3->Add( m_sbSizerToolProperties, 1, 0, 5 );
+	bSizer3->Add( m_sbSizerToolProperties, 0, 0, 5 );
 	
 	this->SetSizer( bSizer3 );
 	this->Layout();
+	bSizer3->Fit( this );
 	
 	// Connect Events
 	m_bpButtonSelect->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnSelect ), NULL, this );
@@ -562,7 +723,26 @@ ToolPanel::ToolPanel( wxWindow* parent, int id, wxPoint pos, wxSize size, int st
 	m_bpButtonSelectLasso->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnSelectLasso ), NULL, this );
 }
 
-BrushToolPanel::BrushToolPanel( wxWindow* parent, int id, wxPoint pos, wxSize size, int style ) : wxPanel( parent, id, pos, size, style )
+ToolPanel::~ToolPanel()
+{
+	// Disconnect Events
+	m_bpButtonSelect->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnSelect ), NULL, this );
+	m_bpButtonEraser->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnEraser ), NULL, this );
+	m_bpButtonFill->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnFill ), NULL, this );
+	m_bpButtonPickColor->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnPickColor ), NULL, this );
+	m_bpButtonMagnify->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnMagnify ), NULL, this );
+	m_bpButtonPencil->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnPencil ), NULL, this );
+	m_bpButtonBrush->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnBrush ), NULL, this );
+	m_bpButtonSprayCan->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnSprayCan ), NULL, this );
+	m_bpButtonText->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnText ), NULL, this );
+	m_bpButtonRectangle->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnRectangle ), NULL, this );
+	m_bpButtonEllipse->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnEllipse ), NULL, this );
+	m_bpButtonRectangleRounded->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnRectangleRounded ), NULL, this );
+	m_bpButtonPolyline->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnPolyline ), NULL, this );
+	m_bpButtonSelectLasso->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnSelectLasso ), NULL, this );
+}
+
+BrushToolPanel::BrushToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
 {
 	this->Hide();
 	
@@ -578,7 +758,7 @@ BrushToolPanel::BrushToolPanel( wxWindow* parent, int id, wxPoint pos, wxSize si
 	m_staticText1->Wrap( -1 );
 	fgSizer4->Add( m_staticText1, 0, wxALL|wxEXPAND, 5 );
 	
-	m_spinCtrlRadius = new wxSpinCtrl( this, wxID_ANY, wxT("10"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 10);
+	m_spinCtrlRadius = new wxSpinCtrl( this, wxID_ANY, wxT("10"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 10 );
 	fgSizer4->Add( m_spinCtrlRadius, 0, wxALL|wxEXPAND, 5 );
 	
 	m_staticText2 = new wxStaticText( this, wxID_ANY, wxT("Tip"), wxDefaultPosition, wxDefaultSize, 0 );
@@ -602,16 +782,22 @@ BrushToolPanel::BrushToolPanel( wxWindow* parent, int id, wxPoint pos, wxSize si
 	m_comboBoxTip->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
 }
 
-CanvasSizeDialog::CanvasSizeDialog( wxWindow* parent, int id, wxString title, wxPoint pos, wxSize size, int style ) : wxDialog( parent, id, title, pos, size, style )
+BrushToolPanel::~BrushToolPanel()
+{
+	// Disconnect Events
+	m_spinCtrlRadius->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( BrushToolPanel::OnWidth ), NULL, this );
+	m_comboBoxTip->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
+}
+
+CanvasSizeDialog::CanvasSizeDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
-	this->Centre( wxBOTH );
 	
 	wxBoxSizer* bSizer4;
 	bSizer4 = new wxBoxSizer( wxVERTICAL );
 	
 	wxStaticBoxSizer* sbSizer4;
-	sbSizer4 = new wxStaticBoxSizer( new wxStaticBox( this, -1, wxT("Canvas Size") ), wxHORIZONTAL );
+	sbSizer4 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Canvas Size") ), wxHORIZONTAL );
 	
 	wxFlexGridSizer* fgSizer5;
 	fgSizer5 = new wxFlexGridSizer( 2, 2, 0, 0 );
@@ -622,14 +808,14 @@ CanvasSizeDialog::CanvasSizeDialog( wxWindow* parent, int id, wxString title, wx
 	m_staticText3->Wrap( -1 );
 	fgSizer5->Add( m_staticText3, 0, wxALL, 5 );
 	
-	m_spinCtrlWidth = new wxSpinCtrl( this, IDX_WIDTH, wxT("1024"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 262144, 1024);
+	m_spinCtrlWidth = new wxSpinCtrl( this, IDX_WIDTH, wxT("1024"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 262144, 1024 );
 	fgSizer5->Add( m_spinCtrlWidth, 0, wxALL, 5 );
 	
 	m_staticText4 = new wxStaticText( this, wxID_ANY, wxT("Height"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText4->Wrap( -1 );
 	fgSizer5->Add( m_staticText4, 1, wxALL, 5 );
 	
-	m_spinCtrlHeight = new wxSpinCtrl( this, IDX_HEIGHT, wxT("768"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 262144, 768);
+	m_spinCtrlHeight = new wxSpinCtrl( this, IDX_HEIGHT, wxT("768"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 262144, 768 );
 	fgSizer5->Add( m_spinCtrlHeight, 1, wxALL, 5 );
 	
 	sbSizer4->Add( fgSizer5, 0, wxEXPAND, 5 );
@@ -656,7 +842,7 @@ CanvasSizeDialog::CanvasSizeDialog( wxWindow* parent, int id, wxString title, wx
 	bSizer4->Add( m_staticline1, 0, wxEXPAND | wxALL, 5 );
 	
 	wxStaticBoxSizer* sbSizer5;
-	sbSizer5 = new wxStaticBoxSizer( new wxStaticBox( this, -1, wxT("Offset") ), wxHORIZONTAL );
+	sbSizer5 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Offset") ), wxHORIZONTAL );
 	
 	wxFlexGridSizer* fgSizer6;
 	fgSizer6 = new wxFlexGridSizer( 2, 2, 0, 0 );
@@ -667,14 +853,14 @@ CanvasSizeDialog::CanvasSizeDialog( wxWindow* parent, int id, wxString title, wx
 	m_staticText7->Wrap( -1 );
 	fgSizer6->Add( m_staticText7, 0, wxALL, 5 );
 	
-	m_spinCtrlOffsetX = new wxSpinCtrl( this, IDX_OFFSET_X, wxT("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, -262144, 262144, 0);
+	m_spinCtrlOffsetX = new wxSpinCtrl( this, IDX_OFFSET_X, wxT("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, -262144, 262144, 0 );
 	fgSizer6->Add( m_spinCtrlOffsetX, 0, wxALL, 5 );
 	
 	m_staticText8 = new wxStaticText( this, wxID_ANY, wxT("Y:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText8->Wrap( -1 );
 	fgSizer6->Add( m_staticText8, 0, wxALL|wxEXPAND, 5 );
 	
-	m_spinCtrlOffsetY = new wxSpinCtrl( this, IDX_OFFSET_Y, wxT("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, -262144, 262144, 0);
+	m_spinCtrlOffsetY = new wxSpinCtrl( this, IDX_OFFSET_Y, wxT("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, -262144, 262144, 0 );
 	fgSizer6->Add( m_spinCtrlOffsetY, 0, wxALL, 5 );
 	
 	sbSizer5->Add( fgSizer6, 0, wxEXPAND, 5 );
@@ -696,6 +882,8 @@ CanvasSizeDialog::CanvasSizeDialog( wxWindow* parent, int id, wxString title, wx
 	this->Layout();
 	bSizer4->Fit( this );
 	
+	this->Centre( wxBOTH );
+	
 	// Connect Events
 	m_spinCtrlWidth->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( CanvasSizeDialog::OnWidth ), NULL, this );
 	m_spinCtrlHeight->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( CanvasSizeDialog::OnHeight ), NULL, this );
@@ -705,16 +893,26 @@ CanvasSizeDialog::CanvasSizeDialog( wxWindow* parent, int id, wxString title, wx
 	m_buttonCenter->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CanvasSizeDialog::OnCenter ), NULL, this );
 }
 
-ImageSizeDialog::ImageSizeDialog( wxWindow* parent, int id, wxString title, wxPoint pos, wxSize size, int style ) : wxDialog( parent, id, title, pos, size, style )
+CanvasSizeDialog::~CanvasSizeDialog()
+{
+	// Disconnect Events
+	m_spinCtrlWidth->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( CanvasSizeDialog::OnWidth ), NULL, this );
+	m_spinCtrlHeight->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( CanvasSizeDialog::OnHeight ), NULL, this );
+	m_bpButtonLink->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CanvasSizeDialog::OnLink ), NULL, this );
+	m_spinCtrlOffsetX->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( CanvasSizeDialog::OnOffsetX ), NULL, this );
+	m_spinCtrlOffsetY->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( CanvasSizeDialog::OnOffsetY ), NULL, this );
+	m_buttonCenter->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CanvasSizeDialog::OnCenter ), NULL, this );
+}
+
+ImageSizeDialog::ImageSizeDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
-	this->Centre( wxBOTH );
 	
 	wxBoxSizer* bSizer4;
 	bSizer4 = new wxBoxSizer( wxVERTICAL );
 	
 	wxStaticBoxSizer* sbSizer4;
-	sbSizer4 = new wxStaticBoxSizer( new wxStaticBox( this, -1, wxT("Image Size") ), wxHORIZONTAL );
+	sbSizer4 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Image Size") ), wxHORIZONTAL );
 	
 	wxFlexGridSizer* fgSizer5;
 	fgSizer5 = new wxFlexGridSizer( 2, 2, 0, 0 );
@@ -725,14 +923,14 @@ ImageSizeDialog::ImageSizeDialog( wxWindow* parent, int id, wxString title, wxPo
 	m_staticText3->Wrap( -1 );
 	fgSizer5->Add( m_staticText3, 0, wxALL, 5 );
 	
-	m_spinCtrlWidth = new wxSpinCtrl( this, IDX_WIDTH, wxT("1024"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 262144, 1024);
+	m_spinCtrlWidth = new wxSpinCtrl( this, IDX_WIDTH, wxT("1024"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 262144, 1024 );
 	fgSizer5->Add( m_spinCtrlWidth, 0, wxALL, 5 );
 	
 	m_staticText4 = new wxStaticText( this, wxID_ANY, wxT("Height"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText4->Wrap( -1 );
 	fgSizer5->Add( m_staticText4, 1, wxALL, 5 );
 	
-	m_spinCtrlHeight = new wxSpinCtrl( this, IDX_HEIGHT, wxT("768"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 262144, 768);
+	m_spinCtrlHeight = new wxSpinCtrl( this, IDX_HEIGHT, wxT("768"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 262144, 768 );
 	fgSizer5->Add( m_spinCtrlHeight, 1, wxALL, 5 );
 	
 	sbSizer4->Add( fgSizer5, 0, wxEXPAND, 5 );
@@ -770,8 +968,18 @@ ImageSizeDialog::ImageSizeDialog( wxWindow* parent, int id, wxString title, wxPo
 	this->Layout();
 	bSizer4->Fit( this );
 	
+	this->Centre( wxBOTH );
+	
 	// Connect Events
 	m_spinCtrlWidth->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ImageSizeDialog::OnWidth ), NULL, this );
 	m_spinCtrlHeight->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ImageSizeDialog::OnHeight ), NULL, this );
 	m_bpButtonLink->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ImageSizeDialog::OnLink ), NULL, this );
+}
+
+ImageSizeDialog::~ImageSizeDialog()
+{
+	// Disconnect Events
+	m_spinCtrlWidth->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ImageSizeDialog::OnWidth ), NULL, this );
+	m_spinCtrlHeight->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ImageSizeDialog::OnHeight ), NULL, this );
+	m_bpButtonLink->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ImageSizeDialog::OnLink ), NULL, this );
 }

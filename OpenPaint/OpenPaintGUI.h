@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Sep  6 2007)
+// C++ code generated with wxFormBuilder (version Aug  4 2008)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -13,11 +13,20 @@ class wxAuiMDIParentFrame;
 
 #include "wx/aui/aui.h"
 #include <wx/statusbr.h>
+#include <wx/gdicmn.h>
+#include <wx/font.h>
+#include <wx/colour.h>
+#include <wx/settings.h>
+#include <wx/string.h>
+#include <wx/bitmap.h>
+#include <wx/image.h>
+#include <wx/icon.h>
 #include <wx/menu.h>
 #include <wx/toolbar.h>
 #include <wx/frame.h>
 #include <wx/clrpicker.h>
 #include <wx/sizer.h>
+#include <wx/statbox.h>
 #include <wx/panel.h>
 #include <wx/bmpbuttn.h>
 #include <wx/button.h>
@@ -151,7 +160,9 @@ class MainFrame : public wxAuiMDIParentFrame
 		
 	
 	public:
-		MainFrame( wxWindow* parent, int id = wxID_ANY, wxString title = wxT("OpenPaint"), wxPoint pos = wxDefaultPosition, wxSize size = wxSize( 800,600 ), int style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		
+		MainFrame( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("OpenPaint"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 800,600 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		~MainFrame();
 	
 };
 
@@ -194,7 +205,9 @@ class ColorPanel : public wxPanel
 		
 	
 	public:
-		ColorPanel( wxWindow* parent, int id = wxID_ANY, wxPoint pos = wxDefaultPosition, wxSize size = wxSize( 500,82 ), int style = wxTAB_TRAVERSAL );
+		
+		ColorPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL );
+		~ColorPanel();
 	
 };
 
@@ -241,7 +254,9 @@ class ToolPanel : public wxPanel
 		
 	
 	public:
-		ToolPanel( wxWindow* parent, int id = wxID_ANY, wxPoint pos = wxDefaultPosition, wxSize size = wxSize( 80,400 ), int style = wxTAB_TRAVERSAL );
+		
+		ToolPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL );
+		~ToolPanel();
 	
 };
 
@@ -264,7 +279,9 @@ class BrushToolPanel : public wxPanel
 		
 	
 	public:
-		BrushToolPanel( wxWindow* parent, int id = wxID_ANY, wxPoint pos = wxDefaultPosition, wxSize size = wxSize( 147,300 ), int style = wxTAB_TRAVERSAL );
+		
+		BrushToolPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 147,300 ), long style = wxTAB_TRAVERSAL );
+		~BrushToolPanel();
 	
 };
 
@@ -303,7 +320,9 @@ class CanvasSizeDialog : public wxDialog
 		
 	
 	public:
-		CanvasSizeDialog( wxWindow* parent, int id = wxID_ANY, wxString title = wxT("Set Canvas Size"), wxPoint pos = wxDefaultPosition, wxSize size = wxDefaultSize, int style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
+		
+		CanvasSizeDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Set Canvas Size"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
+		~CanvasSizeDialog();
 	
 };
 
@@ -334,7 +353,9 @@ class ImageSizeDialog : public wxDialog
 		
 	
 	public:
-		ImageSizeDialog( wxWindow* parent, int id = wxID_ANY, wxString title = wxT("Set Image Size"), wxPoint pos = wxDefaultPosition, wxSize size = wxDefaultSize, int style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
+		
+		ImageSizeDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Set Image Size"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
+		~ImageSizeDialog();
 	
 };
 

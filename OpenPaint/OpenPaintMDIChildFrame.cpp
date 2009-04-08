@@ -59,7 +59,7 @@ wxAuiMDIChildFrame( parent, id, title)
     SetThumbIcon();
     m_HistoryIndex = 0;
 
-    m_dZoom = 1.0;
+    SetZoom(1.0);
     m_ScrollOrigin = wxPoint(0,0);
     m_status = MOUSE_NOACTION;
 
@@ -71,7 +71,8 @@ wxAuiMDIChildFrame( parent, id, title)
     m_iSelectionMoveX = -1;
     m_iSelectionMoveY = -1;
     m_DragImage = NULL;
-    
+
+
 }
 
 OpenPaintMDIChildFrame::~OpenPaintMDIChildFrame()
@@ -92,6 +93,7 @@ bool OpenPaintMDIChildFrame::Open(wxString strFilename)
         this->SetTitle(wxFileNameFromPath(strFilename));
         SetThumbIcon();
         m_Bitmap = wxBitmap(m_Image);
+        SetZoom(1.0);
         Refresh(false);
         return true;
     }
@@ -169,6 +171,16 @@ void OpenPaintMDIChildFrame::SetThumbIcon()
     SetIcon(iconThumb);
 }
 
+void OpenPaintMDIChildFrame::SetZoom(double dZoom)
+{
+    m_dZoom = dZoom;
+
+    // Send Size Event
+    wxSizeEvent sizeEvent( GetSize(), GetId() );
+    GetEventHandler()->ProcessEvent( sizeEvent );
+    Refresh();
+}
+
 void OpenPaintMDIChildFrame::OnClose(wxCloseEvent& event)
 {
     event.Veto();
@@ -190,7 +202,7 @@ void OpenPaintMDIChildFrame::OnPaint(wxPaintEvent& WXUNUSED(event))
 
 
     dc.SetUserScale(zoom,zoom);
-    dc.DrawBitmap(m_Bitmap, m_ScrollOrigin.x, m_ScrollOrigin.y);
+    dc.DrawBitmap(m_Bitmap, m_ScrollOrigin.x/zoom, m_ScrollOrigin.y/zoom);
 #ifndef  __WXGTK__
     //wxBitmap(m_Image.Scale(width*zoom, height*zoom))
     dc.SetPen(*wxGREY_PEN);
@@ -292,20 +304,22 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     }
 
 
-    //if(this != wxWindow::FindFocus())
-    //{
-    //    this->SetFocus();
+    
+    if(this != wxWindow::FindFocus())
+    {
+        //Get focus on mouse enter for mouse wheel events
+        this->SetFocus();
 
-    //    if(pToolManager->GetSelectedTool() == TOOL_SELECT)
-    //    {
-    //        this->SetCursor(*wxSTANDARD_CURSOR);
-    //    }
-    //    else
-    //    {
-    //        this->SetCursor(*wxSTANDARD_CURSOR);
-    //    }
+        if(pToolManager->GetSelectedTool() == TOOL_SELECT)
+        {
+            this->SetCursor(*wxCROSS_CURSOR);
+        }
+        else
+        {
+            this->SetCursor(*wxSTANDARD_CURSOR);
+        }
 
-    //}
+    }
 
     // was it pressed just now?
     if (event.LeftDown())
@@ -469,16 +483,16 @@ void OpenPaintMDIChildFrame::OnMouseWheel(wxMouseEvent& event)
     {
         if(event.GetWheelRotation() > 0)
         {
-            if(m_dZoom < 8.0)
+            if(GetZoom() < 8.0)
             {
-                m_dZoom *= 2.0;
+                SetZoom(GetZoom() * 2.0);
             }
         }
         else
         {
-             if(m_dZoom > 0.2)
+             if(GetZoom() > 0.2)
             {
-                m_dZoom /= 2.0;
+                SetZoom(GetZoom() / 2.0);
             }
         }
         //#ifdef __WXGTK__
@@ -500,6 +514,9 @@ void OpenPaintMDIChildFrame::OnSize(wxSizeEvent& event)
     int scrollWidth = m_Image.GetWidth()*m_dZoom;
     int scrollHeight = m_Image.GetHeight()*m_dZoom;
 
+    SetSize(scrollWidth,scrollHeight);
+    //GetParent()->Fit();
+    
     //TODO:HasScrollbar not returning true
     //if(HasScrollbar(wxVERTICAL))
     {
@@ -807,26 +824,23 @@ void OpenPaintMDIChildFrame::FillBGColor()
 
 void OpenPaintMDIChildFrame::ZoomOut()
 {
-    if(m_dZoom > 0.2)
+    if(GetZoom() > 0.2)
     {
-        m_dZoom /= 2.0;
+        SetZoom(GetZoom()/2.0);
     }
-    Refresh();
 }
 
 void OpenPaintMDIChildFrame::ZoomIn()
 {
-    if(m_dZoom < 8.0)
+    if(GetZoom() < 8.0)
     {
-        m_dZoom *= 2.0;
+        SetZoom(GetZoom() * 2.0);
     }
-    Refresh();
 }
 
 void OpenPaintMDIChildFrame::NormalZoom()
 {
-    m_dZoom = 1.0;
-    Refresh();
+    SetZoom(1.0);
 }
 
 
@@ -1039,7 +1053,7 @@ void OpenPaintMDIChildFrame::PencilTool(int x, int y, wxColour color, MouseStatu
     prevX = x;
     prevY = y;
 
-    mydc.Blit(0, 0, m_Bitmap.GetWidth(), m_Bitmap.GetHeight(), &dc, 0, 0);
+    mydc.Blit(m_ScrollOrigin.x/GetZoom(), m_ScrollOrigin.y/GetZoom(), m_Bitmap.GetWidth(), m_Bitmap.GetHeight(), &dc, 0, 0);
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {
@@ -1122,15 +1136,14 @@ void OpenPaintMDIChildFrame::PickColorTool(int x, int y, bool bIsForeground)
 
 void OpenPaintMDIChildFrame::MagnifyTool()
 {
-    if(m_dZoom == 1.0)
+    if(GetZoom() == 1.0)
     {
-        m_dZoom = 4.0;
+        SetZoom(4.0);
     }
     else
     {
-        m_dZoom = 1.0;
+        SetZoom(1.0);
     }
-    Refresh();
 }
 
 int radius = 10;
@@ -1157,7 +1170,7 @@ void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus
     prevX = x;
     prevY = y;
 
-    mydc.Blit(0, 0, m_Bitmap.GetWidth(), m_Bitmap.GetHeight(), &dc, 0, 0);
+    mydc.Blit(m_ScrollOrigin.x/GetZoom(), m_ScrollOrigin.y/GetZoom(), m_Bitmap.GetWidth(), m_Bitmap.GetHeight(), &dc, 0, 0);
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {

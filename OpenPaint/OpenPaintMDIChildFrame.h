@@ -62,6 +62,9 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void SetImage(wxImage image);
         void SetThumbIcon();
 
+        double GetZoom(){return m_dZoom;};
+        void SetZoom(double dZoom);
+
         double m_dZoom;
         MouseStatus m_status;
         wxPoint m_ScrollOrigin;

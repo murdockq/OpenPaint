@@ -101,6 +101,7 @@ class MainFrame : public wxAuiMDIParentFrame
 		wxMenu* m_menuImage;
 		wxMenu* m_menuTools;
 		wxMenu* m_menuFilters;
+		wxMenu* m_menuOptions;
 		wxMenu* m_menuColors;
 		wxMenu* m_menuHelp;
 		wxToolBar* m_toolBar1;
@@ -153,6 +154,7 @@ class MainFrame : public wxAuiMDIParentFrame
 		virtual void OnPixelize( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnGreyscale( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnMonochrome( wxCommandEvent& event ){ event.Skip(); }
+		virtual void OnFont( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnForeground( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnBackground( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ){ event.Skip(); }

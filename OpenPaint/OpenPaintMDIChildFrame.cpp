@@ -1190,15 +1190,50 @@ void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus
 void OpenPaintMDIChildFrame::SprayCanTool(int x, int y, wxColour color)
 {
     srand((unsigned)time(0)+x+y); 
+
+
+    //SQUARE SPRAY
     int random_integer1,random_integer2; 
     int lowest=-10, highest=10; 
     int range=(highest-lowest)+1; 
     for(int index=0; index<20; index++){ 
         random_integer1 = lowest+int(range*rand()/(RAND_MAX + 1.0));
         random_integer2 = lowest+int(range*rand()/(RAND_MAX + 1.0));
-        m_Image.SetRGB(x+random_integer1, y+random_integer2, color.Red(), color.Green(), color.Blue());
+
+        if( x+random_integer1 > 0 &&
+            x+random_integer1 < m_Image.GetWidth() &&
+            y+random_integer2 > 0 &&
+            y+random_integer2 < m_Image.GetHeight())
+        {
+            m_Image.SetRGB(x+random_integer1, y+random_integer2, color.Red(), color.Green(), color.Blue());
+        }
 
     } 
+
+    //ROUND SPRAY
+    //double random_angle,random_radius;
+    //int random_integerX,random_integerY; 
+    //int lowest=0, highest= M_PI; 
+    //int range_angle = (highest-lowest); 
+    //lowest=-10, highest = 10;
+    //int range_radius = (highest-lowest);
+
+    //for(int index=0; index < 30; index++){ 
+    //    random_angle = double(range_angle*rand()/(RAND_MAX + 1.0));
+    //    random_radius = lowest+double(range_radius*rand()/(RAND_MAX + 1.0));
+
+    //    random_integerX = cos(random_angle)*random_radius;
+    //    random_integerY = sin(random_angle)*random_radius;
+
+    //    if( x+random_integerX > 0 &&
+    //        x+random_integerX < m_Image.GetWidth() &&
+    //        y+random_integerY > 0 &&
+    //        y+random_integerY < m_Image.GetHeight())
+    //    {
+    //        m_Image.SetRGB(x+random_integerX, y+random_integerY, color.Red(), color.Green(), color.Blue());
+    //    }
+
+    //} 
     
     m_Bitmap = wxBitmap(m_Image);
     Refresh();
@@ -1367,7 +1402,8 @@ void OpenPaintMDIChildFrame::TextTool(int x, int y, wxColour color)
     wxGraphicsContext* gc = wxGraphicsContext::Create(mdc);
     //wxFont wxGetFontFromUser(wxWindow *parent, const wxFont& fontInit)
     //gc->SetBackgroundMode(wxSOLID); //sets the background color draw mode
-    gc->SetFont(wxSystemSettings::GetFont(wxSYS_SYSTEM_FONT), color);
+    //gc->SetFont(wxSystemSettings::GetFont(wxSYS_SYSTEM_FONT), color);
+    gc->SetFont(GetFont(), color);
     gc->DrawText(strText,x,y);
     SetImage(m_Bitmap.ConvertToImage());
     Refresh();

@@ -332,6 +332,11 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	m_menubar1->Append( m_menuFilters, wxT("Filte&rs") );
 	
+	m_menuOptions = new wxMenu();
+	wxMenuItem* m_menuItemFont;
+	m_menuItemFont = new wxMenuItem( m_menuOptions, wxID_ANY, wxString( wxT("Set Font...") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menuOptions->Append( m_menuItemFont );
+	
 	m_menuColors = new wxMenu();
 	wxMenuItem* menuItemForeground;
 	menuItemForeground = new wxMenuItem( m_menuColors, IDX_FOREGROUND, wxString( wxT("Set Foreground...") ) + wxT('\t') + wxT("Ctrl+Shift+F"), wxEmptyString, wxITEM_NORMAL );
@@ -341,7 +346,9 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	menuItemBackground = new wxMenuItem( m_menuColors, IDX_BACKGROUND, wxString( wxT("Set Background...") ) + wxT('\t') + wxT("Ctrl+Shift+B"), wxEmptyString, wxITEM_NORMAL );
 	m_menuColors->Append( menuItemBackground );
 	
-	m_menubar1->Append( m_menuColors, wxT("&Colors") );
+	m_menuOptions->Append( -1, wxT("Colors"), m_menuColors );
+	
+	m_menubar1->Append( m_menuOptions, wxT("&Options") );
 	
 	m_menuHelp = new wxMenu();
 	wxMenuItem* menuItemAbout;
@@ -414,6 +421,7 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	this->Connect( menuItemPixelize->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPixelize ) );
 	this->Connect( menuItemGreyscale->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnGreyscale ) );
 	this->Connect( menuItemMonochrome->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnMonochrome ) );
+	this->Connect( m_menuItemFont->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnFont ) );
 	this->Connect( menuItemForeground->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnForeground ) );
 	this->Connect( menuItemBackground->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnBackground ) );
 	this->Connect( menuItemAbout->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnAbout ) );
@@ -470,6 +478,7 @@ MainFrame::~MainFrame()
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPixelize ) );
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnGreyscale ) );
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnMonochrome ) );
+	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnFont ) );
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnForeground ) );
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnBackground ) );
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnAbout ) );

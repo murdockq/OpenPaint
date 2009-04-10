@@ -86,6 +86,8 @@ class SubMainFrame : public MainFrame
         virtual void OnGreyscale( wxCommandEvent& event );
         virtual void OnMonochrome( wxCommandEvent& event );
         
+
+        virtual void OnFont( wxCommandEvent& event );
         virtual void OnForeground( wxCommandEvent& event );
         virtual void OnBackground( wxCommandEvent& event );
 

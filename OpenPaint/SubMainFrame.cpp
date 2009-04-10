@@ -40,6 +40,7 @@
 #include <wx/clrpicker.h>
 #include <wx/filename.h>
 #include <wx/clipbrd.h>
+#include <wx/fontdlg.h>
 
 class DnDFile : public wxFileDropTarget
 {
@@ -528,7 +529,20 @@ void SubMainFrame::OnMonochrome( wxCommandEvent& event )
     childFrame->Monochrome();
 }
 
-//****************Colors***********************
+//****************Options***********************
+
+void SubMainFrame::OnFont( wxCommandEvent& event )
+{
+    OpenPaintMDIChildFrame *childFrame = (OpenPaintMDIChildFrame *)this->GetActiveChild();
+    if(childFrame )
+    {
+        wxFont nextFont = wxGetFontFromUser(childFrame, childFrame->GetFont(), wxT("Select Text Tool Font"));
+        if(nextFont.IsOk())
+        {
+            childFrame->SetFont(nextFont);
+        }
+    }
+}
 
 void SubMainFrame::OnForeground( wxCommandEvent& event )
 {

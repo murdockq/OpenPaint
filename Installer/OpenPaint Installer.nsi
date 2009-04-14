@@ -10,7 +10,7 @@
 
   ;Name and file
   Name "OpenPaint"
-  OutFile "OpenPaint v1.0 Beta.exe"
+  OutFile "OpenPaint_v1.1_Beta.exe"
   BrandingText "OpenPaint"
 ;  Icon "${NSISDIR}\Contrib\Graphics\Icons\std.ico"
 

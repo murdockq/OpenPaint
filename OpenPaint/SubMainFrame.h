@@ -53,10 +53,16 @@ class SubMainFrame : public MainFrame
         void OnFillFGColor( wxCommandEvent& event );
         void OnFillBGColor( wxCommandEvent& event );
 
+        virtual void OnToolWindow( wxCommandEvent& event );
+        virtual void OnColorWindow( wxCommandEvent& event );
+        virtual void OnToolbar( wxCommandEvent& event );
+        virtual void OnStatusBar( wxCommandEvent& event );
 
         virtual void OnZoomOut( wxCommandEvent& event );
         virtual void OnZoomIn( wxCommandEvent& event );
         virtual void OnNormalZoom( wxCommandEvent& event );
+        virtual void OnHistogram( wxCommandEvent& event );
+        
         virtual void OnFullscreen( wxCommandEvent& event );
 
         virtual void OnFlipHorizontal( wxCommandEvent& event );
@@ -108,10 +114,14 @@ class SubMainFrame : public MainFrame
         virtual void Shutdown();
 
         wxMenu *m_menuRecentImages;
+
+        wxAuiManager * m_mAuiManager;
+
     public:
 	    /** Constructor */
 	    SubMainFrame( wxWindow* parent, int id = wxID_ANY, wxString title = wxT("OpenPaint"), wxPoint pos = wxDefaultPosition, wxSize size = wxSize( 800,600 ), int style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
-        
+        virtual ~SubMainFrame();
+
         void NewFile(int height = 800, int width = 600);
         void OpenFile(wxString strFilename);
         bool SaveFile();

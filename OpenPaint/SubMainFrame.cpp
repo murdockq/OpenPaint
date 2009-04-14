@@ -27,7 +27,11 @@
 #include "SubCanvasSizeDialog.h"
 #include "SubImageSizeDialog.h"
 #include "ToolManager.h"
+
+#include <limits>
+
 #include <wx/filefn.h>
+#include <wx/image.h>
 #include <wx/filedlg.h>
 #include <wx/gdicmn.h>
 #include <wx/dnd.h>
@@ -95,13 +99,21 @@ MainFrame( parent, id, title, pos, size, style )
 
     UpdateHistory();
 
+    int statusWidths[] = {-2,-1, -1, -1};
+    GetStatusBar()->SetStatusWidths(4, statusWidths );
+
     Init();
 
 }
 
+SubMainFrame::~SubMainFrame()
+{
+    
+}
+
 void SubMainFrame::Init()
 {
-    wxAuiManager * m_mAuiManager = new wxAuiManager(this);
+    m_mAuiManager = new wxAuiManager(this);
 
     wxAuiMDIClientWindow* client_window = this->GetClientWindow();
 
@@ -343,6 +355,49 @@ void SubMainFrame::OnFillBGColor( wxCommandEvent& event )
 
 //****************View************************
 
+void SubMainFrame::OnToolWindow( wxCommandEvent& event )
+{
+    Globals::Instance()->GetToolPanel()->Show(event.IsChecked());
+    if(event.IsChecked())
+    {
+        m_mAuiManager->AddPane(Globals::Instance()->GetToolPanel(),wxLEFT, wxT("Tools"));
+    }
+    else
+    {
+        m_mAuiManager->DetachPane(Globals::Instance()->GetToolPanel());
+    }
+    m_mAuiManager->Update();
+}
+
+void SubMainFrame::OnColorWindow( wxCommandEvent& event )
+{
+    Globals::Instance()->GetColorPanel()->Show(event.IsChecked());
+    if(event.IsChecked())
+    {
+        m_mAuiManager->AddPane(Globals::Instance()->GetColorPanel(),wxBOTTOM, wxT("Colors"));
+    }
+    else
+    {
+        m_mAuiManager->DetachPane(Globals::Instance()->GetColorPanel());
+    }
+    m_mAuiManager->Update();
+}
+
+void SubMainFrame::OnToolbar( wxCommandEvent& event )
+{
+    GetToolBar()->Show(event.IsChecked());
+    m_mAuiManager->Update();
+}
+
+void SubMainFrame::OnStatusBar( wxCommandEvent& event )
+{
+    GetStatusBar()->Show(event.IsChecked());
+//    Layout();
+//    Refresh();
+    m_mAuiManager->Update();
+}
+
+
 void SubMainFrame::OnZoomOut( wxCommandEvent& event )
 {
     OpenPaintMDIChildFrame *childFrame = (OpenPaintMDIChildFrame *)this->GetActiveChild();
@@ -362,6 +417,97 @@ void SubMainFrame::OnNormalZoom( wxCommandEvent& event )
     OpenPaintMDIChildFrame *childFrame = (OpenPaintMDIChildFrame *)this->GetActiveChild();
     if(childFrame)
     childFrame->NormalZoom();
+}
+
+void SubMainFrame::OnHistogram( wxCommandEvent& event )
+{
+
+#ifdef _DEBUG //Testing histgram image creation
+    OpenPaintMDIChildFrame *childFrame = (OpenPaintMDIChildFrame *)this->GetActiveChild();
+    if(childFrame)
+    {
+        //Only work on luminence for now
+        wxImage image = childFrame->GetImage();//.ConvertToGreyscale();
+        
+        //This table is how the table mapped.
+        //Key as color "unsigned long RGB" ???
+        //Entry.index as index with range 0 to size-1 (is it linear?)
+        //Entry.value as count of pixels with that color
+
+        wxImageHistogram table;
+        image.ComputeHistogram(table);
+        wxImageHistogram::iterator iter;
+
+        long minValue= std::numeric_limits<long>::max();
+        long maxValue = std::numeric_limits<long>::min();
+        unsigned long *countValue = new unsigned long[256];//col counts
+        for (int i = 0; i < 256; ++i)
+            countValue[i] = 0;
+
+        char *test_bits = new char[8192];//8192
+        for (int i = 0; i < 8192; ++i)
+            test_bits[i] = 0x00;
+
+        char test = 0x01;
+        test = (test << 4);
+        for( iter = table.begin(); iter != table.end(); iter++ )
+        {
+            unsigned long key = iter->first;
+            wxImageHistogramEntry entry = iter->second;
+            unsigned long value = entry.value;
+
+            int countIndex = entry.index / (table.size() / 255.0);
+            countValue[countIndex] += value;
+
+            //int index = key;
+            minValue = std::min<long>(minValue, value);
+            maxValue = std::max<long>(maxValue, countValue[countIndex]);
+            //int value = value.value % 256;
+            //wxLogDebug("key:%d index:%d value:%d", key, value.index, value.value);
+        }
+    
+        //int index = 0;
+        //for(int row = 0; row < 3; row++)
+        //{
+        //    for(int col = 0; col < 3; col++)
+        //    {
+        //        index = col + (row*3);
+        //    }
+        //}
+
+        for( iter = table.begin(); iter != table.end(); iter++ )
+        {
+            wxImageHistogramEntry entry = iter->second;
+
+            double row = entry.index / (table.size() / 255.0);
+            //double col = entry.value / ( (maxValue)/ 255.0);
+            double col = countValue[(int)row] / ( (maxValue)/ 255.0);
+
+            for(int barCol = col; barCol >= 0; barCol--)
+            {
+                //barCol = barCol;
+                int index = ((255-barCol) * 256) + row;
+                int realIndex = index/8;
+                //test_bits[realIndex] |= 0x80 >> (index % 8);
+                test_bits[realIndex] |= 0x01 << (index % 8);
+                //test_bits[index] ^= 0xff;
+                    //entry.value;
+            }
+        }
+
+        //test_bits[33] |= 0x80 ;//>> (index % 8);
+    
+        //invert
+        //b ^= 0xFF
+
+        wxBitmap bitmapHistogram(test_bits,256,256);
+        OpenPaintMDIChildFrame *newFrame = new OpenPaintMDIChildFrame(this, wxID_ANY, wxT("Histogram"), 256, 256);
+        newFrame->Paste(bitmapHistogram);
+        delete [] countValue;
+        delete [] test_bits;
+        wxLogDebug("count:%d min:%d max:%d", table.size(), minValue, maxValue);
+    }
+#endif
 }
 
 void SubMainFrame::OnFullscreen( wxCommandEvent& event )
@@ -635,7 +781,7 @@ void SubMainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
     wxAboutDialogInfo info;
 
     info.SetName(wxT("OpenPaint"));
-    info.SetVersion(wxT("1.0 Beta"));
+    info.SetVersion(wxT("1.1 Beta"));
     info.SetDescription(wxT("The open alternative to propriatry painting."));
     info.SetCopyright(wxT("(C) 2009 Steven Jedlicka"));
     info.AddDeveloper(wxT("Steven Jedlicka"));

@@ -46,6 +46,8 @@ BEGIN_EVENT_TABLE(OpenPaintMDIChildFrame, wxAuiMDIChildFrame)
     EVT_RIGHT_UP        (             OpenPaintMDIChildFrame::OnMouse)
     EVT_RIGHT_DCLICK    (             OpenPaintMDIChildFrame::OnMouse) 
     EVT_MOUSEWHEEL      (             OpenPaintMDIChildFrame::OnMouseWheel)
+    EVT_ENTER_WINDOW    (             OpenPaintMDIChildFrame::OnMouse)
+    EVT_LEAVE_WINDOW    (             OpenPaintMDIChildFrame::OnMouseLeave)
     EVT_ERASE_BACKGROUND(             OpenPaintMDIChildFrame::OnEraseBackground)
 END_EVENT_TABLE()
 
@@ -72,12 +74,15 @@ wxAuiMDIChildFrame( parent, id, title)
     m_iSelectionMoveY = -1;
     m_DragImage = NULL;
 
+    SetImage(m_Image);
 
+    //Listen to tab changes
+    //GetMDIParentFrame()->GetClientWindow()->Connect( wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGED, wxAuiNotebookEventHandler( OpenPaintMDIChildFrame::OnTabChanged ), NULL, this );
 }
 
 OpenPaintMDIChildFrame::~OpenPaintMDIChildFrame()
 {
-
+    //GetMDIParentFrame()->GetClientWindow()->Disconnect( wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGED, wxAuiNotebookEventHandler( OpenPaintMDIChildFrame::OnTabChanged ), NULL, this );
 }
 
 void OpenPaintMDIChildFrame::Shutdown()
@@ -85,10 +90,20 @@ void OpenPaintMDIChildFrame::Shutdown()
     this->Destroy();
 }
 
+void OpenPaintMDIChildFrame::OnTabChanged( wxAuiNotebookEvent& event )
+{
+    //TODO: Properly implement tab changes
+    //UpdateStatusBar();
+    //wxLogDebug("%d tab changed %d\n", event.GetSelection(), event.GetId());
+
+    //event.Skip();
+}
+
 bool OpenPaintMDIChildFrame::Open(wxString strFilename)
 {
     if(m_Image.LoadFile(strFilename))
     {
+        SetImage(m_Image);
         m_strFilename = strFilename;
         this->SetTitle(wxFileNameFromPath(strFilename));
         SetThumbIcon();
@@ -160,7 +175,18 @@ void OpenPaintMDIChildFrame::SetImage(wxImage image)
     
     m_bImageUpdated = true;
 
+    UpdateStatusBar();
+
     SetThumbIcon();
+}
+
+void OpenPaintMDIChildFrame::UpdateStatusBar()
+{
+    wxStatusBar * pStatusBar = GetMDIParentFrame()->GetStatusBar();
+    pStatusBar->SetStatusText(wxString::Format("Image Size: %dx%d ", GetWidth() , GetHeight() ), 2);
+    
+    pStatusBar->SetStatusText(wxString::Format("Zoom: %d%%",(int)(GetZoom()*100) ), 3);
+
 }
 
 //Set title thumbnail icon
@@ -174,6 +200,8 @@ void OpenPaintMDIChildFrame::SetThumbIcon()
 void OpenPaintMDIChildFrame::SetZoom(double dZoom)
 {
     m_dZoom = dZoom;
+
+    UpdateStatusBar();
 
     // Send Size Event
     wxSizeEvent sizeEvent( GetSize(), GetId() );
@@ -240,6 +268,9 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     wxInt32 i = (event.GetX()-m_ScrollOrigin.x)/m_dZoom;
     wxInt32 j = (event.GetY()-m_ScrollOrigin.y)/m_dZoom;
 
+    wxStatusBar * pStatusBar = GetMDIParentFrame()->GetStatusBar();
+    pStatusBar->SetStatusText(wxString::Format("Pixel: (%d, %d) ", i , j ), 1);
+
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     wxColour fColor = pToolManager->GetForeground();
     wxColour bColor = pToolManager->GetBackground();
@@ -299,16 +330,18 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
             return;
         }
 
-        wxLogDebug("hasselection %d, %d" , i ,j);
+        //wxLogDebug("hasselection %d, %d" , i ,j);
         return;
     }
 
 
-    
+    UpdateStatusBar();
+
     if(this != wxWindow::FindFocus())
     {
         //Get focus on mouse enter for mouse wheel events
         this->SetFocus();
+
 
         if(pToolManager->GetSelectedTool() == TOOL_SELECT)
         {
@@ -485,14 +518,14 @@ void OpenPaintMDIChildFrame::OnMouseWheel(wxMouseEvent& event)
         {
             if(GetZoom() < 8.0)
             {
-                SetZoom(GetZoom() * 2.0);
+                SetZoom(GetZoom() * 1.5);
             }
         }
         else
         {
              if(GetZoom() > 0.2)
             {
-                SetZoom(GetZoom() / 2.0);
+                SetZoom(GetZoom() / 1.5);
             }
         }
         //#ifdef __WXGTK__
@@ -503,6 +536,14 @@ void OpenPaintMDIChildFrame::OnMouseWheel(wxMouseEvent& event)
         GetEventHandler()->ProcessEvent( sizeEvent );
         Refresh();
     }
+    event.Skip();
+}
+
+void OpenPaintMDIChildFrame::OnMouseLeave(wxMouseEvent& event)
+{
+    wxStatusBar * pStatusBar = GetMDIParentFrame()->GetStatusBar();
+    pStatusBar->SetStatusText(wxT(""), 1);
+
     event.Skip();
 }
 

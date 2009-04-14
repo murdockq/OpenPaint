@@ -58,8 +58,10 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         int m_HistoryIndex;
         wxString m_strFilename;
 
+        void OnTabChanged( wxAuiNotebookEvent& event );
         //Image access functions
         void SetImage(wxImage image);
+        void UpdateStatusBar();
         void SetThumbIcon();
 
         double GetZoom(){return m_dZoom;};
@@ -80,8 +82,9 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void OnClose(wxCloseEvent& event);
         //void OnIdle(wxIdleEvent& event);
         void OnPaint(wxPaintEvent& event);
-        void OnMouseWheel(wxMouseEvent& event);
         void OnMouse(wxMouseEvent& event);
+        void OnMouseWheel(wxMouseEvent& event);
+        void OnMouseLeave(wxMouseEvent& event);
         void OnSize(wxSizeEvent& event);
         void OnScroll(wxScrollWinEvent& event);
         void OnEraseBackground(wxEraseEvent& event);
@@ -110,6 +113,8 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         wxString GetFilename();
         int GetWidth();
         int GetHeight();
+        wxImage GetImage(){return m_Image;};
+
 
         void Undo();
         void Redo();

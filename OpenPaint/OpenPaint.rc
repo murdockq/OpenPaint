@@ -1,0 +1,81 @@
+/*
+ * OpenPaint
+ * www.sourceforge.net/projects/openpaint
+ *
+ * Copyright (C) 2007, Steven Jedlicka
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#include "wx/msw/wx.rc"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON_APP           ICON                    "res\\std.ico"
+IDI_ICON_NEW          ICON                  "res\\document-new.ico"
+IDI_ICON_OPEN          ICON                  "res\\document-open.ico"
+IDI_ICON_SAVE          ICON                  "res\\document-save.ico"
+IDI_ICON_UNDO          ICON                  "res\\edit-undo.ico"
+IDI_ICON_REDO          ICON                  "res\\edit-redo.ico"
+IDI_ICON_GO            ICON                  "res\\go-next.ico"
+IDI_ICON_STOP          ICON                  "res\\process-stop.ico"
+IDI_ICON_FOLDER        ICON                  "res\\folder.ico"
+IDI_ICON_COG           ICON                  "res\\cog.ico"
+IDI_ICON_PREFERENCES   ICON                  "res\\preferences.ico"
+IDI_ICON_NETWORK   ICON                  "res\\network.ico"
+IDI_ICON_IMAGE   ICON                  "res\\image.ico"
+IDI_ICON_PHOTOROLL   ICON                  "res\\photoroll.ico"
+
+IDI_ICON_LINKED   ICON                  "res\\linked.ico"
+IDI_ICON_UNLINKED   ICON                  "res\\unlinked.ico"
+
+IDI_ICON_GO_UP   ICON                  "res\\go-up.ico"
+IDI_ICON_GO_DOWN   ICON                  "res\\go-down.ico"
+IDI_ICON_GO_TOP   ICON                  "res\\go-top.ico"
+IDI_ICON_GO_BOTTOM   ICON                  "res\\go-bottom.ico"
+IDI_ICON_GO_JUMP   ICON                  "res\\go-jump.ico"
+IDI_ICON_LIST_ADD   ICON                  "res\\list-add.ico"
+IDI_ICON_LIST_REMOVE   ICON                  "res\\list-remove.ico"
+
+IDI_ICON_COLOR_FILL          ICON                  "res\\color-fill.ico"
+IDI_ICON_COLOR_GRADIENT      ICON                  "res\\color-gradient.ico"
+IDI_ICON_COLOR_PICKER        ICON                  "res\\color-picker.ico"
+IDI_ICON_DRAW_AIRBRUSH        ICON                  "res\\draw-airbrush.ico"
+IDI_ICON_DRAW_BRUSH          ICON                  "res\\draw-brush.ico"
+IDI_ICON_DRAW_ERASER         ICON                  "res\\draw-eraser.ico"
+IDI_ICON_DRAW_FREEHAND         ICON                  "res\\draw-freehand.ico"
+IDI_ICON_DRAW_POLYGON           ICON                  "res\\draw-polygon.ico"
+IDI_ICON_DRAW_POLYLINE          ICON                  "res\\draw-polyline.ico"
+IDI_ICON_DRAW_ELLIPSE           ICON                  "res\\draw-ellipse.ico"
+IDI_ICON_DRAW_RECTANGLE         ICON                  "res\\draw-rectangle.ico"
+IDI_ICON_DRAW_RECTANGLE_ROUNDED         ICON                  "res\\draw-rectangle-rounded.ico"
+
+IDI_ICON_DRAW_TEXT              ICON                  "res\\draw-text.ico"
+
+IDI_ICON_PAGE_MAGNIFIER         ICON                  "res\\page-magnifier.ico"
+IDI_ICON_SELECT_CONTINUOUS_AREA   ICON                  "res\\select-continuous-area.ico"
+IDI_ICON_SELECT_LASSO   ICON                  "res\\select-lasso.ico"
+IDI_ICON_SELECT_RECTANGULAR   ICON                  "res\\select-rectangular.ico"
+IDI_ICON_TRANSFORM_CROP_AND_RESIZE   ICON                  "res\\transform-crop-and-resize.ico"
+IDI_ICON_TRANSFORM_FLIP   ICON                  "res\\transform-flip.ico"
+IDI_ICON_TRANSFORM_FLIP_VERTICAL   ICON                  "res\\transform-flip-vertical.ico"
+IDI_ICON_TRANSFORM_ROTATE   ICON                  "res\\transform-rotate.ico"
+IDI_ICON_TRANSFORM_SCALE   ICON                  "res\\transform-scale.ico"
+

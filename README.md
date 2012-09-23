@@ -1,11 +1,12 @@
-= Welcome to Open Paint Project =
+OpenPaint
+=========
 
 The cross-platform open source alternative to MS Paint. 
 
-== About ==
+## About ##
 Open Paint is an open source image editor for all major operating systems. The goal of this application is to create a simple to use image editor that has all the functionality an average computer user would need.  This leaves GIMP and Paint.NET for professional users and allows the project to focus on ease of use and intuitive interface over feature completeness.
 
-== Features ==
+## Features ##
 
  * Familiar layout
  * Multiple tabs for each image
@@ -14,30 +15,25 @@ Open Paint is an open source image editor for all major operating systems. The g
  * Image options for resize, scale, rotating, flipping and more...
  * Filters for invert, blur, pixelize, grayscale, monotone and more...
 
-== Download ==
-[https://sourceforge.net/project/platformdownload.php?group_id=205987 OpenPaint v1.2 Beta][[BR]]
+## Download ##
+[OpenPaint v1.2 Beta](https://github.com/downloads/murdockq/OpenPaint/OpenPaint_v1.2_Beta.exe)
 
-[#Requirements See Requirements]
+## Screenshots ##
+![Screenshot 1](https://sourceforge.net/dbimage.php?id=211528)
 
-== Screenshots ==
-[[Image(https://sourceforge.net/dbimage.php?id=211528)]]
-
-=== Requirements ===
+## Requirements ##
  * Windows All:
-  * This program uses libraries that man not be on your system. [[BR]]
-    If you get an error like:[[BR]]
-    "This application failed to start because the application configuration is incorrect. Reinstalling the application may fix this problem" [[BR]]
-    You should install this:[[BR]]
-    [http://www.microsoft.com/downloads/details.aspx?familyid=200B2FD9-AE1A-4A14-984D-389C36F85647&displaylang=en Microsoft Visual C++ 2005 SP1 Redistributable Package]
+  * This program uses libraries that may not be on your system. 
+    If you get an error like:
+    "This application failed to start because the application configuration is incorrect. Reinstalling the application may fix this problem"
+    You should install this:
+    [Microsoft Visual C++ 2005 SP1 Redistributable Package](http://www.microsoft.com/downloads/details.aspx?familyid=200B2FD9-AE1A-4A14-984D-389C36F85647&displaylang=en)
  
  * Windows 2000:
-  * This program uses GDI+ which became standard on XP and Vista. [[BR]]
-    If you are using Windows 2000 you will need to install GDI+ from this link.[[BR]]
-    [http://www.microsoft.com/downloads/details.aspx?FamilyId=6A63AB9C-DF12-4D41-933C-BE590FEAA05A&displaylang=en Platform SDK Redistributable: GDI+]
+  * This program uses GDI+ which became standard on XP and Vista.
+    If you are using Windows 2000 you will need to install GDI+ from this link.
+    [Platform SDK Redistributable: GDI+](http://www.microsoft.com/downloads/details.aspx?FamilyId=6A63AB9C-DF12-4D41-933C-BE590FEAA05A&displaylang=en)
 
  * Linux and OS X:
   * These ports have been built but need to be packaged and tested before they will be available.
 
-
-== Open tickets owned by you == 
-[[TicketQuery(owner=~$USER&status!=closed&col=id|summary|milestone|type|component|patch|status|time|changetime&order=milestone, table)]] 

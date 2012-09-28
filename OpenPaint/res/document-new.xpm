@@ -1,5 +1,5 @@
 /* XPM */
-static char *IDI_ICON_NEW_xpm[] = {
+static const char *IDI_ICON_NEW_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 169 2",
 "   c black",

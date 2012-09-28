@@ -1,5 +1,5 @@
 /* XPM */
-static char *IDI_ICON_DRAW_POLYGON_xpm[] = {
+static const char *IDI_ICON_DRAW_POLYGON_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 111 2",
 "   c black",

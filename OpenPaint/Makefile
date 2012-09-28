@@ -23,7 +23,7 @@ CPPFLAGS = -DTIXML_USE_STL
 LDFLAGS = 
 
 # Location and arguments of wx-config script 
-WX_CONFIG = wx-config
+WX_CONFIG = ../../wxWidgets-2.9.4/build-release/wx-config
 
 # C++ flags to use with wxWidgets code 
 WX_CXXFLAGS = `$(WX_CONFIG) --cxxflags --unicode=yes`
@@ -46,6 +46,8 @@ WIDGETS_OBJECTS =  \
 	openpaint_OpenPaintMDIChildFrame.o \
 	openpaint_SubMainFrame.o \
 	openpaint_SubToolPanel.o \
+	openpaint_SubCanvasSizeDialog.o \
+	openpaint_SubImageSizeDialog.o \
 	openpaint_SubColorPanel.o \
 	openpaint_PaletteCtrl.o \
 	openpaint_ToolManager.o \
@@ -93,6 +95,12 @@ openpaint_SubMainFrame.o: ./SubMainFrame.cpp
 	$(CXX) -c -o $@ $(WIDGETS_CXXFLAGS) $(CPPDEPS) $<
 
 openpaint_SubToolPanel.o: ./SubToolPanel.cpp
+	$(CXX) -c -o $@ $(WIDGETS_CXXFLAGS) $(CPPDEPS) $<
+
+openpaint_SubCanvasSizeDialog.o: ./SubCanvasSizeDialog.cpp
+	$(CXX) -c -o $@ $(WIDGETS_CXXFLAGS) $(CPPDEPS) $<
+
+openpaint_SubImageSizeDialog.o: ./SubImageSizeDialog.cpp
 	$(CXX) -c -o $@ $(WIDGETS_CXXFLAGS) $(CPPDEPS) $<
 
 openpaint_SubColorPanel.o: ./SubColorPanel.cpp

@@ -1,5 +1,5 @@
 /* XPM */
-static char *transformcropandresize[] = {
+static const char *IDC_TRANSFORM_CROP_AND_RESIZE_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 70 1",
 "  c black",

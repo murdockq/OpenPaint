@@ -1,5 +1,5 @@
 /* XPM */
-static char *IDI_ICON_SELECT_LASSO_xpm[] = {
+static const char *IDI_ICON_SELECT_LASSO_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 173 2",
 "   c black",

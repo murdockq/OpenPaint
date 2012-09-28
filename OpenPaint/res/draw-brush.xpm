@@ -1,5 +1,5 @@
 /* XPM */
-static char *IDI_ICON_DRAW_BRUSH_xpm[] = {
+static const char *IDI_ICON_DRAW_BRUSH_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 105 2",
 "   c black",

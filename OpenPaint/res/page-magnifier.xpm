@@ -1,5 +1,5 @@
 /* XPM */
-static char *IDI_ICON_PAGE_MAGNIFIER_xpm[] = {
+static const char *IDI_ICON_PAGE_MAGNIFIER_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 17 1",
 "  c #040404",

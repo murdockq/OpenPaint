@@ -57,6 +57,8 @@
 #include    "res/transform-flip.xpm"
 #include    "res/transform-flip-vertical.xpm"
 #include    "res/transform-scale.xpm"
+#include    "res/linked.xpm"
+#include    "res/unlinked.xpm"
 #endif
 
 #endif

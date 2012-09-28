@@ -201,7 +201,7 @@ void SubMainFrame::AddFileToHistory(wxString strFilename)
             break;
         }
     }
-    listFileHistory.push_back((char *)strFilename.c_str());
+    listFileHistory.push_back(strFilename.ToStdString());
 
     while(listFileHistory.size() > clientConfig->getInteger("FileHistorySize",4))
     {
@@ -734,7 +734,7 @@ void SubMainFrame::OnNewFile1024( wxCommandEvent& event )
 
 void SubMainFrame::OnOpenFile( wxCommandEvent& event )
 {
-    wxString strFilename = wxFileSelector(wxT("Choose an image to open"),0,0,0,  wxT("Image Files ") + wxImage::GetImageExtWildcard() );
+    wxString strFilename = wxFileSelector(wxT("Choose an image to open"),"","","",  wxT("Image Files ") + wxImage::GetImageExtWildcard() );
     if ( !strFilename.empty() )
     {
         //Open the file for global usage
@@ -851,7 +851,7 @@ bool SubMainFrame::SaveAs()
     if(childFrame)
     {
         wxFileName fileName(childFrame->GetFilename());
-        wxString strFilename = wxFileSelector(wxT("Choose a file to Save As"),0,0, fileName.GetExt(), wxT("Image Files ") + wxImage::GetImageExtWildcard() , wxSAVE);
+        wxString strFilename = wxFileSelector(wxT("Choose a file to Save As"),"","", fileName.GetExt(), wxT("Image Files ") + wxImage::GetImageExtWildcard() , wxFD_SAVE);
         wxLogDebug(strFilename);
         
         if(!strFilename.empty() && childFrame->SaveAs(strFilename))

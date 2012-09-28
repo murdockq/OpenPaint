@@ -1,5 +1,5 @@
 /* XPM */
-static char *transformflipvertical[] = {
+static const char *IDC_TRANSFORM_FLIP_VERTICAL_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 46 1",
 "  c black",

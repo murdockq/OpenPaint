@@ -1,5 +1,5 @@
 /* XPM */
-static char *selectcontinuousarea[] = {
+static const char *selectcontinuousarea[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 46 1",
 "  c black",

@@ -1,5 +1,5 @@
 /* XPM */
-static char *IDI_ICON_DRAW_RECTANGLE_xpm[] = {
+static const char *IDI_ICON_DRAW_RECTANGLE_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 36 1",
 "  c black",

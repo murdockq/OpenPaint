@@ -107,6 +107,7 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
 	    OpenPaintMDIChildFrame( wxAuiMDIParentFrame* parent, int id = wxID_ANY, wxString title = wxT("New"), int iWidth = 800, int iHeight = 600);
         virtual ~OpenPaintMDIChildFrame();
         virtual void Shutdown();
+void SetMenuBar(wxMenuBar* menuBar);
         bool Open(wxString strFilename);
         bool Save();
         bool SaveAs(wxString strFilename);

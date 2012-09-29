@@ -1,4 +1,5 @@
 openpaint
 *.d
 *.o
-
+*.xml
+*.DS_Store

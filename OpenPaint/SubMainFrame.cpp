@@ -120,7 +120,7 @@ void SubMainFrame::Init()
     wxASSERT_MSG(client_window, wxT("Client window is NULL!"));
 
     m_mAuiManager->AddPane(client_window,
-                wxAuiPaneInfo().Name(wxT("mdiclient")).
+                wxAuiPaneInfo().Name(wxT("client_mdiclient")).
                 CenterPane().PaneBorder(false));
 
     //client_window->AddPage(sourcePanel, wxT("Pane Caption"));

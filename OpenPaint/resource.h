@@ -33,6 +33,8 @@
 #include "res/document-open.xpm"
 #include "res/document-save.xpm"
 #include "res/go-next.xpm"
+#include "res/edit-redo.xpm"
+#include "res/edit-undo.xpm"
 
 #include    "res/color-fill.xpm"
 #include    "res/color-gradient.xpm"

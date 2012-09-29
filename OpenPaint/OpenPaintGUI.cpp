@@ -391,12 +391,12 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	m_toolBar1 = this->CreateToolBar( wxTB_DOCKABLE|wxTB_FLAT, wxID_ANY );
 	m_toolBar1->SetToolBitmapSize( wxSize( 32,32 ) );
-	m_toolBar1->AddTool( wxID_NEW, _("New"), wxIcon( wxT("IDI_ICON_NEW"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32 ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Create a new 800x600 image.") );
-	m_toolBar1->AddTool( wxID_OPEN, _("Open"), wxIcon( wxT("IDI_ICON_OPEN"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32 ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Open an image file.") );
-	m_toolBar1->AddTool( wxID_SAVE, _("Save"), wxIcon( wxT("IDI_ICON_SAVE"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32 ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Save current file.") );
+	m_toolBar1->AddTool( wxID_NEW, _("New"),     wxICON( IDI_ICON_NEW ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Create a new 800x600 image.") );
+	m_toolBar1->AddTool( wxID_OPEN, _("Open"), wxICON( IDI_ICON_OPEN ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Open an image file.") );
+	m_toolBar1->AddTool( wxID_SAVE, _("Save"), wxICON( IDI_ICON_SAVE ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Save current file.") );
 	m_toolBar1->AddSeparator();
-	m_toolBar1->AddTool( wxID_UNDO, _("Undo"), wxIcon( wxT("IDI_ICON_UNDO"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32 ), wxNullBitmap, wxITEM_NORMAL, _("Undo (Ctrl +Z)"), _("Undo the last action.") );
-	m_toolBar1->AddTool( wxID_REDO, _("Redo"), wxIcon( wxT("IDI_ICON_REDO"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32 ), wxNullBitmap, wxITEM_NORMAL, _("Redo (Ctrl +Z)"), _("Redo the last action that was undone.") );
+	m_toolBar1->AddTool( wxID_UNDO, _("Undo"), wxICON( IDI_ICON_UNDO ), wxNullBitmap, wxITEM_NORMAL, _("Undo (Ctrl +Z)"), _("Undo the last action.") );
+	m_toolBar1->AddTool( wxID_REDO, _("Redo"), wxICON( IDI_ICON_REDO ), wxNullBitmap, wxITEM_NORMAL, _("Redo (Ctrl +Z)"), _("Redo the last action that was undone.") );
 	m_toolBar1->AddSeparator();
 	m_toolBar1->Realize();
 	
@@ -535,7 +535,7 @@ ColorPanel::ColorPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, con
 	sbSizer3 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxEmptyString ), wxVERTICAL );
 	
 	wxFlexGridSizer* fgSizer4;
-	fgSizer4 = new wxFlexGridSizer( 2, 2, 0, 0 );
+	fgSizer4 = new wxFlexGridSizer( 10, 2, 0, 0 );
 	fgSizer4->SetFlexibleDirection( wxBOTH );
 	fgSizer4->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
@@ -689,7 +689,7 @@ ToolPanel::ToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const
 	bSizer3 = new wxBoxSizer( wxVERTICAL );
 	
 	wxFlexGridSizer* fgSizer2;
-	fgSizer2 = new wxFlexGridSizer( 2, 2, 0, 0 );
+	fgSizer2 = new wxFlexGridSizer( 9, 2, 0, 0 );
 	fgSizer2->SetFlexibleDirection( wxBOTH );
 	fgSizer2->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
@@ -800,7 +800,7 @@ BrushToolPanel::BrushToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& 
 	bSizer3 = new wxBoxSizer( wxVERTICAL );
 	
 	wxFlexGridSizer* fgSizer4;
-	fgSizer4 = new wxFlexGridSizer( 2, 2, 0, 0 );
+	fgSizer4 = new wxFlexGridSizer( 9, 2, 0, 0 );
 	fgSizer4->SetFlexibleDirection( wxBOTH );
 	fgSizer4->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
@@ -850,7 +850,7 @@ CanvasSizeDialog::CanvasSizeDialog( wxWindow* parent, wxWindowID id, const wxStr
 	sbSizer4 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, _("Canvas Size") ), wxHORIZONTAL );
 	
 	wxFlexGridSizer* fgSizer5;
-	fgSizer5 = new wxFlexGridSizer( 2, 2, 0, 0 );
+	fgSizer5 = new wxFlexGridSizer( 9, 2, 0, 0 );
 	fgSizer5->SetFlexibleDirection( wxBOTH );
 	fgSizer5->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
@@ -895,7 +895,7 @@ CanvasSizeDialog::CanvasSizeDialog( wxWindow* parent, wxWindowID id, const wxStr
 	sbSizer5 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, _("Offset") ), wxHORIZONTAL );
 	
 	wxFlexGridSizer* fgSizer6;
-	fgSizer6 = new wxFlexGridSizer( 2, 2, 0, 0 );
+	fgSizer6 = new wxFlexGridSizer( 9, 2, 0, 0 );
 	fgSizer6->SetFlexibleDirection( wxBOTH );
 	fgSizer6->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
@@ -965,7 +965,7 @@ ImageSizeDialog::ImageSizeDialog( wxWindow* parent, wxWindowID id, const wxStrin
 	sbSizer4 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, _("Image Size") ), wxHORIZONTAL );
 	
 	wxFlexGridSizer* fgSizer5;
-	fgSizer5 = new wxFlexGridSizer( 2, 2, 0, 0 );
+	fgSizer5 = new wxFlexGridSizer( 9, 2, 0, 0 );
 	fgSizer5->SetFlexibleDirection( wxBOTH );
 	fgSizer5->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	

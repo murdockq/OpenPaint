@@ -90,6 +90,11 @@ void OpenPaintMDIChildFrame::Shutdown()
     this->Destroy();
 }
 
+void OpenPaintMDIChildFrame::SetMenuBar(wxMenuBar* menuBar)
+{
+    //Hack: Do nothing in sub main frame for set menu bar because linux AUIMDIChild removes menu when closing
+}
+
 void OpenPaintMDIChildFrame::OnTabChanged( wxAuiNotebookEvent& event )
 {
     //TODO: Properly implement tab changes
@@ -193,7 +198,7 @@ void OpenPaintMDIChildFrame::UpdateStatusBar()
 void OpenPaintMDIChildFrame::SetThumbIcon()
 {
     wxIcon iconThumb; 
-    iconThumb.CopyFromBitmap(wxBitmap(m_Image.Scale(22, 22,wxIMAGE_QUALITY_HIGH)));
+    iconThumb.CopyFromBitmap(wxBitmap(m_Image.Scale(32, 32,wxIMAGE_QUALITY_HIGH)));
     SetIcon(iconThumb);
 }
 

@@ -23,7 +23,7 @@ CPPFLAGS = -DTIXML_USE_STL
 LDFLAGS = 
 
 # Location and arguments of wx-config script 
-WX_CONFIG = ../../wxWidgets-2.9.4/build-release/wx-config
+WX_CONFIG = wx-config
 
 # C++ flags to use with wxWidgets code 
 WX_CXXFLAGS = `$(WX_CONFIG) --cxxflags --unicode=yes`

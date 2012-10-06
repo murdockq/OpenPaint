@@ -1,0 +1,12 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+before_script:
+  - sudo apt-get install libwxgtk2.8-dev libwxgtk2.8
+  - cd OpenPaint
+script: make
+branches:
+  only:
+    - master
+    - os_x

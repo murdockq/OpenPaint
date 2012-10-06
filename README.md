@@ -1,5 +1,6 @@
 OpenPaint
 =========
+[![Build Status](https://secure.travis-ci.org/murdockq/OpenPaint.png?branch=master)](http://travis-ci.org/murdockq/OpenPaint)
 
 The cross-platform open source alternative to MS Paint. 
 

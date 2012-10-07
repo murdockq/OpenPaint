@@ -212,7 +212,7 @@ void OpenPaintMDIChildFrame::SetZoom(double dZoom)
 void OpenPaintMDIChildFrame::OnClose(wxCloseEvent& event)
 {
     event.Veto();
-    wxLogDebug("OnClose");
+    wxLogDebug(wxT("OnClose"));
     this->Shutdown();
 }
 
@@ -269,7 +269,7 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     wxInt32 j = (event.GetY()-m_ScrollOrigin.y)/m_dZoom;
 
     wxStatusBar * pStatusBar = GetMDIParentFrame()->GetStatusBar();
-    pStatusBar->SetStatusText(wxString::Format("Pixel: (%d, %d) ", i , j ), 1);
+    pStatusBar->SetStatusText(wxString::Format(wxT("Pixel: (%d, %d) "), i , j ), 1);
 
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     wxColour fColor = pToolManager->GetForeground();

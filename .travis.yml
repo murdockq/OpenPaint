@@ -10,3 +10,5 @@ branches:
   only:
     - master
     - os_x
+notifications:
+  email: false

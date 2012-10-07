@@ -119,7 +119,7 @@ bool OpenPaintMDIChildFrame::Save()
 {
     if(m_Image.SaveFile(m_strFilename))
     {
-        wxLogDebug("File Saved.");
+        wxLogDebug(wxT("File Saved."));
         return true;
     }
     return false;
@@ -130,7 +130,7 @@ bool OpenPaintMDIChildFrame::SaveAs(wxString strFilename)
     if(m_Image.SaveFile(strFilename))
     {
         m_strFilename = strFilename;
-        wxLogDebug("File Saved As.");
+        wxLogDebug(wxT("File Saved As."));
         this->SetTitle(wxFileNameFromPath(strFilename));
         return true;
     }
@@ -183,9 +183,9 @@ void OpenPaintMDIChildFrame::SetImage(wxImage image)
 void OpenPaintMDIChildFrame::UpdateStatusBar()
 {
     wxStatusBar * pStatusBar = GetMDIParentFrame()->GetStatusBar();
-    pStatusBar->SetStatusText(wxString::Format("Image Size: %dx%d ", GetWidth() , GetHeight() ), 2);
+    pStatusBar->SetStatusText(wxString::Format(wxT("Image Size: %dx%d "), GetWidth() , GetHeight() ), 2);
     
-    pStatusBar->SetStatusText(wxString::Format("Zoom: %d%%",(int)(GetZoom()*100) ), 3);
+    pStatusBar->SetStatusText(wxString::Format(wxT("Zoom: %d%%"),(int)(GetZoom()*100) ), 3);
 
 }
 

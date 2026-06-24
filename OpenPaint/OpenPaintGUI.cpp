@@ -18,6 +18,7 @@
 #endif //WX_PRECOMP
 
 #include "PaletteCtrl.h"
+#include "ColorPairCtrl.h"
 
 #include "IconLoader.h"
 #include "OpenPaintGUI.h"
@@ -486,28 +487,11 @@ ColorPanel::ColorPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, con
 	wxStaticBoxSizer* sbSizer3;
 	sbSizer3 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxEmptyString ), wxVERTICAL );
 	
-	wxFlexGridSizer* fgSizer4;
-	fgSizer4 = new wxFlexGridSizer( 2, 2, 0, 0 );
-	fgSizer4->SetFlexibleDirection( wxBOTH );
-	fgSizer4->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	m_colourPickerPair = new ColorPairCtrl( this, wxID_ANY );
+	m_colourPickerPair->SetFGColour( wxColour( 0, 0, 0 ) );
+	m_colourPickerPair->SetBGColour( wxColour( 255, 255, 255 ) );
 	
-	m_colourPickerForeground = new PaletteCtrl( this, IDX_FOREGROUND, wxDefaultPosition, wxSize( 33, 33 ), wxSUNKEN_BORDER );
-	m_colourPickerForeground->SetBackgroundColour( wxColour( 0, 0, 0 ) );
-	m_colourPickerForeground->SetPickerMode( true );
-	fgSizer4->Add( m_colourPickerForeground, 0, wxALL, 0 );
-	
-	
-	fgSizer4->Add( 2, 2, 0 );
-	
-	
-	fgSizer4->Add( 2, 2, 0 );
-	
-	m_colourPickerBackground = new PaletteCtrl( this, IDX_BACKGROUND, wxDefaultPosition, wxSize( 33, 33 ), wxSUNKEN_BORDER );
-	m_colourPickerBackground->SetBackgroundColour( wxColour( 255, 255, 255 ) );
-	m_colourPickerBackground->SetPickerMode( false );
-	fgSizer4->Add( m_colourPickerBackground, 0, wxALL, 0 );
-	
-	sbSizer3->Add( fgSizer4, 0, wxEXPAND, 0 );
+	sbSizer3->Add( m_colourPickerPair, 0, wxALL, 0 );
 	
 	bSizer4->Add( sbSizer3, 0, 0, 0 );
 	

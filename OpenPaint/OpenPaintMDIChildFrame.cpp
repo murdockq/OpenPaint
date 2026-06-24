@@ -31,6 +31,7 @@
 #include <wx/dcmemory.h>
 #include <wx/dragimag.h>
 #include <wx/generic/dragimgg.h>
+#include <wx/timer.h>
 #include <cmath>
 
 BEGIN_EVENT_TABLE(OpenPaintMDIChildFrame, wxAuiMDIChildFrame)
@@ -65,6 +66,7 @@ wxAuiMDIChildFrame( parent, id, title)
 
     SetZoom(1.0);
     m_ScrollOrigin = wxPoint(0,0);
+    m_lastPixelStatusUpdate = 0;
     m_status = MOUSE_NOACTION;
 
     m_bHasSelection = false;
@@ -294,7 +296,16 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
 
     if (wxStatusBar* pStatusBar = GetMDIParentFrame() ? GetMDIParentFrame()->GetStatusBar() : nullptr)
     {
-        pStatusBar->SetStatusText(wxString::Format(wxT("Pixel: (%d, %d) "), i , j ), 1);
+        // Throttle status-bar updates so the pixel coordinate text doesn't
+        // flicker as the cursor moves across individual pixels. 20 Hz is
+        // more than enough for a status-bar read-out.
+        const long cStatusUpdateIntervalMs = 50;
+        wxLongLong now = wxGetLocalTimeMillis();
+        if ((now - m_lastPixelStatusUpdate) >= cStatusUpdateIntervalMs)
+        {
+            m_lastPixelStatusUpdate = now;
+            pStatusBar->SetStatusText(wxString::Format(wxT("Pixel: (%d, %d) "), i , j ), 1);
+        }
     }
 
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();

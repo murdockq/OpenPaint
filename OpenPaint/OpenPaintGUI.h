@@ -13,6 +13,7 @@
 #include <wx/intl.h>
 
 class PaletteCtrl;
+class ColorPairCtrl;
 class wxAuiMDIParentFrame;
 
 #include "wx/aui/aui.h"
@@ -193,10 +194,8 @@ class ColorPanel : public wxPanel
 	private:
 	
 	protected:
-		PaletteCtrl* m_colourPickerForeground;
+		ColorPairCtrl* m_colourPickerPair;
 		
-		
-		PaletteCtrl* m_colourPickerBackground;
 		PaletteCtrl* m_panelPalette0;
 		PaletteCtrl* m_panelPalette1;
 		PaletteCtrl* m_panelPalette2;

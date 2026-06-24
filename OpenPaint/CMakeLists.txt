@@ -36,6 +36,7 @@ set(OPENPAINT_SOURCES
     SubImageSizeDialog.cpp
     SubColorPanel.cpp
     PaletteCtrl.cpp
+    ColorPairCtrl.cpp
     ToolManager.cpp
     tinystr.cpp
     tinyxml.cpp
@@ -63,6 +64,7 @@ set(OPENPAINT_HEADERS
     SubImageSizeDialog.h
     SubColorPanel.h
     PaletteCtrl.h
+    ColorPairCtrl.h
     ToolManager.h
     tinystr.h
     tinyxml.h

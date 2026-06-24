@@ -70,6 +70,7 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         double m_dZoom;
         MouseStatus m_status;
         wxPoint m_ScrollOrigin;
+        wxLongLong m_lastPixelStatusUpdate;
 
         // Per-frame tool state. These used to be file-scope globals shared by
         // every MDI child, which meant switching tabs in the middle of a

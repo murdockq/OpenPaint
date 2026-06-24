@@ -13,6 +13,14 @@ class SubToolPanel : public ToolPanel
 {
 protected:
     virtual void EnableTools();
+    // Removes and destroys any tool-properties panel currently shown
+    // inside m_sbSizerToolProperties (e.g. the BrushToolPanel). Safe to
+    // call when the sizer is empty.
+    void ClearToolProperties();
+    // Re-layouts this panel and asks the owning wxAuiManager to re-fit
+    // the pane so size changes are applied immediately (without this the
+    // new controls only appear after toggling View > Tool Window).
+    void UpdateToolPropertiesLayout();
 	// Handlers for ToolPanel events.
 
 public:

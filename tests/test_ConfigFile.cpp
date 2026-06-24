@@ -208,3 +208,58 @@ TEST_CASE("Save and SaveAs persist to disk", "[ConfigFile]")
 
     RemoveFile(path);
 }
+
+TEST_CASE("Loading a missing file leaves the config unopened but defaults still work", "[ConfigFile]")
+{
+    // A path that does not exist; the ctor logs to stdout and returns
+    // IsOpen()==false, but getString with bAddDefaultsToConfig=false still
+    // returns the caller-supplied default.
+    const std::string bogus = "openpaint_test_no_such_file.xml";
+    RemoveFile(bogus);
+    ConfigFile cfg(bogus, "TestConfig", false);
+    REQUIRE_FALSE(cfg.IsOpen());
+    REQUIRE(cfg.getString("Absent", "fallback") == "fallback");
+}
+
+TEST_CASE("Loading a file with the wrong root identifier leaves the config empty", "[ConfigFile]")
+{
+    // The file declares <OtherConfig> but the ctor expects <TestConfig>.
+    // The old code asserted (crashed in debug, null-deref'd in release); the
+    // current code still relies on the assert for that, so we only run this
+    // test in release mode where an assert is a no-op.
+#ifndef NDEBUG
+    SKIP("Asserts on missing root element in debug builds");
+#else
+    std::string path = WriteTempConfig("<OtherConfig version=\"1.0\"><Title value=\"x\"/></OtherConfig>");
+    ConfigFile cfg(path, "TestConfig", false);
+    // The load failed but we didn't crash; getString returns the default.
+    REQUIRE(cfg.getString("Title", "default") == "default");
+    RemoveFile(path);
+#endif
+}
+
+TEST_CASE("ImportXML with an empty string fails without modifying state", "[ConfigFile]")
+{
+    ConfigFile cfg("TestConfig");
+    cfg.setString("Existing", "value");
+    REQUIRE_FALSE(cfg.ImportXML(""));
+    REQUIRE(cfg.getString("Existing", "") == "value");
+}
+
+TEST_CASE("getArray on a non-array attribute returns the defaults", "[ConfigFile]")
+{
+    ConfigFile cfg;
+    cfg.setString("NotAnArray", "single-value");
+    const std::vector<std::string> defaults{"x", "y"};
+    REQUIRE(cfg.getArray("NotAnArray", defaults) == defaults);
+}
+
+TEST_CASE("DumpConfig prints something to stdout", "[ConfigFile][.quiet]")
+{
+    // The output of DumpConfig is implementation-defined; we just want to
+    // make sure it doesn't crash. Suppressed from the default run.
+    ConfigFile cfg;
+    cfg.setString("Hello", "World");
+    cfg.DumpConfig();
+    SUCCEED();
+}

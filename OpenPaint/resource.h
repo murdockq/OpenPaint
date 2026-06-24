@@ -32,6 +32,8 @@
 #include "res/document-new.xpm"
 #include "res/document-open.xpm"
 #include "res/document-save.xpm"
+#include "res/edit-undo.xpm"
+#include "res/edit-redo.xpm"
 #include "res/go-next.xpm"
 
 #include    "res/color-fill.xpm"

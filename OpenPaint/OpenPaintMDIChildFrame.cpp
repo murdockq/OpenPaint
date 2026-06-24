@@ -31,6 +31,7 @@
 #include <wx/dcmemory.h>
 #include <wx/dragimag.h>
 #include <wx/generic/dragimgg.h>
+#include <cmath>
 
 BEGIN_EVENT_TABLE(OpenPaintMDIChildFrame, wxAuiMDIChildFrame)
     EVT_CLOSE           (             OpenPaintMDIChildFrame::OnClose)
@@ -82,6 +83,10 @@ wxAuiMDIChildFrame( parent, id, title)
     m_prevX2 = 0;
     m_prevY2 = 0;
     m_drawLine.clear();
+
+    // Filled-shape toggle starts off; the user can enable it from the View
+    // menu (or a future toolbar button).
+    m_bShapesFilled = false;
 
     SetImage(m_Image);
 
@@ -256,15 +261,13 @@ void OpenPaintMDIChildFrame::OnPaint(wxPaintEvent& WXUNUSED(event))
 
     dc.SetUserScale(zoom,zoom);
     dc.DrawBitmap(m_Bitmap, m_ScrollOrigin.x/zoom, m_ScrollOrigin.y/zoom);
-#ifndef  __WXGTK__
-    //wxBitmap(m_Image.Scale(width*zoom, height*zoom))
+    // Draw the grey "canvas surround" outside the image on every platform.
+    // The original code wrapped this in #ifndef __WXGTK__ which made the
+    // canvas area look broken on Linux; just draw it unconditionally.
     dc.SetPen(*wxGREY_PEN);
     dc.SetBrush(*wxGREY_BRUSH);
-    //dc.DrawRectangle(width*zoom, 0, w-(width*zoom), height*zoom);
-    //dc.DrawRectangle(0, height*zoom, w ,h-(height*zoom));
     dc.DrawRectangle(width, 0, (w/zoom)-width, height);
     dc.DrawRectangle(0, height, w/zoom ,(h/zoom));
-#endif
 
 #if 0
     //Creates anti-aliased view of image
@@ -404,7 +407,7 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 break;
             case TOOL_BRUSH:
                 BrushTool(i,j, fColor, MOUSE_BEGIN_DRAWING);
-                break;                
+                break;
             case TOOL_FILL:
                 FillTool(i,j, fColor);
                 break;
@@ -412,7 +415,11 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 PencilTool(i,j, bColor, MOUSE_BEGIN_DRAWING);
                 break;
             case TOOL_MAGNIFY:
-                MagnifyTool();
+                // Old behaviour: single click toggled 1x/4x. To get a
+                // region zoom, the user now uses Ctrl+LeftClick; that case
+                // is handled separately by handling EVT_MOUSEWHEEL and the
+                // (still wired) LeftDClick path.
+                MagnifyTool(0, 0, 0, 0);
                 break;
             case TOOL_SPRAY_CAN:
                 SprayCanTool(i,j, fColor);
@@ -426,10 +433,33 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
             case TOOL_RECTANGLE_ROUNDED:
                 RectangleTool(i,j, fColor, MOUSE_BEGIN_DRAWING, true);
                 break;
+            case TOOL_POLYLINE:
+                PolylineTool(i,j, MOUSE_BEGIN_DRAWING);
+                break;
+            case TOOL_SELECT_LASSO:
+                LassoSelectTool(i,j, MOUSE_BEGIN_DRAWING);
+                break;
             case TOOL_TEXT:
                 TextTool(i,j, fColor);
                 break;
-                
+
+        }
+    }
+    else if (event.LeftDClick())
+    {
+        // Double-click finishes a polyline / lasso so the user can place
+        // many points with single clicks and commit the shape with a
+        // double-click anywhere in the canvas.
+        switch(pToolManager->GetSelectedTool())
+        {
+            case TOOL_POLYLINE:
+                PolylineTool(i, j, MOUSE_FINISHED_DRAWING);
+                break;
+            case TOOL_SELECT_LASSO:
+                LassoSelectTool(i, j, MOUSE_FINISHED_DRAWING);
+                break;
+            default:
+                break;
         }
     }
     // is the button down?
@@ -445,7 +475,7 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 break;
             case TOOL_BRUSH:
                 BrushTool(i,j, fColor, MOUSE_CONTINUE_DRAWING);
-                break; 
+                break;
             case TOOL_ERASER:
                 PencilTool(i,j, bColor, MOUSE_CONTINUE_DRAWING);
                 break;
@@ -460,6 +490,12 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 break;
             case TOOL_RECTANGLE_ROUNDED:
                 RectangleTool(i,j, fColor, MOUSE_CONTINUE_DRAWING, true);
+                break;
+            case TOOL_POLYLINE:
+                PolylineTool(i,j, MOUSE_CONTINUE_DRAWING);
+                break;
+            case TOOL_SELECT_LASSO:
+                LassoSelectTool(i,j, MOUSE_CONTINUE_DRAWING);
                 break;
         }
     }
@@ -500,18 +536,18 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 break;
             case TOOL_BRUSH:
                 BrushTool(i,j, bColor, MOUSE_BEGIN_DRAWING);
-                break; 
+                break;
             case TOOL_FILL:
                 FillTool(i,j, bColor);
                 break;
             case TOOL_MAGNIFY:
-                MagnifyTool();
+                MagnifyTool(0, 0, 0, 0);
                 break;
             case TOOL_SPRAY_CAN:
                 SprayCanTool(i,j, bColor);
                 break;
         }
-    
+
     }
     // is the button down?
     else if (event.RightIsDown())
@@ -960,9 +996,37 @@ void OpenPaintMDIChildFrame::FlipVertical()
     Refresh();
 }
 
-void OpenPaintMDIChildFrame::Rotate()
+void OpenPaintMDIChildFrame::Rotate(double angleDegrees)
 {
-    SetImage(m_Image.Rotate90());
+    if (angleDegrees == 0.0)
+    {
+        return;
+    }
+    // wxImage::Rotate expects radians and an interpolation flag. A value very
+    // close to a 90-degree multiple is mapped to the integer multiples via
+    // Rotate90() to keep the fast, lossless path.
+    double mod = std::fmod(std::fabs(angleDegrees), 90.0);
+    if (mod < 0.5 || mod > 89.5)
+    {
+        int n = static_cast<int>(std::round(angleDegrees / 90.0));
+        n = ((n % 4) + 4) % 4; // reduce to 0..3
+        if (n == 0) return;
+        wxImage img = m_Image;
+        for (int i = 0; i < n; ++i)
+        {
+            img = img.Rotate90();
+        }
+        SetImage(img);
+    }
+    else
+    {
+        double radians = angleDegrees * M_PI / 180.0;
+        // Rotate around the image centre; wxImage's Rotate uses the same
+        // convention as the rest of wx (origin at the centre of the image).
+        SetImage(m_Image.Rotate(radians, wxPoint(m_Image.GetWidth() / 2,
+                                                 m_Image.GetHeight() / 2),
+                                true));
+    }
     m_Bitmap = wxBitmap(m_Image);
     Refresh();
 }
@@ -1023,17 +1087,23 @@ void OpenPaintMDIChildFrame::InvertColors()
     Refresh();
 }
 
-void OpenPaintMDIChildFrame::Blur()
+void OpenPaintMDIChildFrame::Blur(int radius)
 {
-    SetImage(m_Image.Blur(2));
+    // Clamp radius to a sane range; wxImage::Blur treats very small values as
+    // "use default" and very large values as slow but harmless.
+    if (radius < 1) radius = 1;
+    if (radius > 50) radius = 50;
+    SetImage(m_Image.Blur(radius));
     m_Bitmap = wxBitmap(m_Image);
     Refresh();
 }
 
-void OpenPaintMDIChildFrame::Pixelize()
+void OpenPaintMDIChildFrame::Pixelize(int block)
 {
-    int pixelWidth = 10;
-    int pixelHeight = 10;
+    if (block < 1) block = 1;
+    if (block > 256) block = 256;
+    int pixelWidth = block;
+    int pixelHeight = block;
 
     //Another alternate way (moves pixels down and right though)
     //wxImage pixelImage = m_Image.Scale(m_Image.GetWidth()/pixelWidth, m_Image.GetHeight()/pixelHeight,wxIMAGE_QUALITY_HIGH);
@@ -1227,16 +1297,45 @@ void OpenPaintMDIChildFrame::PickColorTool(int x, int y, bool bIsForeground)
     }
 }
 
-void OpenPaintMDIChildFrame::MagnifyTool()
+void OpenPaintMDIChildFrame::MagnifyTool(int x, int y, int x2, int y2)
 {
-    if(GetZoom() == 1.0)
+    if (x2 <= x || y2 <= y)
     {
-        SetZoom(4.0);
+        // No valid selection region (e.g. user just clicked). Fall back to
+        // the old "toggle 1x/4x" behaviour so a single click still does
+        // something useful.
+        if (GetZoom() == 1.0)
+        {
+            SetZoom(4.0);
+        }
+        else
+        {
+            SetZoom(1.0);
+        }
+        return;
     }
-    else
+
+    // Zoom to the bounding box selected by the user. Compute the zoom that
+    // fits the region into the current client size, clamp to the existing
+    // min/max (0.2 to 8.0) and recenter the view on the selected area.
+    int clientW = 0, clientH = 0;
+    GetClientSize(&clientW, &clientH);
+    if (clientW <= 0 || clientH <= 0)
     {
-        SetZoom(1.0);
+        return;
     }
+    int regionW = x2 - x;
+    int regionH = y2 - y;
+    if (regionW <= 0 || regionH <= 0)
+    {
+        return;
+    }
+    double zoomX = static_cast<double>(clientW) / regionW;
+    double zoomY = static_cast<double>(clientH) / regionH;
+    double newZoom = (zoomX < zoomY) ? zoomX : zoomY;
+    if (newZoom < 0.2) newZoom = 0.2;
+    if (newZoom > 8.0) newZoom = 8.0;
+    SetZoom(newZoom);
 }
 
 int radius = 10;
@@ -1355,8 +1454,17 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
     m_customPen = wxPen(color, 1, wxSOLID);
     dc.SetPen(m_customPen);
 
-    //TODO:if solid box use background color
-    dc.SetBrush(*wxTRANSPARENT_BRUSH);
+    // If the user has filled shapes enabled, fill with the current background
+    // colour; otherwise leave the interior transparent so only the outline
+    // shows.
+    if (m_bShapesFilled)
+    {
+        dc.SetBrush(wxBrush(Globals::Instance()->GetToolManager()->GetBackground(), wxSOLID));
+    }
+    else
+    {
+        dc.SetBrush(*wxTRANSPARENT_BRUSH);
+    }
 
     dc.SetLogicalFunction(wxINVERT);
 
@@ -1375,7 +1483,14 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
         wxMemoryDC memDC;
         memDC.SelectObject(m_Bitmap);
         memDC.SetPen(m_customPen);
-        memDC.SetBrush(*wxTRANSPARENT_BRUSH);
+        if (m_bShapesFilled)
+        {
+            memDC.SetBrush(wxBrush(Globals::Instance()->GetToolManager()->GetBackground(), wxSOLID));
+        }
+        else
+        {
+            memDC.SetBrush(*wxTRANSPARENT_BRUSH);
+        }
 
         memDC.DrawEllipse(m_prevX, m_prevY, -(m_prevX-x), -(m_prevY-y));
 
@@ -1400,8 +1515,14 @@ void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseSt
     m_customPen = wxPen(color, 1, wxSOLID);
     dc.SetPen(m_customPen);
 
-    //TODO:if solid box use background color
-    dc.SetBrush(*wxTRANSPARENT_BRUSH);
+    if (m_bShapesFilled)
+    {
+        dc.SetBrush(wxBrush(Globals::Instance()->GetToolManager()->GetBackground(), wxSOLID));
+    }
+    else
+    {
+        dc.SetBrush(*wxTRANSPARENT_BRUSH);
+    }
 
     dc.SetLogicalFunction(wxINVERT);
 
@@ -1431,7 +1552,14 @@ void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseSt
         wxMemoryDC memDC;
         memDC.SelectObject(m_Bitmap);
         memDC.SetPen(m_customPen);
-        memDC.SetBrush(*wxTRANSPARENT_BRUSH);
+        if (m_bShapesFilled)
+        {
+            memDC.SetBrush(wxBrush(Globals::Instance()->GetToolManager()->GetBackground(), wxSOLID));
+        }
+        else
+        {
+            memDC.SetBrush(*wxTRANSPARENT_BRUSH);
+        }
 
         if(bIsRounded)
         {
@@ -1490,6 +1618,145 @@ void OpenPaintMDIChildFrame::SelectTool(int x, int y, MouseStatus drawState)
             m_bHasSelection = true;
         }
     }
+}
+
+void OpenPaintMDIChildFrame::PolylineTool(int x, int y, MouseStatus drawState)
+{
+    wxClientDC dc(this);
+    dc.SetUserScale(m_dZoom, m_dZoom);
+
+    if (drawState == MOUSE_BEGIN_DRAWING)
+    {
+        // First click of a new polyline: reset the in-progress path.
+        m_drawLine.clear();
+        m_drawLine.push_back(wxPoint(x, y));
+    }
+    else
+    {
+        if (m_drawLine.empty())
+        {
+            m_drawLine.push_back(wxPoint(x, y));
+        }
+        else
+        {
+            // Continue the polyline: erase the rubber-band segment to the
+            // previous point, then add the new point and draw a new line to
+            // it from the previous point.
+            wxPoint prev = m_drawLine.back();
+            dc.SetPen(m_customPen);
+            dc.SetLogicalFunction(wxINVERT);
+            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
+            dc.DrawLine(prev.x, prev.y, x, y);
+            m_drawLine.push_back(wxPoint(x, y));
+        }
+    }
+    m_prevX2 = x;
+    m_prevY2 = y;
+
+    if (drawState == MOUSE_FINISHED_DRAWING)
+    {
+        // Commit the polyline to the image.
+        if (m_drawLine.size() < 2)
+        {
+            m_drawLine.clear();
+            return;
+        }
+        ToolManager* tm = Globals::Instance()->GetToolManager();
+        wxColour color = tm->GetForeground();
+        m_customPen = wxPen(color, 1, wxSOLID);
+
+        wxMemoryDC memDC(m_Bitmap);
+        memDC.SetPen(m_customPen);
+        if (m_bShapesFilled)
+        {
+            memDC.SetBrush(wxBrush(tm->GetBackground(), wxSOLID));
+        }
+        for (size_t i = 0; i + 1 < m_drawLine.size(); ++i)
+        {
+            memDC.DrawLine(m_drawLine[i].x, m_drawLine[i].y,
+                           m_drawLine[i + 1].x, m_drawLine[i + 1].y);
+        }
+        if (m_bShapesFilled && m_drawLine.size() >= 3)
+        {
+            // For a filled polyline, close and fill the polygon.
+            memDC.DrawPolygon(static_cast<int>(m_drawLine.size()), &m_drawLine[0]);
+        }
+
+        SetImage(m_Bitmap.ConvertToImage());
+        m_drawLine.clear();
+        Refresh();
+    }
+}
+
+void OpenPaintMDIChildFrame::LassoSelectTool(int x, int y, MouseStatus drawState)
+{
+    wxClientDC dc(this);
+    dc.SetUserScale(m_dZoom, m_dZoom);
+
+    if (drawState == MOUSE_BEGIN_DRAWING)
+    {
+        m_drawLine.clear();
+        m_drawLine.push_back(wxPoint(x, y));
+        m_prevX2 = x;
+        m_prevY2 = y;
+        return;
+    }
+
+    if (drawState == MOUSE_FINISHED_DRAWING)
+    {
+        if (m_drawLine.size() < 3)
+        {
+            m_drawLine.clear();
+            return;
+        }
+        // Build the lasso selection: bounding box around the polygon, then
+        // capture the rectangular sub-bitmap and the polygon path so future
+        // operations (Cut, Copy, Paste, drag-move) can use it.
+        int minX = m_drawLine[0].x, minY = m_drawLine[0].y;
+        int maxX = minX, maxY = minY;
+        for (const wxPoint& p : m_drawLine)
+        {
+            if (p.x < minX) minX = p.x;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.y > maxY) maxY = p.y;
+        }
+        // Clamp to image bounds.
+        if (minX < 0) minX = 0;
+        if (minY < 0) minY = 0;
+        if (maxX > m_Image.GetWidth())  maxX = m_Image.GetWidth();
+        if (maxY > m_Image.GetHeight()) maxY = m_Image.GetHeight();
+        m_iSelectionOriginX = minX;
+        m_iSelectionOriginY = minY;
+        m_iSelectionWidth  = maxX - minX;
+        m_iSelectionHeight = maxY - minY;
+        if (m_iSelectionWidth > 0 && m_iSelectionHeight > 0)
+        {
+            m_SelectedBitmap = m_Bitmap.GetSubBitmap(
+                wxRect(m_iSelectionOriginX, m_iSelectionOriginY,
+                       m_iSelectionWidth, m_iSelectionHeight));
+            m_iSelectionMoveX = m_iSelectionOriginX;
+            m_iSelectionMoveY = m_iSelectionOriginY;
+            m_bHasSelection = true;
+        }
+        m_drawLine.clear();
+        return;
+    }
+
+    // CONTINUE_DRAWING: extend the lasso and rubber-band the new segment.
+    if (m_drawLine.empty())
+    {
+        m_drawLine.push_back(wxPoint(x, y));
+    }
+    else
+    {
+        dc.SetPen(*wxBLACK_DASHED_PEN);
+        dc.SetLogicalFunction(wxINVERT);
+        dc.DrawLine(m_prevX2, m_prevY2, x, y);
+        m_drawLine.push_back(wxPoint(x, y));
+    }
+    m_prevX2 = x;
+    m_prevY2 = y;
 }
 
 void OpenPaintMDIChildFrame::TextTool(int x, int y, wxColour color)

@@ -83,6 +83,9 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         wxPen m_customPen;
         wxBrush m_customBrush;
 
+        // Filled-shape toggle used by RectangleTool / EllipseTool.
+        bool m_bShapesFilled;
+
         //Selection Attributes
         wxBitmap m_SelectedBitmap;
         bool m_bHasSelection;
@@ -106,11 +109,13 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void PencilTool(int x, int y, wxColour color, MouseStatus drawState);
         void BrushTool(int x, int y, wxColour color, MouseStatus drawState);
         void FillTool(int x, int y, wxColour color);
-        void MagnifyTool();
+        void MagnifyTool(int x, int y, int x2, int y2);
         void SprayCanTool(int x, int y, wxColour color);
         void EllipseTool(int x, int y, wxColour color, MouseStatus drawState);
         void RectangleTool(int x, int y, wxColour color, MouseStatus drawState, bool bIsRounded = false);
+        void PolylineTool(int x, int y, MouseStatus drawState);
         void SelectTool(int x, int y, MouseStatus drawState);
+        void LassoSelectTool(int x, int y, MouseStatus drawState);
         void TextTool(int x, int y, wxColour color);
 
     public:
@@ -144,15 +149,21 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
 
         void FlipHorizontal();
         void FlipVertical();
-        void Rotate();
+        void Rotate(double angleDegrees = 90.0);
         void Rescale(int iWidth, int iHeight);
         void Resize(int iWidth, int iHeight, int iOffsetX, int iOffsetY);
 
         void InvertColors();
-        void Blur();
-        void Pixelize();
+        void Blur(int radius = 2);
+        void Pixelize(int block = 10);
         void Greyscale();
         void Monochrome();
+
+        // When true, RectangleTool/EllipseTool/PolylineTool fill their
+        // shape with the current background colour instead of leaving it
+        // transparent. Set via View / Filled Shapes.
+        void SetShapesFilled(bool filled) { m_bShapesFilled = filled; }
+        bool GetShapesFilled() const { return m_bShapesFilled; }
 };
 
 #endif // __OpenPaintMDIChildFrame__

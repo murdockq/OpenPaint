@@ -19,6 +19,7 @@ endif()
 set(OPENPAINT_SOURCES
     ConfigFile.cpp
     Globals.cpp
+    ImageOps.cpp
     OpenPaintGUI.cpp
     OpenPaintMainApp.cpp
     OpenPaintMDIChildFrame.cpp

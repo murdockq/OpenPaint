@@ -54,16 +54,17 @@ public:
     virtual bool OnDropFiles(wxCoord WXUNUSED(x), wxCoord WXUNUSED(y),
                              const wxArrayString& filenames)
         {
-            if(filenames.GetCount() == 1)
+            // Open every dropped file in its own tab. The previous code only
+            // handled single-file drops and used a Windows-specific "*.*"
+            // pattern that filtered out filenames without a dot on POSIX.
+            SubMainFrame* mf = Globals::Instance()->GetMainFrame();
+            if (!mf)
             {
-                if(wxMatchWild(wxT("*.*"), filenames.Last()))
-                {
-                    Globals::Instance()->GetMainFrame()->OpenFile(filenames.Last());
-                }
-                else
-                {
-                    wxLogError(wxT("Invalid File."));
-                }
+                return false;
+            }
+            for (size_t i = 0; i < filenames.GetCount(); ++i)
+            {
+                mf->OpenFile(filenames[i]);
             }
             return true;
         }
@@ -192,7 +193,7 @@ void SubMainFrame::UpdateHistory()
         for(int i = 0; i < iHistorySize && i < static_cast<int>(listFileHistory.size()); i++)
         {
             //Add the previous files to the menu for opening
-            wxMenuItem* menuItemTest = new wxMenuItem( m_menuRecentImages, IDX_MENU_HISTORYOPEN + i, wxString( listFileHistory.at(i).c_str(), wxConvLocal ), wxT("Open this file."), wxITEM_NORMAL );
+            wxMenuItem* menuItemTest = new wxMenuItem( m_menuRecentImages, IDX_MENU_HISTORYOPEN + i, wxString( listFileHistory.at(i).c_str(), wxConvUTF8 ), wxT("Open this file."), wxITEM_NORMAL );
             m_menuRecentImages->Insert(static_cast<size_t>(i), menuItemTest);
         }
     }
@@ -207,13 +208,13 @@ void SubMainFrame::AddFileToHistory(wxString strFilename)
 
     for(std::vector<std::string>::iterator iter = listFileHistory.begin(); iter != listFileHistory.end(); iter++)
     {
-        if(strFilename == wxString((*iter).c_str(), wxConvLocal))
+        if(strFilename == wxString((*iter).c_str(), wxConvUTF8))
         {
             listFileHistory.erase(iter);
             break;
         }
     }
-    listFileHistory.push_back(std::string(strFilename.mb_str()));
+    listFileHistory.push_back(strFilename.ToUTF8().data());
 
     while(listFileHistory.size() > clientConfig->getInteger("FileHistorySize",4))
     {
@@ -235,7 +236,7 @@ void SubMainFrame::OpenLastFiles()
         std::vector<std::string> listFileSession =  clientConfig->getArray("RecentFileSession");
         for(std::vector<std::string>::iterator iter = listFileSession.begin(); iter != listFileSession.end(); iter++)
         {
-            OpenFile(wxString((*iter).c_str(), wxConvLocal));
+            OpenFile(wxString((*iter).c_str(), wxConvUTF8));
             wxLogDebug(wxT("Auto Opened: %s"), wxString(*iter));
         }
     }
@@ -247,8 +248,8 @@ void SubMainFrame::HistoryOpen( wxCommandEvent& event )
     std::vector<std::string> listFileHistory =  clientConfig->getArray("FileHistory");
     int iHistoryIndex  = event.GetId() - IDX_MENU_HISTORYOPEN;
     if(iHistoryIndex >= 0 && iHistoryIndex < listFileHistory.size())
-    {        
-        wxString filename = wxString(listFileHistory.at(iHistoryIndex).c_str(), wxConvLocal);
+    {
+        wxString filename = wxString(listFileHistory.at(iHistoryIndex).c_str(), wxConvUTF8);
         OpenFile(filename);
     }
 }
@@ -871,8 +872,31 @@ bool SubMainFrame::SaveAs()
     if(childFrame)
     {
         wxFileName fileName(childFrame->GetFilename());
-        wxString strFilename = wxFileSelector(wxT("Choose a file to Save As"),wxT(""),wxT(""), fileName.GetExt(), wxT("Image Files ") + wxImage::GetImageExtWildcard() , wxFD_SAVE);
+        const wxString wildcards = wxT("Image Files ") + wxImage::GetImageExtWildcard();
+        wxString strFilename = wxFileSelector(wxT("Choose a file to Save As"),wxT(""),wxT(""), fileName.GetExt(), wildcards, wxFD_SAVE);
         wxLogDebug(strFilename);
+
+        // If the user did not include a recognised extension, append the
+        // first supported one so the file is actually loadable later.
+        if (!strFilename.empty())
+        {
+            wxFileName outName(strFilename);
+            wxString ext = outName.GetExt().Lower();
+            if (ext.IsEmpty())
+            {
+                // Use whatever the file used to have (e.g. ".png") or fall
+                // back to "png".
+                if (!fileName.GetExt().IsEmpty())
+                {
+                    outName.SetExt(fileName.GetExt());
+                }
+                else
+                {
+                    outName.SetExt(wxT("png"));
+                }
+                strFilename = outName.GetFullPath();
+            }
+        }
 
         if(!strFilename.empty() && childFrame->SaveAs(strFilename))
         {

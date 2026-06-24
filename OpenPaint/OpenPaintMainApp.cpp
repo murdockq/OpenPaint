@@ -46,10 +46,10 @@ bool OpenPaintMainApp::OnInit(void)  // Does everything needed for a program sta
     {
         for(unsigned int i = 0; i < m_asFilenames.GetCount(); i++)
         {
-            if(wxMatchWild(wxT("*.*"), m_asFilenames[i]))
-            {
-                frame->OpenFile(m_asFilenames[i]);
-            }
+            // Accept every file: the image handler will reject anything that
+            // isn't loadable. Using "*.*" here would be POSIX-incorrect
+            // (it requires a literal dot in the filename).
+            frame->OpenFile(m_asFilenames[i]);
         }
     }
     else

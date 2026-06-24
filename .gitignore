@@ -21,8 +21,8 @@ CMakeUserPresets.json
 *.dylib
 *.a
 *.lib
-openpaint
-/openpaint
+/openpaint.exe
+/build/openpaint.exe
 
 # IDE / editor
 .vs/

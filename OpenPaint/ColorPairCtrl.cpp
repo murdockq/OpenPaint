@@ -54,7 +54,18 @@ void ColorPairCtrl::OnPaint( wxPaintEvent& event )
 void ColorPairCtrl::OnLeftDown( wxMouseEvent& event )
 {
     ToolManager* pToolManager = Globals::Instance()->GetToolManager();
-    pToolManager->SetForeground( pToolManager->PickColor() );
+    wxPoint pos = event.GetPosition();
+    bool inForeground = pos.x >= 0 && pos.x < m_buttonSize && pos.y >= 0 && pos.y < m_buttonSize;
+    bool inBackground = pos.x >= m_offset && pos.x < m_offset + m_buttonSize && pos.y >= m_offset && pos.y < m_offset + m_buttonSize;
+
+    if( inForeground )
+    {
+        pToolManager->SetForeground( pToolManager->PickColor() );
+    }
+    else if( inBackground )
+    {
+        pToolManager->SetBackground( pToolManager->PickColor() );
+    }
 }
 
 void ColorPairCtrl::OnRightDown( wxMouseEvent& event )

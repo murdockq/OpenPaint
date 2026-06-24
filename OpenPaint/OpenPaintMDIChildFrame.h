@@ -105,6 +105,9 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void PickColorTool(int x, int y, bool bIsForeground=true);
         void PencilTool(int x, int y, wxColour color, MouseStatus drawState);
         void BrushTool(int x, int y, wxColour color, MouseStatus drawState);
+        // Renders a single brush "stamp" at (x, y) using the current
+        // radius and tip (round / square / vertical line / horizontal line).
+        void DrawBrushTip(wxDC& dc, int x, int y, int radius, int tip);
         void FillTool(int x, int y, wxColour color);
         void MagnifyTool(int x, int y, int x2, int y2);
         void SprayCanTool(int x, int y, wxColour color);

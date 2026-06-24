@@ -1342,7 +1342,33 @@ void OpenPaintMDIChildFrame::MagnifyTool(int x, int y, int x2, int y2)
     SetZoom(newZoom);
 }
 
-int radius = 10;
+void OpenPaintMDIChildFrame::DrawBrushTip(wxDC& dc, int x, int y, int radius, int tip)
+{
+    // Renders one "stamp" of the brush at (x, y) using the chosen tip shape:
+    //   0 = round:           filled circle of diameter 2*radius
+    //   1 = square:          filled square of side  2*radius
+    //   2 = vertical line:   1px-wide vertical line of height 2*radius
+    //   3 = horizontal line: 1px-wide horizontal line of width  2*radius
+    // The caller is responsible for setting the pen/brush colour.
+    dc.SetPen(*wxTRANSPARENT_PEN);
+    switch (tip)
+    {
+    case 1:
+        dc.DrawRectangle(x - radius, y - radius, radius * 2, radius * 2);
+        break;
+    case 2:
+        dc.DrawRectangle(x, y - radius, 1, radius * 2);
+        break;
+    case 3:
+        dc.DrawRectangle(x - radius, y, radius * 2, 1);
+        break;
+    case 0:
+    default:
+        dc.DrawCircle(x, y, radius);
+        break;
+    }
+}
+
 void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus drawState)
 {
     wxClientDC mydc(this);
@@ -1357,13 +1383,21 @@ void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus
         m_prevX = x;
         m_prevY = y;
     }
-    // Use the radius from the ToolManager (driven by the BrushToolPanel
-    // radius spinner) so the UI control actually has an effect.
-    int brushRadius = Globals::Instance()->GetToolManager()->GetBrushRadius();
-    m_customPen = wxPen(color, brushRadius, wxSOLID);
+    // Read the brush settings from the ToolManager (driven by the
+    // BrushToolPanel) so the radius spinner and tip combo both affect
+    // the rendered result.
+    ToolManager* tm = Globals::Instance()->GetToolManager();
+    int brushRadius = tm->GetBrushRadius();
+    if (brushRadius < 1) brushRadius = 1;
+    int brushTip = tm->GetBrushTip();
 
-    dc.SetPen(m_customPen);
-    dc.DrawLine(x,y,m_prevX,m_prevY);
+    // Paint a tip stamp at (x, y) into the backing bitmap. Using filled
+    // shapes (per the tip) is what makes "square"/"vertical"/"horizontal"
+    // brushes render as the user picked them; the previous implementation
+    // always used wxPen + DrawLine which produced a 1-pixel-thick line
+    // regardless of the tip selection.
+    dc.SetBrush(wxBrush(color, wxSOLID));
+    DrawBrushTip(dc, x, y, brushRadius, brushTip);
 
     m_drawLine.push_back(wxPoint(x,y));
     m_prevX = x;
@@ -1373,12 +1407,13 @@ void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {
+        // Re-stamp every recorded point so the committed stroke is
+        // consistent regardless of mouse-move event frequency.
         wxMemoryDC memDC(m_Bitmap);
-        memDC.SetPen(m_customPen);
-
-        for(size_t i = 0; i + 1 < m_drawLine.size(); i++)
+        memDC.SetBrush(wxBrush(color, wxSOLID));
+        for (size_t i = 0; i < m_drawLine.size(); i++)
         {
-            memDC.DrawLine(m_drawLine[i].x, m_drawLine[i].y, m_drawLine[i+1].x, m_drawLine[i+1].y);
+            DrawBrushTip(memDC, m_drawLine[i].x, m_drawLine[i].y, brushRadius, brushTip);
         }
 
         SetImage(m_Bitmap.ConvertToImage());

@@ -71,6 +71,18 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         MouseStatus m_status;
         wxPoint m_ScrollOrigin;
 
+        // Per-frame tool state. These used to be file-scope globals shared by
+        // every MDI child, which meant switching tabs in the middle of a
+        // drawing operation could corrupt the rubber-band state of the other
+        // tab. Keeping them per-frame is the fix.
+        std::vector<wxPoint> m_drawLine;
+        int m_prevX;
+        int m_prevY;
+        int m_prevX2;
+        int m_prevY2;
+        wxPen m_customPen;
+        wxBrush m_customBrush;
+
         //Selection Attributes
         wxBitmap m_SelectedBitmap;
         bool m_bHasSelection;
@@ -94,7 +106,6 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void PencilTool(int x, int y, wxColour color, MouseStatus drawState);
         void BrushTool(int x, int y, wxColour color, MouseStatus drawState);
         void FillTool(int x, int y, wxColour color);
-        void FillTool(int x, int y, wxColour color, wxColour colorOld);
         void MagnifyTool();
         void SprayCanTool(int x, int y, wxColour color);
         void EllipseTool(int x, int y, wxColour color, MouseStatus drawState);

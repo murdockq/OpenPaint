@@ -65,7 +65,7 @@ void SubImageSizeDialog::OnWidth( wxSpinEvent& event )
     m_iWidth = m_spinCtrlWidth->GetValue();
     if(m_bIsLinked)
     {
-        SetHeight(m_iWidth / m_dRatio);
+        SetHeight(wxRound(m_iWidth / m_dRatio));
     }
 }
 
@@ -74,7 +74,7 @@ void SubImageSizeDialog::OnHeight( wxSpinEvent& event )
     m_iHeight = m_spinCtrlHeight->GetValue();
     if(m_bIsLinked)
     {
-        SetWidth(m_dRatio * m_iHeight);
+        SetWidth(wxRound(m_dRatio * m_iHeight));
     }
 }
 

@@ -122,7 +122,7 @@ class SubMainFrame : public MainFrame
 	    SubMainFrame( wxWindow* parent, int id = wxID_ANY, wxString title = wxT("OpenPaint"), wxPoint pos = wxDefaultPosition, wxSize size = wxSize( 800,600 ), int style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
         virtual ~SubMainFrame();
 
-        void NewFile(int height = 800, int width = 600);
+        void NewFile(int width = 800, int height = 600);
         void OpenFile(wxString strFilename);
         bool SaveFile();
         void OpenLastFiles();

@@ -33,10 +33,12 @@ protected:
 	virtual void OnPalette( wxMouseEvent& event );
 	virtual void OnForeground( wxMouseEvent& event );
 	virtual void OnBackground( wxMouseEvent& event );
-	
+
 public:
 	/** Constructor */
     PaletteCtrl( wxWindow* parent, int id = wxID_ANY, wxPoint pos = wxDefaultPosition, wxSize size = wxDefaultSize, int style = wxTAB_TRAVERSAL );
+    /** Destructor */
+    ~PaletteCtrl();
 
 };
 

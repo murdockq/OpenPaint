@@ -31,6 +31,8 @@ ToolManager::ToolManager()
     SetSelectedTool(TOOL_PENCIL);
     m_colorForeground = wxColour( 0, 0, 0 );
     m_colorBackground = wxColour( 255, 255, 255 );
+    m_brushRadius = 10;
+    m_brushTip = 0; // round
 }
 
 ToolManager::~ToolManager()
@@ -42,6 +44,20 @@ ToolManager::~ToolManager()
 void ToolManager::Shutdown()
 {
 
+}
+
+void ToolManager::SetBrushRadius(int radius)
+{
+    if (radius < 1) radius = 1;
+    if (radius > 100) radius = 100;
+    m_brushRadius = radius;
+}
+
+void ToolManager::SetBrushTip(int tip)
+{
+    if (tip < 0) tip = 0;
+    if (tip > 3) tip = 3;
+    m_brushTip = tip;
 }
 
 ToolType ToolManager::GetSelectedTool()
@@ -62,7 +78,10 @@ wxColour ToolManager::GetForeground()
 void ToolManager::SetForeground(wxColour foregroundColor)
 {
     m_colorForeground = foregroundColor;
-    Globals::Instance()->GetColorPanel()->UpdateColors();
+    if (SubColorPanel* p = Globals::Instance()->GetColorPanel())
+    {
+        p->UpdateColors();
+    }
 }
 
 wxColour ToolManager::GetBackground()
@@ -73,13 +92,18 @@ wxColour ToolManager::GetBackground()
 void ToolManager::SetBackground(wxColour backgroundColor)
 {
     m_colorBackground = backgroundColor;
-    Globals::Instance()->GetColorPanel()->UpdateColors();
+    if (SubColorPanel* p = Globals::Instance()->GetColorPanel())
+    {
+        p->UpdateColors();
+    }
 }
 
 
 wxColour ToolManager::PickColor()
 {
-    wxColour returnColor;
+    // Default to the current foreground so cancelling the dialog is a no-op
+    // rather than clobbering the colour with an invalid wxColour.
+    wxColour returnColor = m_colorForeground;
     wxColourData data;
     data.SetChooseFull(true);
     for (int i = 0; i < 16; i++)
@@ -87,7 +111,7 @@ wxColour ToolManager::PickColor()
         wxColour colour(i*16, i*16, i*16);
         data.SetCustomColour(i, colour);
     }
-      
+
     wxColourDialog dialog((wxWindow *)Globals::Instance()->GetMainFrame(), &data);
     if (dialog.ShowModal() == wxID_OK)
     {
@@ -95,7 +119,7 @@ wxColour ToolManager::PickColor()
         returnColor = retData.GetColour();
         wxLogDebug(returnColor.GetAsString(wxC2S_CSS_SYNTAX));
     }
-    
+
     //wxColour wxGetColourFromUser(wxWindow *parent, const wxColour& colInit)
     return returnColor;
 }

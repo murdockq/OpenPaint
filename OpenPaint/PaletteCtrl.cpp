@@ -33,9 +33,25 @@ PaletteCtrl::PaletteCtrl( wxWindow* parent, int id , wxPoint pos , wxSize size, 
 
 }
 
+PaletteCtrl::~PaletteCtrl()
+{
+    // Disconnect the four mouse handlers we bound in the constructor so that
+    // destroying a palette swatch (one of ~20 on the colour panel) does not
+    // leave dangling event entries in the global wx event table.
+    this->Disconnect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( PaletteCtrl::OnPalette ) );
+    this->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( PaletteCtrl::OnForeground ) );
+    this->Disconnect( wxEVT_RIGHT_DCLICK, wxMouseEventHandler( PaletteCtrl::OnPalette ) );
+    this->Disconnect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( PaletteCtrl::OnBackground ) );
+}
+
 void PaletteCtrl::OnPalette( wxMouseEvent& event )
 {
-    wxWindow * eventWindow = (wxWindow *)event.GetEventObject();
+    wxWindow * eventWindow = wxDynamicCast(event.GetEventObject(), wxWindow);
+    if (!eventWindow)
+    {
+        event.Skip();
+        return;
+    }
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
 
     if(event.GetEventType() == wxEVT_LEFT_DCLICK)
@@ -53,14 +69,24 @@ void PaletteCtrl::OnPalette( wxMouseEvent& event )
 
 void PaletteCtrl::OnForeground( wxMouseEvent& event )
 {
-   	wxWindow * eventWindow = (wxWindow *)event.GetEventObject();
+   	wxWindow * eventWindow = wxDynamicCast(event.GetEventObject(), wxWindow);
+    if (!eventWindow)
+    {
+        event.Skip();
+        return;
+    }
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     pToolManager->SetForeground(eventWindow->GetBackgroundColour());
 }
 
 void PaletteCtrl::OnBackground( wxMouseEvent& event )
 {
-   	wxWindow * eventWindow = (wxWindow *)event.GetEventObject();
+   	wxWindow * eventWindow = wxDynamicCast(event.GetEventObject(), wxWindow);
+    if (!eventWindow)
+    {
+        event.Skip();
+        return;
+    }
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     pToolManager->SetBackground(eventWindow->GetBackgroundColour());
 }

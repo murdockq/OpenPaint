@@ -37,6 +37,10 @@ Globals* Globals::Instance ()
 }
 
 Globals::Globals()
+    : m_pMainFrame(nullptr)
+    , m_pToolPanel(nullptr)
+    , m_pColorPanel(nullptr)
+    , m_pToolManager(nullptr)
 {
     m_pConfig = new ConfigFile("config.xml", "OpenPaintData");
     m_pToolManager = new ToolManager();
@@ -51,6 +55,12 @@ Globals::~Globals()
 
     m_pToolManager->Shutdown();
     delete m_pToolManager;
+    m_pToolManager = nullptr;
+
+    // Reset the singleton pointer so any code that touches Globals after
+    // Shutdown() (e.g. during static destruction) does not read a dangling
+    // pointer. The next Instance() call will lazily recreate the object.
+    m_pInstance = nullptr;
 }
 
 

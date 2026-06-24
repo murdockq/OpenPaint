@@ -60,6 +60,7 @@ wxAuiMDIChildFrame( parent, id, title)
     m_Bitmap = wxBitmap(m_Image);
     SetThumbIcon();
     m_HistoryIndex = 0;
+    m_bImageUpdated = false;
 
     SetZoom(1.0);
     m_ScrollOrigin = wxPoint(0,0);
@@ -73,6 +74,14 @@ wxAuiMDIChildFrame( parent, id, title)
     m_iSelectionMoveX = -1;
     m_iSelectionMoveY = -1;
     m_DragImage = NULL;
+
+    // Per-frame tool state initialisation (replaces the old file-scope
+    // globals that were shared between every MDI child).
+    m_prevX = 0;
+    m_prevY = 0;
+    m_prevX2 = 0;
+    m_prevY2 = 0;
+    m_drawLine.clear();
 
     SetImage(m_Image);
 
@@ -103,6 +112,12 @@ bool OpenPaintMDIChildFrame::Open(wxString strFilename)
 {
     if(m_Image.LoadFile(strFilename))
     {
+        // Reset the undo history so undoing after Open() can't restore a
+        // different image's pixels.
+        m_LastImages.clear();
+        m_HistoryIndex = 0;
+        m_bImageUpdated = false;
+
         SetImage(m_Image);
         m_strFilename = strFilename;
         this->SetTitle(wxFileNameFromPath(strFilename));
@@ -182,9 +197,18 @@ void OpenPaintMDIChildFrame::SetImage(wxImage image)
 
 void OpenPaintMDIChildFrame::UpdateStatusBar()
 {
-    wxStatusBar * pStatusBar = GetMDIParentFrame()->GetStatusBar();
+    wxAuiMDIParentFrame* parent = GetMDIParentFrame();
+    if (!parent)
+    {
+        return;
+    }
+    wxStatusBar * pStatusBar = parent->GetStatusBar();
+    if (!pStatusBar)
+    {
+        return;
+    }
     pStatusBar->SetStatusText(wxString::Format(wxT("Image Size: %dx%d "), GetWidth() , GetHeight() ), 2);
-    
+
     pStatusBar->SetStatusText(wxString::Format(wxT("Zoom: %d%%"),(int)(GetZoom()*100) ), 3);
 
 }
@@ -211,7 +235,8 @@ void OpenPaintMDIChildFrame::SetZoom(double dZoom)
 
 void OpenPaintMDIChildFrame::OnClose(wxCloseEvent& event)
 {
-    event.Veto();
+    // No Veto() — Shutdown() will Destroy() the frame. Vetoing and then
+    // destroying leaves wx in an inconsistent state and can produce warnings.
     wxLogDebug(wxT("OnClose"));
     this->Shutdown();
 }
@@ -268,8 +293,10 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     wxInt32 i = (event.GetX()-m_ScrollOrigin.x)/m_dZoom;
     wxInt32 j = (event.GetY()-m_ScrollOrigin.y)/m_dZoom;
 
-    wxStatusBar * pStatusBar = GetMDIParentFrame()->GetStatusBar();
-    pStatusBar->SetStatusText(wxString::Format(wxT("Pixel: (%d, %d) "), i , j ), 1);
+    if (wxStatusBar* pStatusBar = GetMDIParentFrame() ? GetMDIParentFrame()->GetStatusBar() : nullptr)
+    {
+        pStatusBar->SetStatusText(wxString::Format(wxT("Pixel: (%d, %d) "), i , j ), 1);
+    }
 
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     wxColour fColor = pToolManager->GetForeground();
@@ -278,13 +305,20 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     if(m_bHasSelection)
     {
         //Check if selection is clicked
-        if(i >= m_iSelectionOriginX  && i < m_iSelectionOriginX+ m_iSelectionWidth 
+        if(i >= m_iSelectionOriginX  && i < m_iSelectionOriginX+ m_iSelectionWidth
             && j >= m_iSelectionOriginY && j < m_iSelectionOriginY+ m_iSelectionHeight)
         {
             if(event.LeftDown())//&& !m_DragImage)
             {
                 m_iSelectionMoveX = i - m_iSelectionOriginX;
                 m_iSelectionMoveY = j - m_iSelectionOriginY;
+                // Free any prior drag image before allocating a new one,
+                // otherwise repeated drags leak one wxGenericDragImage each.
+                if (m_DragImage)
+                {
+                    m_DragImage->EndDrag();
+                    delete m_DragImage;
+                }
                 m_DragImage = new wxGenericDragImage(wxBitmap(m_SelectedBitmap.ConvertToImage().Scale(m_iSelectionWidth*m_dZoom, m_iSelectionHeight*m_dZoom)));
                 m_DragImage->BeginDrag(wxPoint(m_iSelectionMoveX*m_dZoom, m_iSelectionMoveY*m_dZoom), this);
                 m_DragImage->Move(wxPoint(i,j));
@@ -313,7 +347,7 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 Refresh();
                 return;
             }
-            
+
         }
 
         //Dragging selection
@@ -541,8 +575,13 @@ void OpenPaintMDIChildFrame::OnMouseWheel(wxMouseEvent& event)
 
 void OpenPaintMDIChildFrame::OnMouseLeave(wxMouseEvent& event)
 {
-    wxStatusBar * pStatusBar = GetMDIParentFrame()->GetStatusBar();
-    pStatusBar->SetStatusText(wxT(""), 1);
+    if (wxAuiMDIParentFrame* parent = GetMDIParentFrame())
+    {
+        if (wxStatusBar* pStatusBar = parent->GetStatusBar())
+        {
+            pStatusBar->SetStatusText(wxT(""), 1);
+        }
+    }
 
     event.Skip();
 }
@@ -702,82 +741,98 @@ int OpenPaintMDIChildFrame::GetHeight()
 
 void OpenPaintMDIChildFrame::Undo()
 {
-    //Update redo menu
     SubMainFrame * pMainFrame = Globals::Instance()->GetMainFrame();
     wxMenu *editMenu = pMainFrame->GetMenuBar()->GetMenu(1);
     wxMenuItem * redoItem = editMenu->FindItem(wxID_REDO, NULL);
     redoItem->Enable(true);
     pMainFrame->GetToolBar()->EnableTool(wxID_REDO, true);
 
+    // If the user makes a change after the last undo, capture it so that
+    // subsequent undos can step back to it.
     if(m_HistoryIndex == 0 && m_bImageUpdated)
     {
         m_bImageUpdated = false;
         m_LastImages.push_back(m_Image);
     }
 
-    m_HistoryIndex++;
-
-    m_Image = m_LastImages.at(m_LastImages.size()-m_HistoryIndex-1);
-    SetThumbIcon();
-    m_Bitmap =  wxBitmap(m_Image);
-    Refresh();
-
-    if(m_HistoryIndex >= m_LastImages.size()-1)
+    // Bounds check BEFORE indexing the history vector. The old code
+    // incremented m_HistoryIndex and then indexed m_LastImages at the new
+    // value, which threw std::out_of_range when the user kept clicking
+    // Undo past the deepest recorded state.
+    if (m_HistoryIndex >= static_cast<int>(m_LastImages.size()) - 1)
     {
         wxMenuItem * undoItem = editMenu->FindItem(wxID_UNDO, NULL);
         undoItem->Enable(false);
         pMainFrame->GetToolBar()->EnableTool(wxID_UNDO, false);
         return;
     }
-    
+
+    m_HistoryIndex++;
+    int idx = static_cast<int>(m_LastImages.size()) - m_HistoryIndex - 1;
+    if (idx < 0 || idx >= static_cast<int>(m_LastImages.size()))
+    {
+        // Should not happen after the guard above, but be defensive.
+        return;
+    }
+    m_Image = m_LastImages.at(static_cast<size_t>(idx));
+    SetThumbIcon();
+    m_Bitmap = wxBitmap(m_Image);
+    Refresh();
 }
 
 void OpenPaintMDIChildFrame::Redo()
 {
-    //Update redo menu
     SubMainFrame * pMainFrame = Globals::Instance()->GetMainFrame();
     wxMenu *editMenu = pMainFrame->GetMenuBar()->GetMenu(1);
     wxMenuItem * undoItem = editMenu->FindItem(wxID_UNDO, NULL);
     undoItem->Enable(true);
     pMainFrame->GetToolBar()->EnableTool(wxID_UNDO, true);
 
-    m_HistoryIndex--;
-
-    m_Image = m_LastImages.at(m_LastImages.size()-m_HistoryIndex-1);
-    SetThumbIcon();
-    m_Bitmap =  wxBitmap(m_Image);
-    Refresh();
-
-    if(m_HistoryIndex <= 0)
+    // Bounds check BEFORE indexing; the old code decremented past zero and
+    // then read at a negative offset, which both produced out-of-range
+    // exceptions and silently read garbage.
+    if (m_HistoryIndex <= 0)
     {
         wxMenuItem * redoItem = editMenu->FindItem(wxID_REDO, NULL);
         redoItem->Enable(false);
         pMainFrame->GetToolBar()->EnableTool(wxID_REDO, false);
         return;
     }
+
+    m_HistoryIndex--;
+    int idx = static_cast<int>(m_LastImages.size()) - m_HistoryIndex - 1;
+    if (idx < 0 || idx >= static_cast<int>(m_LastImages.size()))
+    {
+        return;
+    }
+    m_Image = m_LastImages.at(static_cast<size_t>(idx));
+    SetThumbIcon();
+    m_Bitmap = wxBitmap(m_Image);
+    Refresh();
 }
 
 #include <wx/dynarray.h>
 WX_DECLARE_OBJARRAY(wxPoint, wxArrayPoints);
 #include <wx/arrimpl.cpp>
 WX_DEFINE_OBJARRAY(wxArrayPoints);
-wxArrayPoints drawLine;
-int prevX = 0;
-int prevY = 0;
-wxPen customPen;
-wxBrush customBrush;
+// Note: the four file-scope globals (drawLine, prevX, prevY, customPen,
+// customBrush) and the int prevX2/prevY2 that used to live here have been
+// moved to OpenPaintMDIChildFrame members. See the header for the new
+// m_drawLine/m_prevX/m_prevY/m_prevX2/m_prevY2/m_customPen/m_customBrush
+// fields. This keeps tool state per-tab so switching tabs mid-stroke
+// doesn't corrupt the other tab's rubber-band.
 wxBitmap OpenPaintMDIChildFrame::Cut()
 {
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     wxColour bColor = pToolManager->GetBackground();
 
-    customPen = wxPen(bColor, 1, wxSOLID);
-    customBrush = wxBrush(bColor, wxSOLID);
-    
+    m_customPen = wxPen(bColor, 1, wxSOLID);
+    m_customBrush = wxBrush(bColor, wxSOLID);
+
     wxMemoryDC memDC;
     memDC.SelectObject(m_Bitmap);
-    memDC.SetPen(customPen);
-    memDC.SetBrush(customBrush);
+    memDC.SetPen(m_customPen);
+    memDC.SetBrush(m_customBrush);
     memDC.DrawRectangle(m_iSelectionOriginX, m_iSelectionOriginY, m_iSelectionWidth, m_iSelectionHeight);
     SetImage(m_Bitmap.ConvertToImage());
     Refresh();
@@ -797,12 +852,18 @@ wxBitmap OpenPaintMDIChildFrame::Copy()
 void OpenPaintMDIChildFrame::Paste(wxBitmap bitmap)
 {
     m_SelectedBitmap = bitmap;
+    // Delete any prior drag image so repeated pastes don't leak one each.
+    if (m_DragImage)
+    {
+        m_DragImage->EndDrag();
+        delete m_DragImage;
+    }
     m_DragImage = new wxGenericDragImage(m_SelectedBitmap);
     m_DragImage->BeginDrag(wxPoint(0, 0), this);
     m_DragImage->Move(wxPoint(0,0));
     m_DragImage->Show();
     m_bHasSelection = true;
-    
+
     //SetImage(m_Bitmap.ConvertToImage());
     //m_Image.ConvertAlphaToMask();
     //m_Bitmap =  wxBitmap(m_Image);
@@ -814,13 +875,13 @@ void OpenPaintMDIChildFrame::Delete()
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     wxColour bColor = pToolManager->GetBackground();
 
-    customPen = wxPen(bColor, 1, wxSOLID);
-    customBrush = wxBrush(bColor, wxSOLID);
-    
+    m_customPen = wxPen(bColor, 1, wxSOLID);
+    m_customBrush = wxBrush(bColor, wxSOLID);
+
     wxMemoryDC memDC;
     memDC.SelectObject(m_Bitmap);
-    memDC.SetPen(customPen);
-    memDC.SetBrush(customBrush);
+    memDC.SetPen(m_customPen);
+    memDC.SetBrush(m_customBrush);
     memDC.DrawRectangle(m_iSelectionOriginX, m_iSelectionOriginY, m_iSelectionWidth, m_iSelectionHeight);
     SetImage(m_Bitmap.ConvertToImage());
     Refresh();
@@ -1080,32 +1141,32 @@ void OpenPaintMDIChildFrame::PencilTool(int x, int y, wxColour color, MouseStatu
 
     if(drawState == MOUSE_BEGIN_DRAWING)
     {
-        drawLine.Clear();
-        prevX = x;
-        prevY = y;
+        m_drawLine.clear();
+        m_prevX = x;
+        m_prevY = y;
     }
-    customPen = wxPen(color, 1, wxSOLID);
+    m_customPen = wxPen(color, 1, wxSOLID);
 
-    dc.SetPen(customPen);
+    dc.SetPen(m_customPen);
     dc.DrawPoint(x,y);
-    dc.DrawLine(x,y,prevX,prevY);
+    dc.DrawLine(x,y,m_prevX,m_prevY);
 
-    drawLine.Add(wxPoint(x,y));
-    prevX = x;
-    prevY = y;
+    m_drawLine.push_back(wxPoint(x,y));
+    m_prevX = x;
+    m_prevY = y;
 
     mydc.Blit(m_ScrollOrigin.x/GetZoom(), m_ScrollOrigin.y/GetZoom(), m_Bitmap.GetWidth(), m_Bitmap.GetHeight(), &dc, 0, 0);
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {
         wxMemoryDC memDC(m_Bitmap);
-        memDC.SetPen(customPen);
+        memDC.SetPen(m_customPen);
 
         memDC.DrawPoint(x,y);
 
-        for(int i = 0; i < drawLine.GetCount()-1; i++)
+        for(size_t i = 0; i + 1 < m_drawLine.size(); i++)
         {
-            memDC.DrawLine(drawLine[i].x, drawLine[i].y, drawLine[i+1].x, drawLine[i+1].y);
+            memDC.DrawLine(m_drawLine[i].x, m_drawLine[i].y, m_drawLine[i+1].x, m_drawLine[i+1].y);
         }
 
         SetImage(m_Bitmap.ConvertToImage());
@@ -1116,55 +1177,46 @@ void OpenPaintMDIChildFrame::PencilTool(int x, int y, wxColour color, MouseStatu
 void OpenPaintMDIChildFrame::FillTool(int x, int y, wxColour color)
 {
     //FillTool(x,y,color,wxColour());
+    // Defensive bounds check: FloodFill on out-of-bounds coords is undefined
+    // behaviour in wxWidgets.
+    if (x < 0 || y < 0 || x >= m_Image.GetWidth() || y >= m_Image.GetHeight())
+    {
+        return;
+    }
+
     wxColour colorOld(m_Image.GetRed(x, y),m_Image.GetGreen(x, y),m_Image.GetBlue(x, y));
-    customBrush = wxBrush(color, wxSOLID);
+    m_customBrush = wxBrush(color, wxSOLID);
     //can use
     //wxCROSSDIAG_HATCH
     //wxBDIAGONAL_HATCH
 
     wxMemoryDC mdc(m_Bitmap);
-    mdc.SetBrush(customBrush);
+    mdc.SetBrush(m_customBrush);
     mdc.FloodFill(x,y, colorOld);
 
     SetImage(m_Bitmap.ConvertToImage());
     Refresh();
 }
 
-//Recursive fill function
-void OpenPaintMDIChildFrame::FillTool(int x, int y, wxColour colorNew, wxColour colorOld)
+// Note: the old recursive FillTool(int, int, wxColour, wxColour) used to
+// live here. It was broken (only one of four directional recursions was
+// enabled), never called from anywhere, and would have stack-overflowed on
+// any non-trivial region. Removed. The active flood fill is performed by
+// wxMemoryDC::FloodFill inside the single-arg FillTool() overload.
+
+void OpenPaintMDIChildFrame::PickColorTool(int x, int y, bool bIsForeground)
 {
-    //Bounds check
-    if(x < 0 || y < 0 || x >= m_Image.GetWidth() || y >= m_Image.GetHeight())
+    // The user may click outside the canvas (margin, scrollbar area, etc.).
+    // Clamp to the image bounds so we don't read past the buffer.
+    if (x < 0 || y < 0 || x >= m_Image.GetWidth() || y >= m_Image.GetHeight())
     {
         return;
     }
 
-    //Get old color to replace
-    if(!colorOld.IsOk())
-    {
-        colorOld.Set(m_Image.GetRed(x, y),m_Image.GetGreen(x, y),m_Image.GetBlue(x, y));
-    }
-
-    unsigned char red = m_Image.GetRed(x, y);
-    unsigned char green = m_Image.GetGreen(x, y);
-    unsigned char blue = m_Image.GetBlue(x, y);
-
-    if(colorOld.Red() == red && colorOld.Green() == green && colorOld.Blue() == blue)
-    {
-        m_Image.SetRGB( x, y, colorNew.Red(), colorNew.Green(), colorNew.Blue());
-        FillTool(x+1,y,colorNew,colorOld);
-        //FillTool(x,y+1,colorNew,colorOld);
-        //FillTool(x-1,y,colorNew,colorOld);
-        //FillTool(x,y-1,colorNew,colorOld);
-    }
-}
-
-void OpenPaintMDIChildFrame::PickColorTool(int x, int y, bool bIsForeground)
-{
     wxColour colorPicked(m_Image.GetRed(x, y),m_Image.GetGreen(x, y),m_Image.GetBlue(x, y));
-    
+
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
-    
+
     if(bIsForeground)
     {
         pToolManager->SetForeground(colorPicked);
@@ -1198,29 +1250,32 @@ void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus
 
     if(drawState == MOUSE_BEGIN_DRAWING)
     {
-        drawLine.Clear();
-        prevX = x;
-        prevY = y;
+        m_drawLine.clear();
+        m_prevX = x;
+        m_prevY = y;
     }
-    customPen = wxPen(color, radius, wxSOLID);
+    // Use the radius from the ToolManager (driven by the BrushToolPanel
+    // radius spinner) so the UI control actually has an effect.
+    int brushRadius = Globals::Instance()->GetToolManager()->GetBrushRadius();
+    m_customPen = wxPen(color, brushRadius, wxSOLID);
 
-    dc.SetPen(customPen);
-    dc.DrawLine(x,y,prevX,prevY);
+    dc.SetPen(m_customPen);
+    dc.DrawLine(x,y,m_prevX,m_prevY);
 
-    drawLine.Add(wxPoint(x,y));
-    prevX = x;
-    prevY = y;
+    m_drawLine.push_back(wxPoint(x,y));
+    m_prevX = x;
+    m_prevY = y;
 
     mydc.Blit(m_ScrollOrigin.x/GetZoom(), m_ScrollOrigin.y/GetZoom(), m_Bitmap.GetWidth(), m_Bitmap.GetHeight(), &dc, 0, 0);
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {
         wxMemoryDC memDC(m_Bitmap);
-        memDC.SetPen(customPen);
+        memDC.SetPen(m_customPen);
 
-        for(int i = 0; i < drawLine.GetCount()-1; i++)
+        for(size_t i = 0; i + 1 < m_drawLine.size(); i++)
         {
-            memDC.DrawLine(drawLine[i].x, drawLine[i].y, drawLine[i+1].x, drawLine[i+1].y);
+            memDC.DrawLine(m_drawLine[i].x, m_drawLine[i].y, m_drawLine[i+1].x, m_drawLine[i+1].y);
         }
 
         SetImage(m_Bitmap.ConvertToImage());
@@ -1230,26 +1285,30 @@ void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus
 
 void OpenPaintMDIChildFrame::SprayCanTool(int x, int y, wxColour color)
 {
-    srand((unsigned)time(0)+x+y); 
+    srand((unsigned)time(0)+x+y);
 
 
     //SQUARE SPRAY
-    int random_integer1,random_integer2; 
-    int lowest=-10, highest=10; 
-    int range=(highest-lowest)+1; 
-    for(int index=0; index<20; index++){ 
+    int random_integer1,random_integer2;
+    int lowest=-10, highest=10;
+    int range=(highest-lowest)+1;
+    const int w = m_Image.GetWidth();
+    const int h = m_Image.GetHeight();
+    for(int index=0; index<20; index++){
         random_integer1 = lowest+int(range*rand()/(RAND_MAX + 1.0));
         random_integer2 = lowest+int(range*rand()/(RAND_MAX + 1.0));
 
-        if( x+random_integer1 > 0 &&
-            x+random_integer1 < m_Image.GetWidth() &&
-            y+random_integer2 > 0 &&
-            y+random_integer2 < m_Image.GetHeight())
+        // Use inclusive bounds so pixels at the very edge of the canvas are
+        // reachable, and reject anything outside the image buffer.
+        if( x+random_integer1 >= 0 &&
+            x+random_integer1 <  w &&
+            y+random_integer2 >= 0 &&
+            y+random_integer2 <  h)
         {
             m_Image.SetRGB(x+random_integer1, y+random_integer2, color.Red(), color.Green(), color.Blue());
         }
 
-    } 
+    }
 
     //ROUND SPRAY
     //double random_angle,random_radius;
@@ -1280,8 +1339,6 @@ void OpenPaintMDIChildFrame::SprayCanTool(int x, int y, wxColour color)
     Refresh();
 }
 
-int prevX2 = 0;
-int prevY2 =0;
 void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStatus drawState)
 {
     wxClientDC dc(this);
@@ -1289,14 +1346,14 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
 
     if(drawState == MOUSE_BEGIN_DRAWING)
     {
-        prevX = x;
-        prevY = y;
-        prevX2 = x;
-        prevY2 = y;
+        m_prevX = x;
+        m_prevY = y;
+        m_prevX2 = x;
+        m_prevY2 = y;
     }
 
-    customPen = wxPen(color, 1, wxSOLID);
-    dc.SetPen(customPen);
+    m_customPen = wxPen(color, 1, wxSOLID);
+    dc.SetPen(m_customPen);
 
     //TODO:if solid box use background color
     dc.SetBrush(*wxTRANSPARENT_BRUSH);
@@ -1304,24 +1361,24 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
     dc.SetLogicalFunction(wxINVERT);
 
     //Remove last draw Rectangle
-    dc.DrawEllipse(prevX, prevY, -(prevX-prevX2), -(prevY-prevY2));
+    dc.DrawEllipse(m_prevX, m_prevY, -(m_prevX-m_prevX2), -(m_prevY-m_prevY2));
 
     //Add current rectangle
-    dc.DrawEllipse(prevX, prevY, -(prevX-x), -(prevY-y));
-    
+    dc.DrawEllipse(m_prevX, m_prevY, -(m_prevX-x), -(m_prevY-y));
+
     //Update previous rectangle second point
-    prevX2 = x;
-    prevY2 = y;
+    m_prevX2 = x;
+    m_prevY2 = y;
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {
         wxMemoryDC memDC;
         memDC.SelectObject(m_Bitmap);
-        memDC.SetPen(customPen);
+        memDC.SetPen(m_customPen);
         memDC.SetBrush(*wxTRANSPARENT_BRUSH);
 
-        memDC.DrawEllipse(prevX, prevY, -(prevX-x), -(prevY-y));
-        
+        memDC.DrawEllipse(m_prevX, m_prevY, -(m_prevX-x), -(m_prevY-y));
+
         SetImage(m_Bitmap.ConvertToImage());
         Refresh();
     }
@@ -1334,14 +1391,14 @@ void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseSt
 
     if(drawState == MOUSE_BEGIN_DRAWING)
     {
-        prevX = x;
-        prevY = y;
-        prevX2 = x;
-        prevY2 = y;
+        m_prevX = x;
+        m_prevY = y;
+        m_prevX2 = x;
+        m_prevY2 = y;
     }
 
-    customPen = wxPen(color, 1, wxSOLID);
-    dc.SetPen(customPen);
+    m_customPen = wxPen(color, 1, wxSOLID);
+    dc.SetPen(m_customPen);
 
     //TODO:if solid box use background color
     dc.SetBrush(*wxTRANSPARENT_BRUSH);
@@ -1351,40 +1408,40 @@ void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseSt
     if(bIsRounded)
     {
         //Remove last draw Rectangle
-        dc.DrawRoundedRectangle(prevX, prevY, -(prevX-prevX2), -(prevY-prevY2), 10);
+        dc.DrawRoundedRectangle(m_prevX, m_prevY, -(m_prevX-m_prevX2), -(m_prevY-m_prevY2), 10);
 
         //Add current rectangle
-        dc.DrawRoundedRectangle(prevX, prevY, -(prevX-x), -(prevY-y), 10);
+        dc.DrawRoundedRectangle(m_prevX, m_prevY, -(m_prevX-x), -(m_prevY-y), 10);
     }
     else
     {
         //Remove last draw Rectangle
-        dc.DrawRectangle(prevX, prevY, -(prevX-prevX2), -(prevY-prevY2));
+        dc.DrawRectangle(m_prevX, m_prevY, -(m_prevX-m_prevX2), -(m_prevY-m_prevY2));
 
         //Add current rectangle
-        dc.DrawRectangle(prevX, prevY, -(prevX-x), -(prevY-y));
+        dc.DrawRectangle(m_prevX, m_prevY, -(m_prevX-x), -(m_prevY-y));
     }
-    
+
     //Update previous rectangle second point
-    prevX2 = x;
-    prevY2 = y;
+    m_prevX2 = x;
+    m_prevY2 = y;
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {
         wxMemoryDC memDC;
         memDC.SelectObject(m_Bitmap);
-        memDC.SetPen(customPen);
+        memDC.SetPen(m_customPen);
         memDC.SetBrush(*wxTRANSPARENT_BRUSH);
 
         if(bIsRounded)
         {
-            memDC.DrawRoundedRectangle(prevX, prevY, -(prevX-x), -(prevY-y), 10);
+            memDC.DrawRoundedRectangle(m_prevX, m_prevY, -(m_prevX-x), -(m_prevY-y), 10);
         }
         else
         {
-            memDC.DrawRectangle(prevX, prevY, -(prevX-x), -(prevY-y));
+            memDC.DrawRectangle(m_prevX, m_prevY, -(m_prevX-x), -(m_prevY-y));
         }
-        
+
         SetImage(m_Bitmap.ConvertToImage());
         Refresh();
     }
@@ -1397,10 +1454,10 @@ void OpenPaintMDIChildFrame::SelectTool(int x, int y, MouseStatus drawState)
 
     if(drawState == MOUSE_BEGIN_DRAWING)
     {
-        prevX = x;
-        prevY = y;
-        prevX2 = x;
-        prevY2 = y;
+        m_prevX = x;
+        m_prevY = y;
+        m_prevX2 = x;
+        m_prevY2 = y;
     }
 
     dc.SetPen(*wxBLACK_DASHED_PEN);
@@ -1408,23 +1465,23 @@ void OpenPaintMDIChildFrame::SelectTool(int x, int y, MouseStatus drawState)
     dc.SetLogicalFunction(wxINVERT);
 
     //Remove last draw Rectangle
-    dc.DrawRectangle(prevX, prevY, -(prevX-prevX2), -(prevY-prevY2));
+    dc.DrawRectangle(m_prevX, m_prevY, -(m_prevX-m_prevX2), -(m_prevY-m_prevY2));
 
     //Add current rectangle
-    dc.DrawRectangle(prevX, prevY, -(prevX-x), -(prevY-y));
-    
+    dc.DrawRectangle(m_prevX, m_prevY, -(m_prevX-x), -(m_prevY-y));
+
     //Update previous rectangle second point
-    prevX2 = x;
-    prevY2 = y;
+    m_prevX2 = x;
+    m_prevY2 = y;
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {
-        if(prevX != x && prevY != y)//Make sure at least one pixel is selected
+        if(m_prevX != x && m_prevY != y)//Make sure at least one pixel is selected
         {
-            m_iSelectionOriginX = std::min(prevX,x);
-            m_iSelectionOriginY = std::min(prevY,y);
-            m_iSelectionWidth = abs(prevX-x);
-            m_iSelectionHeight = abs(prevY-y);
+            m_iSelectionOriginX = std::min(m_prevX,x);
+            m_iSelectionOriginY = std::min(m_prevY,y);
+            m_iSelectionWidth = abs(m_prevX-x);
+            m_iSelectionHeight = abs(m_prevY-y);
             m_SelectedBitmap = m_Bitmap.GetSubBitmap(wxRect(m_iSelectionOriginX, m_iSelectionOriginY , m_iSelectionWidth, m_iSelectionHeight)) ;
 
             m_iSelectionMoveX = m_iSelectionOriginX;
@@ -1439,13 +1496,15 @@ void OpenPaintMDIChildFrame::TextTool(int x, int y, wxColour color)
 {
     wxString strText = wxGetTextFromUser(wxT("Write text."));
 
+    // Drawing via wxMemoryDC + wxFont (the previous approach used
+    // wxGraphicsContext but never deleted the context, leaking every
+    // invocation; the graphics backend also has no easy way to honour the
+    // font that the user picked in the Set Font dialog).
     wxMemoryDC mdc(m_Bitmap);
-    wxGraphicsContext* gc = wxGraphicsContext::Create(mdc);
-    //wxFont wxGetFontFromUser(wxWindow *parent, const wxFont& fontInit)
-    //gc->SetBackgroundMode(wxSOLID); //sets the background color draw mode
-    //gc->SetFont(wxSystemSettings::GetFont(wxSYS_SYSTEM_FONT), color);
-    gc->SetFont(GetFont(), color);
-    gc->DrawText(strText,x,y);
+    mdc.SetFont(GetFont());
+    mdc.SetTextForeground(color);
+    mdc.DrawText(strText, x, y);
+
     SetImage(m_Bitmap.ConvertToImage());
     Refresh();
 }

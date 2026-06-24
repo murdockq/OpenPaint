@@ -1,4 +1,5 @@
 #include "SubToolPanel.h"
+#include "SubBrushToolPanel.h"
 #include "Globals.h"
 #include "ToolManager.h"
 #include <wx/statbox.h>
@@ -55,10 +56,24 @@ void SubToolPanel::OnPencil( wxCommandEvent& event )
 void SubToolPanel::OnBrush( wxCommandEvent& event )
 {
     Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_BRUSH);
-    
+
     m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Brush"));
-    m_sbSizerToolProperties->Detach(0);
-    m_sbSizerToolProperties->Add(new BrushToolPanel(this));
+    // Remove and delete any prior tool-properties panel (the old code
+    // detached without destroying, leaking one BrushToolPanel per click).
+    if (m_sbSizerToolProperties->GetItemCount() > 0)
+    {
+        wxSizerItem* item = m_sbSizerToolProperties->GetItem(static_cast<size_t>(0));
+        if (item)
+        {
+            wxWindow* w = item->GetWindow();
+            m_sbSizerToolProperties->Remove(0);
+            if (w)
+            {
+                w->Destroy();
+            }
+        }
+    }
+    m_sbSizerToolProperties->Add(new SubBrushToolPanel(this));
     m_sbSizerToolProperties->Layout();
 
     EnableTools();
@@ -139,10 +154,10 @@ void SubToolPanel::OnSelectLasso( wxCommandEvent& event )
 
 void SubToolPanel::OnSelect( wxCommandEvent& event )
 {
-	//Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_SELECT);
- //   m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Box Select"));
- //   EnableTools();
- //   m_bpButtonSelect->Enable(false);
+    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_SELECT);
+    m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Box Select"));
+    EnableTools();
+    m_bpButtonSelect->Enable(false);
 }
 
 void SubToolPanel::OnText( wxCommandEvent& event )

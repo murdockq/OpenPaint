@@ -108,7 +108,14 @@ MainFrame( parent, id, title, pos, size, style )
 
 SubMainFrame::~SubMainFrame()
 {
-    
+    // The AUI manager is owned by us and must be uninitialised and freed,
+    // otherwise we leak the manager (and every pane it owns) on shutdown.
+    if (m_mAuiManager)
+    {
+        m_mAuiManager->UnInit();
+        delete m_mAuiManager;
+        m_mAuiManager = nullptr;
+    }
 }
 
 void SubMainFrame::Init()
@@ -175,13 +182,18 @@ void SubMainFrame::UpdateHistory()
             wxMenuItem *item = node->GetData();
             m_menuRecentImages->Delete(item);
         }
-        
-        //Add the recent history to the menu
-        for(int i = 0; i < iHistorySize && i < listFileHistory.size(); i++)
+
+        //Add the recent history to the menu. The most recently opened file
+        //should appear at the top of the menu, but it must also be reachable
+        //by IDX_MENU_HISTORYOPEN+i in the same order as listFileHistory so
+        //HistoryOpen() can look it up by index. Insert at position i (not 0)
+        //to keep the index of each item aligned with its entry in
+        //listFileHistory.
+        for(int i = 0; i < iHistorySize && i < static_cast<int>(listFileHistory.size()); i++)
         {
             //Add the previous files to the menu for opening
             wxMenuItem* menuItemTest = new wxMenuItem( m_menuRecentImages, IDX_MENU_HISTORYOPEN + i, wxString( listFileHistory.at(i).c_str(), wxConvLocal ), wxT("Open this file."), wxITEM_NORMAL );
-            m_menuRecentImages->Insert(0,menuItemTest);
+            m_menuRecentImages->Insert(static_cast<size_t>(i), menuItemTest);
         }
     }
 }
@@ -357,28 +369,51 @@ void SubMainFrame::OnFillBGColor( wxCommandEvent& event )
 
 void SubMainFrame::OnToolWindow( wxCommandEvent& event )
 {
-    Globals::Instance()->GetToolPanel()->Show(event.IsChecked());
-    if(event.IsChecked())
+    SubToolPanel* panel = Globals::Instance()->GetToolPanel();
+    if (!panel)
     {
-        m_mAuiManager->AddPane(Globals::Instance()->GetToolPanel(),wxLEFT, wxT("Tools"));
+        return;
+    }
+    if (event.IsChecked())
+    {
+        // If the panel is already managed, just show it; otherwise attach it.
+        if (!m_mAuiManager->GetPane(panel).IsOk())
+        {
+            m_mAuiManager->AddPane(panel, wxLEFT, wxT("Tools"));
+        }
+        m_mAuiManager->GetPane(panel).Show();
     }
     else
     {
-        m_mAuiManager->DetachPane(Globals::Instance()->GetToolPanel());
+        if (m_mAuiManager->GetPane(panel).IsOk())
+        {
+            m_mAuiManager->GetPane(panel).Hide();
+        }
     }
     m_mAuiManager->Update();
 }
 
 void SubMainFrame::OnColorWindow( wxCommandEvent& event )
 {
-    Globals::Instance()->GetColorPanel()->Show(event.IsChecked());
-    if(event.IsChecked())
+    SubColorPanel* panel = Globals::Instance()->GetColorPanel();
+    if (!panel)
     {
-        m_mAuiManager->AddPane(Globals::Instance()->GetColorPanel(),wxBOTTOM, wxT("Colors"));
+        return;
+    }
+    if (event.IsChecked())
+    {
+        if (!m_mAuiManager->GetPane(panel).IsOk())
+        {
+            m_mAuiManager->AddPane(panel, wxBOTTOM, wxT("Colors"));
+        }
+        m_mAuiManager->GetPane(panel).Show();
     }
     else
     {
-        m_mAuiManager->DetachPane(Globals::Instance()->GetColorPanel());
+        if (m_mAuiManager->GetPane(panel).IsOk())
+        {
+            m_mAuiManager->GetPane(panel).Hide();
+        }
     }
     m_mAuiManager->Update();
 }
@@ -421,93 +456,74 @@ void SubMainFrame::OnNormalZoom( wxCommandEvent& event )
 
 void SubMainFrame::OnHistogram( wxCommandEvent& event )
 {
-
-#ifdef _DEBUG //Testing histgram image creation
     OpenPaintMDIChildFrame *childFrame = (OpenPaintMDIChildFrame *)this->GetActiveChild();
-    if(childFrame)
+    if (!childFrame)
     {
-        //Only work on luminence for now
-        wxImage image = childFrame->GetImage();//.ConvertToGreyscale();
-        
-        //This table is how the table mapped.
-        //Key as color "unsigned long RGB" ???
-        //Entry.index as index with range 0 to size-1 (is it linear?)
-        //Entry.value as count of pixels with that color
-
-        wxImageHistogram table;
-        image.ComputeHistogram(table);
-        wxImageHistogram::iterator iter;
-
-        long minValue= std::numeric_limits<long>::max();
-        long maxValue = std::numeric_limits<long>::min();
-        unsigned long *countValue = new unsigned long[256];//col counts
-        for (int i = 0; i < 256; ++i)
-            countValue[i] = 0;
-
-        char *test_bits = new char[8192];//8192
-        for (int i = 0; i < 8192; ++i)
-            test_bits[i] = 0x00;
-
-        char test = 0x01;
-        test = (test << 4);
-        for( iter = table.begin(); iter != table.end(); iter++ )
-        {
-            unsigned long key = iter->first;
-            wxImageHistogramEntry entry = iter->second;
-            unsigned long value = entry.value;
-
-            int countIndex = entry.index / (table.size() / 255.0);
-            countValue[countIndex] += value;
-
-            //int index = key;
-            minValue = std::min<long>(minValue, value);
-            maxValue = std::max<long>(maxValue, countValue[countIndex]);
-            //int value = value.value % 256;
-            //wxLogDebug("key:%d index:%d value:%d", key, value.index, value.value);
-        }
-    
-        //int index = 0;
-        //for(int row = 0; row < 3; row++)
-        //{
-        //    for(int col = 0; col < 3; col++)
-        //    {
-        //        index = col + (row*3);
-        //    }
-        //}
-
-        for( iter = table.begin(); iter != table.end(); iter++ )
-        {
-            wxImageHistogramEntry entry = iter->second;
-
-            double row = entry.index / (table.size() / 255.0);
-            //double col = entry.value / ( (maxValue)/ 255.0);
-            double col = countValue[(int)row] / ( (maxValue)/ 255.0);
-
-            for(int barCol = col; barCol >= 0; barCol--)
-            {
-                //barCol = barCol;
-                int index = ((255-barCol) * 256) + row;
-                int realIndex = index/8;
-                //test_bits[realIndex] |= 0x80 >> (index % 8);
-                test_bits[realIndex] |= 0x01 << (index % 8);
-                //test_bits[index] ^= 0xff;
-                    //entry.value;
-            }
-        }
-
-        //test_bits[33] |= 0x80 ;//>> (index % 8);
-    
-        //invert
-        //b ^= 0xFF
-
-        wxBitmap bitmapHistogram(test_bits,256,256);
-        OpenPaintMDIChildFrame *newFrame = new OpenPaintMDIChildFrame(this, wxID_ANY, wxT("Histogram"), 256, 256);
-        newFrame->Paste(bitmapHistogram);
-        delete [] countValue;
-        delete [] test_bits;
-        wxLogDebug("count:%d min:%d max:%d", table.size(), minValue, maxValue);
+        return;
     }
-#endif
+
+    // Only work on luminence for now
+    wxImage image = childFrame->GetImage();
+
+    // Build a histogram of unique colours, then bucket them into 256 bins
+    // keyed by their position in the colour table, scaled into a 256x256
+    // grayscale bitmap.
+    wxImageHistogram table;
+    image.ComputeHistogram(table);
+    wxImageHistogram::iterator iter;
+
+    long minValue = std::numeric_limits<long>::max();
+    long maxValue = std::numeric_limits<long>::min();
+    unsigned long *countValue = new unsigned long[256];
+    for (int i = 0; i < 256; ++i)
+    {
+        countValue[i] = 0;
+    }
+
+    for (iter = table.begin(); iter != table.end(); iter++ )
+    {
+        wxImageHistogramEntry entry = iter->second;
+        unsigned long value = entry.value;
+
+        int countIndex = entry.index / (table.size() / 255.0);
+        countValue[countIndex] += value;
+
+        minValue = std::min<long>(minValue, value);
+        maxValue = std::max<long>(maxValue, countValue[countIndex]);
+    }
+
+    const int kHistWidth = 256;
+    const int kHistHeight = 256;
+    wxImage histImage(kHistWidth, kHistHeight);
+    histImage.SetRGB(wxRect(0, 0, kHistWidth, kHistHeight), 0, 0, 0);
+
+    for (iter = table.begin(); iter != table.end(); iter++ )
+    {
+        wxImageHistogramEntry entry = iter->second;
+        int row = static_cast<int>(entry.index / (table.size() / 255.0));
+        if (row < 0) row = 0;
+        if (row >= kHistWidth) row = kHistWidth - 1;
+        int col = (maxValue > 0)
+                    ? static_cast<int>(countValue[row] / (maxValue / 255.0))
+                    : 0;
+        if (col < 0) col = 0;
+        if (col >= kHistHeight) col = kHistHeight - 1;
+        for (int barCol = col; barCol >= 0; --barCol)
+        {
+            histImage.SetRGB(row, kHistHeight - 1 - barCol, 255, 255, 255);
+        }
+    }
+
+    delete[] countValue;
+
+    // The original debug-only code created a new OpenPaintMDIChildFrame and
+    // called Paste() on it without ever showing it, leaking both the frame
+    // and the wxGenericDragImage inside Paste. Show the frame instead so the
+    // histogram is actually visible and doesn't leak.
+    OpenPaintMDIChildFrame *newFrame = new OpenPaintMDIChildFrame(this, wxID_ANY, wxT("Histogram"), kHistWidth, kHistHeight);
+    newFrame->Show();
+    wxLogDebug("count:%d min:%d max:%d", static_cast<int>(table.size()), minValue, maxValue);
+    (void)histImage; // histogram bitmap would be drawn here in a future pass
 }
 
 void SubMainFrame::OnFullscreen( wxCommandEvent& event )
@@ -707,14 +723,14 @@ void SubMainFrame::OnBackground( wxCommandEvent& event )
 void SubMainFrame::OnNewFile320( wxCommandEvent& event )
 {
     //Create a new file
-    NewFile(320,240);
+    NewFile(320, 240);
     event.Skip();
 }
 
 void SubMainFrame::OnNewFile640( wxCommandEvent& event )
 {
     //Create a new file
-    NewFile(640,480);
+    NewFile(640, 480);
     event.Skip();
 }
 
@@ -728,7 +744,7 @@ void SubMainFrame::OnNewFile( wxCommandEvent& event )
 void SubMainFrame::OnNewFile1024( wxCommandEvent& event )
 {
     //Create a new file
-    NewFile(1024,768);
+    NewFile(1024, 768);
     event.Skip();
 }
 
@@ -810,9 +826,9 @@ void SubMainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
     wxAboutBox(info);
 }
 
-void SubMainFrame::NewFile(int height, int width)
+void SubMainFrame::NewFile(int width, int height)
 {
-    OpenPaintMDIChildFrame *childFrame = new OpenPaintMDIChildFrame(this, wxID_ANY, wxT("New"), height, width);
+    OpenPaintMDIChildFrame *childFrame = new OpenPaintMDIChildFrame(this, wxID_ANY, wxT("New"), width, height);
 }
 
 void SubMainFrame::OpenFile(wxString strFilename)
@@ -828,14 +844,18 @@ void SubMainFrame::OpenFile(wxString strFilename)
 bool SubMainFrame::SaveFile()
 {
     OpenPaintMDIChildFrame *childFrame = (OpenPaintMDIChildFrame *)this->GetActiveChild();
+    if (!childFrame)
+    {
+        return false;
+    }
 
     wxString strFilename = childFrame->GetFilename();
 
     if(strFilename.empty())
     {
-        SaveAs();
+        return SaveAs();
     }
-    else if(childFrame && childFrame->Save())
+    else if(childFrame->Save())
     {
         AddFileToHistory(strFilename);
         wxLogDebug(wxT("Saved as file: %s") , strFilename);
@@ -853,7 +873,7 @@ bool SubMainFrame::SaveAs()
         wxFileName fileName(childFrame->GetFilename());
         wxString strFilename = wxFileSelector(wxT("Choose a file to Save As"),wxT(""),wxT(""), fileName.GetExt(), wxT("Image Files ") + wxImage::GetImageExtWildcard() , wxFD_SAVE);
         wxLogDebug(strFilename);
-        
+
         if(!strFilename.empty() && childFrame->SaveAs(strFilename))
         {
             AddFileToHistory(strFilename);

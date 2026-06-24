@@ -781,13 +781,22 @@ void SubMainFrame::OnSize(wxSizeEvent& event) {
 
 void SubMainFrame::OnClose( wxCloseEvent& event )
 {
-    event.Veto();
+    // Hide the window synchronously so it disappears the instant the user
+    // clicks close. Destroy() is deferred to the next idle event, and the
+    // config save in OnExit() runs after the frame is gone — without Hide()
+    // the user would see the frame sit there until all of that completed.
+    this->Hide();
+
+    // No Veto() — Shutdown() will Destroy() the frame. Vetoing and then
+    // destroying leaves wx in an inconsistent state and can produce warnings.
+    // OnExit() owns Globals teardown (saves config.xml once).
     Shutdown();
 }
 
 void SubMainFrame::OnExit( wxCommandEvent& event )
 {
     event.Skip();
+    this->Hide();
     Shutdown();
 }
 
@@ -917,6 +926,5 @@ void SubMainFrame::SetMenuBar(wxMenuBar* menuBar)
 
 void SubMainFrame::Shutdown()
 {
-    delete Globals::Instance();
     this->Destroy();
 }

@@ -26,6 +26,13 @@
 #include "OpenPaintMDIChildFrame.h"
 #include <wx/cmdline.h>
 
+// wxUSE_LIBWEBP (renamed from wxUSE_WEBP in wxWidgets 3.2.2) gates the
+// declaration of wxWEBPHandler. wxInitAllImageHandlers() does not register
+// it, so we do so explicitly when wxWidgets was built with libwebp.
+#if defined(wxUSE_LIBWEBP) && wxUSE_LIBWEBP
+    #include <wx/imagwebp.h>
+#endif
+
 IMPLEMENT_APP(OpenPaintMainApp)      // This declares wxApp::OpenPaintMainApp as "the" Application
 
 
@@ -42,6 +49,10 @@ bool OpenPaintMainApp::OnInit(void)  // Does everything needed for a program sta
     SetAppName(wxT("OpenPaint"));
 
     wxInitAllImageHandlers();
+
+    #if defined(wxUSE_LIBWEBP) && wxUSE_LIBWEBP
+        wxImage::AddHandler(new wxWEBPHandler);
+    #endif
 
     // Create the main frame window
     Globals::Instance()->SetMainFrame(new SubMainFrame((wxFrame *) NULL));

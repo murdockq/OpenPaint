@@ -44,3 +44,31 @@ endif()
 
 include(Catch)
 catch_discover_tests(test_openpaint)
+
+# WebP round-trip test. Linked against wx::core so the test exercises the
+# same libwebp the GUI uses. Skipped automatically if wxWidgets isn't
+# available (e.g. developer installed only the libraries needed for the
+# non-GUI tests).
+find_package(wxWidgets CONFIG QUIET COMPONENTS core base)
+if(NOT wxWidgets_FOUND)
+    find_package(wxWidgets QUIET MODULE COMPONENTS core base)
+endif()
+if(wxWidgets_FOUND)
+    if(TARGET wx::core)
+        add_executable(test_openpaint_webp test_Webp.cpp)
+        target_link_libraries(test_openpaint_webp PRIVATE
+            openpaint_core Catch2WithMain wx::core wx::base)
+    else()
+        add_executable(test_openpaint_webp test_Webp.cpp)
+        target_include_directories(test_openpaint_webp PRIVATE ${wxWidgets_INCLUDE_DIRS})
+        target_compile_options(test_openpaint_webp PRIVATE ${wxWidgets_CXX_FLAGS})
+        target_link_libraries(test_openpaint_webp PRIVATE
+            openpaint_core Catch2WithMain ${wxWidgets_LIBRARIES})
+    endif()
+    if(MSVC)
+        target_compile_options(test_openpaint_webp PRIVATE /W4 /permissive-)
+    else()
+        target_compile_options(test_openpaint_webp PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    catch_discover_tests(test_openpaint_webp)
+endif()

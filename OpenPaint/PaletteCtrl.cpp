@@ -64,12 +64,12 @@ void PaletteCtrl::OnPalette( wxMouseEvent& event )
 
     if(event.GetEventType() == wxEVT_LEFT_DCLICK)
     {
-        pToolManager->SetForeground(pToolManager->PickColor());
+        pToolManager->SetForeground(pToolManager->PickColor(pToolManager->GetForeground()));
         this->SetBackgroundColour(pToolManager->GetForeground());
     }
     else if(event.GetEventType() == wxEVT_RIGHT_DCLICK)
     {
-        pToolManager->SetBackground(pToolManager->PickColor());
+        pToolManager->SetBackground(pToolManager->PickColor(pToolManager->GetBackground()));
         this->SetBackgroundColour(pToolManager->GetBackground());
     }
     Refresh();
@@ -89,11 +89,11 @@ void PaletteCtrl::OnForeground( wxMouseEvent& event )
     {
         if( m_bIsForeground )
         {
-            pToolManager->SetForeground( pToolManager->PickColor() );
+            pToolManager->SetForeground( pToolManager->PickColor( pToolManager->GetForeground() ) );
         }
         else
         {
-            pToolManager->SetBackground( pToolManager->PickColor() );
+            pToolManager->SetBackground( pToolManager->PickColor( pToolManager->GetBackground() ) );
         }
         SetBackgroundColour( m_bIsForeground ? pToolManager->GetForeground() : pToolManager->GetBackground() );
         Refresh();

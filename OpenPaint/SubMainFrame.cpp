@@ -710,13 +710,13 @@ void SubMainFrame::OnFont( wxCommandEvent& event )
 void SubMainFrame::OnForeground( wxCommandEvent& event )
 {
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
-    pToolManager->SetForeground(pToolManager->PickColor());
+    pToolManager->SetForeground(pToolManager->PickColor(pToolManager->GetForeground()));
 }
 
 void SubMainFrame::OnBackground( wxCommandEvent& event )
 {
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
-    pToolManager->SetBackground(pToolManager->PickColor());
+    pToolManager->SetBackground(pToolManager->PickColor(pToolManager->GetBackground()));
 }
 
 //********************************************

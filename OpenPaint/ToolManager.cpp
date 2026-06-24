@@ -148,13 +148,14 @@ void ToolManager::SetBackground(wxColour backgroundColor)
 }
 
 
-wxColour ToolManager::PickColor()
+wxColour ToolManager::PickColor(const wxColour& initialColor)
 {
     // Default to the current foreground so cancelling the dialog is a no-op
     // rather than clobbering the colour with an invalid wxColour.
-    wxColour returnColor = m_colorForeground;
+    wxColour returnColor = initialColor.IsOk() ? initialColor : m_colorForeground;
     wxColourData data;
     data.SetChooseFull(true);
+    data.SetColour(returnColor);
     for (int i = 0; i < 16; i++)
     {
         wxColour colour(i*16, i*16, i*16);

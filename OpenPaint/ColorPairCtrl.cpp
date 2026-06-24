@@ -60,16 +60,16 @@ void ColorPairCtrl::OnLeftDown( wxMouseEvent& event )
 
     if( inForeground )
     {
-        pToolManager->SetForeground( pToolManager->PickColor() );
+        pToolManager->SetForeground( pToolManager->PickColor( pToolManager->GetForeground() ) );
     }
     else if( inBackground )
     {
-        pToolManager->SetBackground( pToolManager->PickColor() );
+        pToolManager->SetBackground( pToolManager->PickColor( pToolManager->GetBackground() ) );
     }
 }
 
 void ColorPairCtrl::OnRightDown( wxMouseEvent& event )
 {
     ToolManager* pToolManager = Globals::Instance()->GetToolManager();
-    pToolManager->SetBackground( pToolManager->PickColor() );
+    pToolManager->SetBackground( pToolManager->PickColor( pToolManager->GetBackground() ) );
 }

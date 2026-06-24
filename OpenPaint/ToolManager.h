@@ -91,7 +91,7 @@ class ToolManager
         void SetForeground(wxColour foregroundColor);
         wxColour GetBackground();
         void SetBackground(wxColour backgroundColor);
-        wxColour PickColor();
+        wxColour PickColor(const wxColour& initialColor = wxColour());
 
         // Brush settings
         int GetBrushRadius() const { return m_brushRadius; }

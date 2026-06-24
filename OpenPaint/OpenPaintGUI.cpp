@@ -802,30 +802,34 @@ BrushToolPanel::BrushToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& 
 	
 	wxBoxSizer* bSizer3;
 	bSizer3 = new wxBoxSizer( wxVERTICAL );
-	
+
+	// Stack label-above-control so the inputs fill the tool window's
+	// narrow width (the previous 2-column layout forced the controls
+	// into a half-width column that made the panel feel cramped).
 	wxFlexGridSizer* fgSizer4;
-	fgSizer4 = new wxFlexGridSizer( 2, 2, 0, 0 );
+	fgSizer4 = new wxFlexGridSizer( 4, 1, 0, 0 );
 	fgSizer4->SetFlexibleDirection( wxBOTH );
 	fgSizer4->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-	
+	fgSizer4->AddGrowableCol( 0 );
+
 	m_staticText1 = new wxStaticText( this, wxID_ANY, _("Radius"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText1->Wrap( -1 );
 	fgSizer4->Add( m_staticText1, 0, wxALL|wxEXPAND, 5 );
-	
+
 	m_spinCtrlRadius = new wxSpinCtrl( this, wxID_ANY, wxT("10"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 10 );
 	fgSizer4->Add( m_spinCtrlRadius, 0, wxALL|wxEXPAND, 5 );
-	
+
 	m_staticText2 = new wxStaticText( this, wxID_ANY, _("Tip"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText2->Wrap( -1 );
 	fgSizer4->Add( m_staticText2, 0, wxALL|wxEXPAND, 5 );
-	
+
 	m_comboBoxTip = new wxComboBox( this, wxID_ANY, _("Round"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
 	m_comboBoxTip->Append( _("Round") );
 	m_comboBoxTip->Append( _("Square") );
 	m_comboBoxTip->Append( _("Vertical Line") );
 	m_comboBoxTip->Append( _("Horizontal Line") );
 	fgSizer4->Add( m_comboBoxTip, 0, wxALL|wxEXPAND, 5 );
-	
+
 	bSizer3->Add( fgSizer4, 1, wxEXPAND, 5 );
 	
 	this->SetSizer( bSizer3 );

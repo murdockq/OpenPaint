@@ -1,0 +1,43 @@
+# Build directories
+/build/
+/build-*/
+/out/
+/cmake-build-*/
+*_build/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CMakeUserPresets.json
+
+# Compiled objects and binaries
+*.o
+*.obj
+*.d
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+openpaint
+/openpaint
+
+# IDE / editor
+.vs/
+.vscode/
+*.user
+*.suo
+*.pdb
+*.ilk
+*.pdb
+
+# Catch2 / test artifacts
+tests/__pycache__/
+_test_temp_*
+openpaint_test_*
+
+# OS junk
+.DS_Store
+Thumbs.db

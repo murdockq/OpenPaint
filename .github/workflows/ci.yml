@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  # Build and run the unit tests. The tests only exercise the non-GUI core
+  # (ConfigFile + tinyxml) so they do not need wxWidgets and run quickly on a
+  # single platform.
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure CMake (tests only)
+        run: cmake -B build -DOPENPAINT_BUILD_APP=OFF -DOPENPAINT_BUILD_TESTS=ON
+
+      - name: Build tests
+        run: cmake --build build --config Release
+
+      - name: Run tests
+        run: ctest --test-dir build --build-config Release --output-on-failure
+
+  # Build the full GUI application against wxWidgets on each platform.
+  build:
+    name: Build app (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install wxWidgets (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwxgtk3.2-dev libwxgtk3.2-1t64 || \
+            sudo apt-get install -y libwxgtk3.0-dev
+
+      - name: Install wxWidgets (macOS)
+        if: runner.os == 'macOS'
+        run: brew install wxwidgets
+
+      - name: Install wxWidgets (Windows via vcpkg)
+        if: runner.os == 'Windows'
+        run: vcpkg install wxwidgets
+
+      - name: Configure CMake (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: cmake -B build -DOPENPAINT_BUILD_APP=ON -DOPENPAINT_BUILD_TESTS=OFF
+
+      - name: Configure CMake (Windows)
+        if: runner.os == 'Windows'
+        run: cmake -B build -DOPENPAINT_BUILD_APP=ON -DOPENPAINT_BUILD_TESTS=OFF -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build app
+        run: cmake --build build --config Release

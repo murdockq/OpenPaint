@@ -29,12 +29,14 @@ ConfigFile::ConfigFile()
 {
     m_bOpenSuccessful = false;
     bIsModified = false;
+    m_bAddDefaultsToConfig = false;
 }
 
 ConfigFile::ConfigFile(std::string identifier)
 {
     m_bOpenSuccessful = false;
     bIsModified = false;
+    m_bAddDefaultsToConfig = false;
     m_strIdentifier = identifier;
 }
 

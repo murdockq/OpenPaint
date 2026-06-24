@@ -1,6 +1,6 @@
 OpenPaint
 =========
-[![Build Status](https://secure.travis-ci.org/murdockq/OpenPaint.png?branch=master)](http://travis-ci.org/murdockq/OpenPaint)
+[![CI](https://github.com/murdockq/OpenPaint/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/murdockq/OpenPaint/actions/workflows/ci.yml)
 
 The cross-platform open source alternative to MS Paint. 
 
@@ -24,17 +24,45 @@ Open Paint is an open source image editor for all major operating systems. The g
 
 ## Requirements ##
  * Windows All:
-  * This program uses libraries that may not be on your system. 
-    If you get an error like:
-    "This application failed to start because the application configuration is incorrect. Reinstalling the application may fix this problem"
-    You should install this:
-    [Microsoft Visual C++ 2005 SP1 Redistributable Package](http://www.microsoft.com/downloads/details.aspx?familyid=200B2FD9-AE1A-4A14-984D-389C36F85647&displaylang=en)
- 
- * Windows 2000:
-  * This program uses GDI+ which became standard on XP and Vista.
-    If you are using Windows 2000 you will need to install GDI+ from this link.
-    [Platform SDK Redistributable: GDI+](http://www.microsoft.com/downloads/details.aspx?FamilyId=6A63AB9C-DF12-4D41-933C-BE590FEAA05A&displaylang=en)
+   * This program uses libraries that may not be on your system. 
+     If you get an error like:
+     "This application failed to start because the application configuration is incorrect. Reinstalling the application may fix this problem"
+     You should install this:
+     [Microsoft Visual C++ 2005 SP1 Redistributable Package](http://www.microsoft.com/downloads/details.aspx?familyid=200B2FD9-AE1A-4A14-984D-389C36F85647&displaylang=en)
+  
+  * Windows 2000:
+   * This program uses GDI+ which became standard on XP and Vista.
+     If you are using Windows 2000 you will need to install GDI+ from this link.
+     [Platform SDK Redistributable: GDI+](http://www.microsoft.com/downloads/details.aspx?FamilyId=6A63AB9C-DF12-4D41-933C-BE590FEAA05A&displaylang=en)
 
- * Linux and OS X:
-  * These ports have been built but need to be packaged and tested before they will be available.
+  * Linux and OS X:
+   * These ports have been built but need to be packaged and tested before they will be available.
+
+## Building ##
+
+OpenPaint uses [CMake](https://cmake.org/) and [wxWidgets](https://www.wxwidgets.org/).
+
+```sh
+# Configure (from the repo root)
+cmake -B build
+
+# Build the application
+cmake --build build --config Release
+
+# Build and run the unit tests
+cmake -B build -DOPENPAINT_BUILD_TESTS=ON
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+Build options:
+* `-DOPENPAINT_BUILD_APP=ON/OFF`   - build the GUI application (default: ON)
+* `-DOPENPAINT_BUILD_TESTS=ON/OFF` - build the unit tests (default: ON)
+
+Platform wxWidgets install:
+* **Linux:** `sudo apt-get install libwxgtk3.2-dev`
+* **macOS:** `brew install wxwidgets`
+* **Windows:** install via [vcpkg](https://vcpkg.io/) (`vcpkg install wxwidgets`) and pass
+  `-DCMAKE_TOOLCHAIN_FILE=<vcpkg>/scripts/buildsystems/vcpkg.cmake` to CMake.
+
 

@@ -115,7 +115,7 @@ std::string ConfigFile::LastError()
 bool ConfigFile::ReadConfigFile()
 {
     TiXmlDocument doc( m_strFilename.c_str() );
-     
+
 	bool loadOkay = doc.LoadFile();
 
 	if ( !loadOkay )
@@ -125,7 +125,7 @@ bool ConfigFile::ReadConfigFile()
         //Use already loaded defaults
 		return false;
 	}
-	
+
 	TiXmlNode* parent = 0;
     TiXmlNode* child = 0;
     TiXmlNode* tempChild = 0;
@@ -133,18 +133,34 @@ bool ConfigFile::ReadConfigFile()
 	TiXmlElement* itemElement = 0;
     TiXmlElement* tempElement = 0;
 
-	// Get the "configData" element.
+	// Get the "configData" element. Return false (without crashing) if
+	// the root identifier doesn't match; callers fall back to the defaults
+	// loaded by the ctor.
     parent = doc.FirstChild( m_strIdentifier.c_str() );
-	assert( parent  );
-	configElement =parent->ToElement();
-	assert( configElement  );	
+	if ( !parent )
+	{
+		std::cout << "Could not find root element '" << m_strIdentifier
+		          << "' in '" << m_strFilename << "'. Using Default Data"
+		          << std::endl;
+		m_strLastError = "Root element not found";
+		return false;
+	}
+	configElement = parent->ToElement();
+	if ( !configElement )
+	{
+		m_strLastError = "Root element is not an element";
+		return false;
+	}
 
 	//Read all the configuration data
     for( child = configElement->FirstChild(); child; child = child->NextSibling() )
     {
         itemElement = child->ToElement();
-	    assert( itemElement  );
-        
+	    if ( !itemElement )
+	    {
+	        continue;
+	    }
+
         //convert to uppercase
         std::string strElement = itemElement->Value();
 
@@ -154,7 +170,7 @@ bool ConfigFile::ReadConfigFile()
         ConfigAttribute element;
         element.strAttribute = strElement;
         element.strValue = itemElement->Attribute( "value");
-        
+
         //Read the sub items from the file and store as an array
         if(!itemElement->NoChildren() || element.strValue == "Array()")
         {
@@ -163,7 +179,10 @@ bool ConfigFile::ReadConfigFile()
             for( tempChild = itemElement->FirstChild(); tempChild; tempChild = tempChild->NextSibling() )
             {
                 tempElement = tempChild->ToElement();
-                assert( tempElement  );
+                if ( !tempElement )
+                {
+                    continue;
+                }
 
                 element.listValues.push_back(tempElement->Attribute( "value"));
             }
@@ -173,18 +192,18 @@ bool ConfigFile::ReadConfigFile()
     }
 
     return true;
-    
+
 }
 
 bool ConfigFile::ImportXML(std::string strXML)
 {
     TiXmlDocument doc;
-    
+
     //Load document from strXML using streams
     std::istringstream strIStream;
     strIStream.str(strXML);
     strIStream >> doc;
-    
+
     if ( doc.NoChildren() )
 	{
 		std::cout << "Could not parse xml string. Error='" << doc.ErrorDesc() << "'. Using Default Data"  << std::endl;
@@ -200,18 +219,31 @@ bool ConfigFile::ImportXML(std::string strXML)
 	TiXmlElement* itemElement = 0;
     TiXmlElement* tempElement = 0;
 
-	// Get the "configData" element.
+	// Get the "configData" element. Missing root returns false rather
+	// than dereferencing null; the previous code called assert() which
+	// crashed in debug and produced a SIGSEGV in release.
     parent = doc.FirstChild( m_strIdentifier.c_str() );
-	assert( parent  );
-	configElement =parent->ToElement();
-	assert( configElement  );	
+	if ( !parent )
+	{
+		m_strLastError = "Root element not found";
+		return false;
+	}
+	configElement = parent->ToElement();
+	if ( !configElement )
+	{
+		m_strLastError = "Root element is not an element";
+		return false;
+	}
 
 	//Read all the configuration data
     for( child = configElement->FirstChild(); child; child = child->NextSibling() )
     {
         itemElement = child->ToElement();
-	    assert( itemElement  );
-        
+	    if ( !itemElement )
+	    {
+	        continue;
+	    }
+
         //convert to uppercase
         std::string strElement = itemElement->Value();
 
@@ -221,7 +253,7 @@ bool ConfigFile::ImportXML(std::string strXML)
         ConfigAttribute element;
         element.strAttribute = strElement;
         element.strValue = itemElement->Attribute( "value");
-        
+
         //Read the sub items from the file and store as an array
         if(!itemElement->NoChildren() || element.strValue == "Array()")
         {
@@ -230,7 +262,10 @@ bool ConfigFile::ImportXML(std::string strXML)
             for( tempChild = itemElement->FirstChild(); tempChild; tempChild = tempChild->NextSibling() )
             {
                 tempElement = tempChild->ToElement();
-                assert( tempElement  );
+                if ( !tempElement )
+                {
+                    continue;
+                }
 
                 element.listValues.push_back(tempElement->Attribute( "value"));
             }
@@ -238,8 +273,6 @@ bool ConfigFile::ImportXML(std::string strXML)
         }
         m_mapConfig[Uppercase(strElement)] = element;
     }
-
-    return true;
 
     return true;
 }
@@ -278,8 +311,15 @@ bool ConfigFile::WriteConfigFile()
     }
 	doc.LinkEndChild(configData.Clone());
 
-	//Save the config file
-	return doc.SaveFile();
+	//Save the config file. The previous version never recorded a failure
+	//reason in m_strLastError, so callers using LastError() had no way to
+	//distinguish "didn't try" from "tried and failed".
+	bool ok = doc.SaveFile();
+	if (!ok)
+	{
+		m_strLastError = doc.ErrorDesc();
+	}
+	return ok;
 }
 
 std::string ConfigFile::ExportXML()
@@ -506,41 +546,23 @@ void ConfigFile::setArray(std::string strAttribute, std::vector<std::string> lis
 
 std::string ConfigFile::Uppercase(std::string strInput)
 {
-    std::transform(strInput.begin(), strInput.end(), strInput.begin(), toupper);
+    // Use a function-pointer cast to disambiguate std::toupper(int) from the
+    // locale-template overload. The previous code used the unqualified
+    // toupper, which trips -Wpermissive- (MSVC) and ADL ambiguity.
+    std::transform(strInput.begin(), strInput.end(), strInput.begin(),
+                   static_cast<int(*)(int)>(std::toupper));
     return strInput;
 }
 
 void ConfigFile::DumpConfig()
 {
     std::map<std::string, ConfigAttribute>::iterator iter = m_mapConfig.begin();
-    
+
     int i = 1;
     for(iter = m_mapConfig.begin(); iter != m_mapConfig.end(); iter++)
     {
         printf("%d: key= %s  element= %s = %s\n", i, iter->first.c_str(), iter->second.strAttribute.c_str(), iter->second.strValue.c_str() );
         i++;
     }
-    
+
 }
-
-#ifdef CONFIG_DEBUG
-
-#include <iostream>
-
-int main(int argc, char *argv[])
-{
-    int iThreadId;
-    printf("Starting %s\n", argv[0]);
-    if(argc < 1)
-    {
-        return 0;
-    }
-    
-    CConfigManager* config = CConfigManager::Instance();
-    config->DumpConfigToLog();
-    
-    printf("Variable: %s" config->getString("Variable", "123"));
-    printf("Setting: %s" config->getString("Setting", "data"));
-}
-
-#endif

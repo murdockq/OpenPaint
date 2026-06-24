@@ -34,5 +34,13 @@ else()
     target_compile_options(test_openpaint PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+if(OPENPAINT_WARNINGS_AS_ERRORS)
+    if(MSVC)
+        target_compile_options(test_openpaint PRIVATE /WX)
+    else()
+        target_compile_options(test_openpaint PRIVATE -Werror)
+    endif()
+endif()
+
 include(Catch)
 catch_discover_tests(test_openpaint)

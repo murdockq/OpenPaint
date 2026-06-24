@@ -224,18 +224,12 @@ TEST_CASE("Loading a missing file leaves the config unopened but defaults still 
 TEST_CASE("Loading a file with the wrong root identifier leaves the config empty", "[ConfigFile]")
 {
     // The file declares <OtherConfig> but the ctor expects <TestConfig>.
-    // The old code asserted (crashed in debug, null-deref'd in release); the
-    // current code still relies on the assert for that, so we only run this
-    // test in release mode where an assert is a no-op.
-#ifndef NDEBUG
-    SKIP("Asserts on missing root element in debug builds");
-#else
+    // Previously the parser asserted; now it returns false and the config
+    // remains empty so getString returns the supplied default.
     std::string path = WriteTempConfig("<OtherConfig version=\"1.0\"><Title value=\"x\"/></OtherConfig>");
     ConfigFile cfg(path, "TestConfig", false);
-    // The load failed but we didn't crash; getString returns the default.
     REQUIRE(cfg.getString("Title", "default") == "default");
     RemoveFile(path);
-#endif
 }
 
 TEST_CASE("ImportXML with an empty string fails without modifying state", "[ConfigFile]")

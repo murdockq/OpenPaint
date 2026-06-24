@@ -120,8 +120,8 @@ private:
     }
 
     std::vector<T> m_states;
-    std::size_t m_cursor;
-    std::size_t m_maxSize;
+    std::size_t m_cursor = 0;
+    std::size_t m_maxSize = 1;
 };
 
 } // namespace openpaint

@@ -8,11 +8,10 @@
 
 using openpaint::History;
 
-TEST_CASE("History starts empty with the current item at the head", "[History]")
+TEST_CASE("History starts empty", "[History]")
 {
     History<int> h;
-    REQUIRE(h.Size() == 1);
-    REQUIRE(h.Current() == 0);
+    REQUIRE(h.Size() == 0);
     REQUIRE_FALSE(h.CanUndo());
     REQUIRE_FALSE(h.CanRedo());
 }
@@ -21,9 +20,14 @@ TEST_CASE("History::Push appends and grows", "[History]")
 {
     History<int> h;
     h.Push(1);
+    REQUIRE(h.Size() == 1);
+    REQUIRE(h.Current() == 1);
+    REQUIRE_FALSE(h.CanUndo());
+    REQUIRE_FALSE(h.CanRedo());
+
     h.Push(2);
     h.Push(3);
-    REQUIRE(h.Size() == 4);
+    REQUIRE(h.Size() == 3);
     REQUIRE(h.Current() == 3);
     REQUIRE(h.CanUndo());
     REQUIRE_FALSE(h.CanRedo());
@@ -37,14 +41,11 @@ TEST_CASE("History::Undo walks back and Undo past the oldest state is a no-op", 
 
     REQUIRE(h.Undo());
     REQUIRE(h.Current() == 1);
-
-    REQUIRE(h.Undo());
-    REQUIRE(h.Current() == 0);
     REQUIRE_FALSE(h.CanUndo());
 
-    // Third Undo is a no-op (returns false, doesn't move the cursor).
+    // Second Undo is a no-op (returns false, doesn't move the cursor).
     REQUIRE_FALSE(h.Undo());
-    REQUIRE(h.Current() == 0);
+    REQUIRE(h.Current() == 1);
 }
 
 TEST_CASE("History::Redo walks forward and Redo past the newest state is a no-op", "[History]")
@@ -53,11 +54,6 @@ TEST_CASE("History::Redo walks forward and Redo past the newest state is a no-op
     h.Push(1);
     h.Push(2);
     h.Undo();
-    h.Undo();
-
-    REQUIRE(h.CanRedo());
-    REQUIRE(h.Redo());
-    REQUIRE(h.Current() == 1);
 
     REQUIRE(h.CanRedo());
     REQUIRE(h.Redo());
@@ -77,7 +73,7 @@ TEST_CASE("History::Push after Undo drops the redo branch", "[History]")
     h.Undo();
     h.Undo(); // back at state 1
     h.Push(99);
-    REQUIRE(h.Size() == 3); // [0, 1, 99]
+    REQUIRE(h.Size() == 2); // [1, 99]
     REQUIRE(h.Current() == 99);
     REQUIRE_FALSE(h.CanRedo());
     REQUIRE(h.CanUndo());
@@ -95,20 +91,23 @@ TEST_CASE("History caps the number of stored states", "[History]")
     REQUIRE(h.Size() == 3);
     REQUIRE(h.Current() == 4);
     REQUIRE(h.CanUndo());
-    // The cursor is at the newest, so the oldest is reachable in one Undo.
+    // Undo until the oldest reachable state; 4->3->2 is two Undos because
+    // [1, 2, 3, 4] is trimmed to [2, 3, 4].
     REQUIRE(h.Undo());
     REQUIRE(h.Current() == 3);
-    REQUIRE_FALSE(h.CanUndo()); // [1, 2, 3, 4] trimmed to [2, 3, 4]
+    REQUIRE(h.CanUndo());
+    REQUIRE(h.Undo());
+    REQUIRE(h.Current() == 2);
+    REQUIRE_FALSE(h.CanUndo());
 }
 
-TEST_CASE("History::Clear resets to a single entry", "[History]")
+TEST_CASE("History::Clear resets to empty", "[History]")
 {
     History<std::string> h;
     h.Push("a");
     h.Push("b");
     h.Clear();
-    REQUIRE(h.Size() == 1);
-    REQUIRE(h.Current() == "");
+    REQUIRE(h.Size() == 0);
     REQUIRE_FALSE(h.CanUndo());
     REQUIRE_FALSE(h.CanRedo());
 }

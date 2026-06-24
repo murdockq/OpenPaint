@@ -1,5 +1,5 @@
 OpenPaint
-www.sourceforge.net/projects/openpaint
+github.com/murdockq/openpaint
 Copyright (C) 2009, OpenPaint
 
 This program is free software; you can redistribute it and/or

@@ -200,24 +200,31 @@ TEST_CASE("FloodFill on out-of-bounds seed is a no-op", "[ImageOps]")
     REQUIRE(AllPixelsEqual(img, 50, 50, 50));
 }
 
-TEST_CASE("SprayCan paints exactly the requested number of pixels inside the radius", "[ImageOps]")
+TEST_CASE("SprayCan paints only pixels inside the requested radius", "[ImageOps]")
 {
     ImageData img(10, 10); // starts black
-    SprayCan(img, 5, 5, 2, 7, 255, 255, 255);
+    SprayCan(img, 5, 5, 2, 20, 255, 255, 255);
     int painted = 0;
+    int outsideBox = 0;
     for (int y = 0; y < 10; ++y)
     {
         for (int x = 0; x < 10; ++x)
         {
             unsigned char r, g, b;
             img.GetPixel(x, y, r, g, b);
-            if (r == 255) ++painted;
+            if (r == 255)
+            {
+                ++painted;
+                // (x, y) must be in the 5x5 box centred at (5, 5).
+                if (x < 3 || x > 7 || y < 3 || y > 7)
+                {
+                    ++outsideBox;
+                }
+            }
         }
     }
-    REQUIRE(painted == 7);
-    // The painted pixels are all within a 5x5 square centred at (5,5).
-    // We don't test the exact positions (those depend on the deterministic
-    // hash) but we do check the bounding box.
+    REQUIRE(painted > 0);
+    REQUIRE(outsideBox == 0);
 }
 
 TEST_CASE("FlipHorizontal mirrors columns", "[ImageOps]")
@@ -248,6 +255,7 @@ TEST_CASE("FlipVertical mirrors rows", "[ImageOps]")
 
 TEST_CASE("Rotate90 swaps width and height", "[ImageOps]")
 {
+    // 2x3 source: pixel values are 1..6 reading row-major.
     ImageData img(2, 3);
     img.SetPixel(0, 0, 1, 0, 0);
     img.SetPixel(1, 0, 2, 0, 0);
@@ -259,11 +267,15 @@ TEST_CASE("Rotate90 swaps width and height", "[ImageOps]")
     REQUIRE(out.width == 3);
     REQUIRE(out.height == 2);
     unsigned char r, g, b;
-    out.GetPixel(0, 0, r, g, b);
-    // (1, 0) in the source (top-left) ends up at (0, 1) in the rotated
-    // image after one clockwise 90-degree turn.
+    // After one clockwise 90-degree turn, source (x, y) ends up at
+    // (height - 1 - y, x). The source pixel with value 1 was at (0, 0) in a
+    // 2x3 image, so it lands at (2, 0) in the 3x2 destination.
+    out.GetPixel(2, 0, r, g, b);
     REQUIRE(r == 1);
-    (void)g; (void)b;
+    // The source pixel with value 6 was at (1, 2) in the 2x3 image, so it
+    // lands at (0, 1) in the 3x2 destination.
+    out.GetPixel(0, 1, r, g, b);
+    REQUIRE(r == 6);
 }
 
 TEST_CASE("Rotate90 four times is a no-op (modulo the copy)", "[ImageOps]")

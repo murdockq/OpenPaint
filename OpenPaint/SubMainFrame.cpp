@@ -798,7 +798,7 @@ void SubMainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
     wxAboutDialogInfo info;
 
     info.SetName(wxT("OpenPaint"));
-    info.SetVersion(wxT("1.1 Beta"));
+    info.SetVersion(wxT("1.3.0"));
     info.SetDescription(wxT("The open alternative to propriatry painting."));
     info.SetCopyright(wxT("(C) 2009 Steven Jedlicka"));
     info.AddDeveloper(wxT("Steven Jedlicka"));

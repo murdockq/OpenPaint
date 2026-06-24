@@ -7,9 +7,9 @@ on:
     branches: [master]
 
 jobs:
-  # Build and run the unit tests. The tests only exercise the non-GUI core
-  # (ConfigFile + tinyxml) so they do not need wxWidgets and run quickly on a
-  # single platform.
+  # Build and run the unit tests. The tests exercise the non-GUI core
+  # (ConfigFile + History + ImageOps) so they do not need wxWidgets and
+  # run quickly on a single platform.
   test:
     name: Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -21,8 +21,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure CMake (tests only)
-        run: cmake -B build -DOPENPAINT_BUILD_APP=OFF -DOPENPAINT_BUILD_TESTS=ON
+      - name: Configure CMake (tests only, warnings as errors)
+        run: cmake -B build -DOPENPAINT_BUILD_APP=OFF -DOPENPAINT_BUILD_TESTS=ON -DOPENPAINT_WARNINGS_AS_ERRORS=ON
 
       - name: Build tests
         run: cmake --build build --config Release
@@ -53,6 +53,13 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install wxwidgets
 
+      - name: Cache vcpkg (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_ROOT }}/installed
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+
       - name: Install wxWidgets (Windows via vcpkg)
         if: runner.os == 'Windows'
         run: vcpkg install wxwidgets
@@ -67,3 +74,11 @@ jobs:
 
       - name: Build app
         run: cmake --build build --config Release
+
+      - name: Upload openpaint.exe
+        if: runner.os == 'Windows' && hashFiles('build/Release/openpaint.exe') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: openpaint-windows-${{ github.sha }}
+          path: build/Release/openpaint.exe
+          if-no-files-found: ignore

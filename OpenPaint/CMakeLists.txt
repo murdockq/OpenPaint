@@ -79,6 +79,16 @@ if(OPENPAINT_WARNINGS_AS_ERRORS)
     else()
         target_compile_options(openpaint PRIVATE -Werror)
     endif()
+else()
+    # Several non-fatal warnings are produced by code that we either cannot
+    # change (the bundled tinyxml, wxWidgets 3.3 deprecations of wxPen/wxBrush
+    # integer-style constructors) or that comes from the event-table macros
+    # (the `event` parameter is required by the macro signature even when the
+    # handler does not use it). Keep the build at /W3 so we still catch
+    # genuine mistakes.
+    if(MSVC)
+        target_compile_options(openpaint PRIVATE /W3)
+    endif()
 endif()
 
 install(TARGETS openpaint RUNTIME DESTINATION bin)

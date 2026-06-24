@@ -35,6 +35,12 @@ bool OpenPaintMainApp::OnInit(void)  // Does everything needed for a program sta
     if (!wxApp::OnInit())
         return false;
 
+    // Identify the app so wx-config-style settings are written into a
+    // stable location. Without this wx falls back to the executable name,
+    // which makes per-user config and the CmdLine parser less predictable.
+    SetVendorName(wxT("OpenPaint"));
+    SetAppName(wxT("OpenPaint"));
+
     wxInitAllImageHandlers();
 
     // Create the main frame window
@@ -58,7 +64,7 @@ bool OpenPaintMainApp::OnInit(void)  // Does everything needed for a program sta
     }
 
     wxLogDebug(wxT("Ready to paint."));
-    
+
     frame->Show(true);                            // Show the frame
     SetTopWindow(frame);                          // At this point the frame can be seen
 
@@ -88,4 +94,11 @@ bool OpenPaintMainApp::OnCmdLineParsed(wxCmdLineParser& parser)
     }
 
     return true;
+}
+
+int OpenPaintMainApp::OnExit()
+{
+    // Free the global app state (the config file gets saved here too).
+    delete Globals::Instance();
+    return wxApp::OnExit();
 }

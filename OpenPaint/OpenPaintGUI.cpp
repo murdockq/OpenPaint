@@ -847,6 +847,195 @@ BrushToolPanel::~BrushToolPanel()
 	m_comboBoxTip->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
 }
 
+PencilToolPanel::PencilToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
+{
+	this->Hide();
+
+	wxBoxSizer* bSizer;
+	bSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxFlexGridSizer* fg;
+	fg = new wxFlexGridSizer( 2, 1, 0, 0 );
+	fg->SetFlexibleDirection( wxBOTH );
+	fg->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	fg->AddGrowableCol( 0 );
+
+	m_staticTextSize = new wxStaticText( this, wxID_ANY, _("Size"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextSize->Wrap( -1 );
+	fg->Add( m_staticTextSize, 0, wxALL|wxEXPAND, 5 );
+
+	m_spinCtrlSize = new wxSpinCtrl( this, wxID_ANY, wxT("1"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 30, 1 );
+	fg->Add( m_spinCtrlSize, 0, wxALL|wxEXPAND, 5 );
+
+	bSizer->Add( fg, 1, wxEXPAND, 5 );
+	this->SetSizer( bSizer );
+	this->Layout();
+
+	m_spinCtrlSize->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( PencilToolPanel::OnSize ), NULL, this );
+}
+
+PencilToolPanel::~PencilToolPanel()
+{
+	m_spinCtrlSize->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( PencilToolPanel::OnSize ), NULL, this );
+}
+
+EraserToolPanel::EraserToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
+{
+	this->Hide();
+
+	wxBoxSizer* bSizer;
+	bSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxFlexGridSizer* fg;
+	fg = new wxFlexGridSizer( 2, 1, 0, 0 );
+	fg->SetFlexibleDirection( wxBOTH );
+	fg->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	fg->AddGrowableCol( 0 );
+
+	m_staticTextSize = new wxStaticText( this, wxID_ANY, _("Size"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextSize->Wrap( -1 );
+	fg->Add( m_staticTextSize, 0, wxALL|wxEXPAND, 5 );
+
+	m_spinCtrlSize = new wxSpinCtrl( this, wxID_ANY, wxT("5"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 50, 5 );
+	fg->Add( m_spinCtrlSize, 0, wxALL|wxEXPAND, 5 );
+
+	bSizer->Add( fg, 1, wxEXPAND, 5 );
+	this->SetSizer( bSizer );
+	this->Layout();
+
+	m_spinCtrlSize->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( EraserToolPanel::OnSize ), NULL, this );
+}
+
+EraserToolPanel::~EraserToolPanel()
+{
+	m_spinCtrlSize->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( EraserToolPanel::OnSize ), NULL, this );
+}
+
+SprayCanToolPanel::SprayCanToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
+{
+	this->Hide();
+
+	wxBoxSizer* bSizer;
+	bSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxFlexGridSizer* fg;
+	fg = new wxFlexGridSizer( 2, 1, 0, 0 );
+	fg->SetFlexibleDirection( wxBOTH );
+	fg->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	fg->AddGrowableCol( 0 );
+
+	m_staticTextSize = new wxStaticText( this, wxID_ANY, _("Size"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextSize->Wrap( -1 );
+	fg->Add( m_staticTextSize, 0, wxALL|wxEXPAND, 5 );
+
+	m_spinCtrlSize = new wxSpinCtrl( this, wxID_ANY, wxT("10"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 50, 10 );
+	fg->Add( m_spinCtrlSize, 0, wxALL|wxEXPAND, 5 );
+
+	bSizer->Add( fg, 1, wxEXPAND, 5 );
+	this->SetSizer( bSizer );
+	this->Layout();
+
+	m_spinCtrlSize->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( SprayCanToolPanel::OnSize ), NULL, this );
+}
+
+SprayCanToolPanel::~SprayCanToolPanel()
+{
+	m_spinCtrlSize->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( SprayCanToolPanel::OnSize ), NULL, this );
+}
+
+ShapeToolPanel::ShapeToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
+{
+	this->Hide();
+
+	wxBoxSizer* bSizer;
+	bSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxFlexGridSizer* fg;
+	fg = new wxFlexGridSizer( 3, 1, 0, 0 );
+	fg->SetFlexibleDirection( wxBOTH );
+	fg->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	fg->AddGrowableCol( 0 );
+
+	m_staticTextWidth = new wxStaticText( this, wxID_ANY, _("Outline width"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextWidth->Wrap( -1 );
+	fg->Add( m_staticTextWidth, 0, wxALL|wxEXPAND, 5 );
+
+	m_spinCtrlWidth = new wxSpinCtrl( this, wxID_ANY, wxT("1"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 30, 1 );
+	fg->Add( m_spinCtrlWidth, 0, wxALL|wxEXPAND, 5 );
+
+	m_checkBoxFilled = new wxCheckBox( this, wxID_ANY, _("Fill with background"), wxDefaultPosition, wxDefaultSize, 0 );
+	fg->Add( m_checkBoxFilled, 0, wxALL|wxEXPAND, 5 );
+
+	bSizer->Add( fg, 1, wxEXPAND, 5 );
+	this->SetSizer( bSizer );
+	this->Layout();
+
+	m_spinCtrlWidth->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ShapeToolPanel::OnWidth ), NULL, this );
+	m_checkBoxFilled->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ShapeToolPanel::OnFilled ), NULL, this );
+}
+
+ShapeToolPanel::~ShapeToolPanel()
+{
+	m_spinCtrlWidth->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ShapeToolPanel::OnWidth ), NULL, this );
+	m_checkBoxFilled->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ShapeToolPanel::OnFilled ), NULL, this );
+}
+
+TextToolPanel::TextToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
+{
+	this->Hide();
+
+	wxBoxSizer* bSizer;
+	bSizer = new wxBoxSizer( wxVERTICAL );
+
+	wxFlexGridSizer* fg;
+	fg = new wxFlexGridSizer( 5, 1, 0, 0 );
+	fg->SetFlexibleDirection( wxBOTH );
+	fg->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	fg->AddGrowableCol( 0 );
+
+	m_staticTextFont = new wxStaticText( this, wxID_ANY, _("Font"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextFont->Wrap( -1 );
+	fg->Add( m_staticTextFont, 0, wxALL|wxEXPAND, 5 );
+
+	m_textCtrlFont = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	fg->Add( m_textCtrlFont, 0, wxALL|wxEXPAND, 5 );
+
+	m_staticTextSize = new wxStaticText( this, wxID_ANY, _("Size"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextSize->Wrap( -1 );
+	fg->Add( m_staticTextSize, 0, wxALL|wxEXPAND, 5 );
+
+	m_spinCtrlSize = new wxSpinCtrl( this, wxID_ANY, wxT("12"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 4, 200, 12 );
+	fg->Add( m_spinCtrlSize, 0, wxALL|wxEXPAND, 5 );
+
+	m_checkBoxBold = new wxCheckBox( this, wxID_ANY, _("Bold"), wxDefaultPosition, wxDefaultSize, 0 );
+	fg->Add( m_checkBoxBold, 0, wxALL, 5 );
+
+	m_checkBoxItalic = new wxCheckBox( this, wxID_ANY, _("Italic"), wxDefaultPosition, wxDefaultSize, 0 );
+	fg->Add( m_checkBoxItalic, 0, wxALL, 5 );
+
+	m_checkBoxUnderline = new wxCheckBox( this, wxID_ANY, _("Underline"), wxDefaultPosition, wxDefaultSize, 0 );
+	fg->Add( m_checkBoxUnderline, 0, wxALL, 5 );
+
+	bSizer->Add( fg, 1, wxEXPAND, 5 );
+	this->SetSizer( bSizer );
+	this->Layout();
+
+	m_textCtrlFont->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( TextToolPanel::OnFont ), NULL, this );
+	m_spinCtrlSize->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( TextToolPanel::OnSize ), NULL, this );
+	m_checkBoxBold->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnBold ), NULL, this );
+	m_checkBoxItalic->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnItalic ), NULL, this );
+	m_checkBoxUnderline->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnUnderline ), NULL, this );
+}
+
+TextToolPanel::~TextToolPanel()
+{
+	m_textCtrlFont->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( TextToolPanel::OnFont ), NULL, this );
+	m_spinCtrlSize->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( TextToolPanel::OnSize ), NULL, this );
+	m_checkBoxBold->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnBold ), NULL, this );
+	m_checkBoxItalic->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnItalic ), NULL, this );
+	m_checkBoxUnderline->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnUnderline ), NULL, this );
+}
+
 CanvasSizeDialog::CanvasSizeDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );

@@ -21,6 +21,10 @@ protected:
     // the pane so size changes are applied immediately (without this the
     // new controls only appear after toggling View > Tool Window).
     void UpdateToolPropertiesLayout();
+    // Inserts a wxFormBuilder-generated properties panel into the
+    // tool-properties sizer (showing it first, since those panels
+    // construct themselves hidden by default).
+    void AddToolPropertiesPanel(wxWindow* panel);
 	// Handlers for ToolPanel events.
 
 public:

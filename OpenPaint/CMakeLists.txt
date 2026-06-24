@@ -24,6 +24,11 @@ set(OPENPAINT_SOURCES
     OpenPaintMainApp.cpp
     OpenPaintMDIChildFrame.cpp
     SubBrushToolPanel.cpp
+    SubEraserToolPanel.cpp
+    SubPencilToolPanel.cpp
+    SubShapeToolPanel.cpp
+    SubSprayCanToolPanel.cpp
+    SubTextToolPanel.cpp
     SubMainFrame.cpp
     SubToolPanel.cpp
     SubCanvasSizeDialog.cpp
@@ -44,6 +49,11 @@ set(OPENPAINT_HEADERS
     OpenPaintMainApp.h
     OpenPaintMDIChildFrame.h
     SubBrushToolPanel.h
+    SubEraserToolPanel.h
+    SubPencilToolPanel.h
+    SubShapeToolPanel.h
+    SubSprayCanToolPanel.h
+    SubTextToolPanel.h
     SubMainFrame.h
     SubToolPanel.h
     SubCanvasSizeDialog.h

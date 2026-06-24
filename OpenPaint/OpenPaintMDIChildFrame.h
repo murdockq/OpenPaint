@@ -83,9 +83,6 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         wxPen m_customPen;
         wxBrush m_customBrush;
 
-        // Filled-shape toggle used by RectangleTool / EllipseTool.
-        bool m_bShapesFilled;
-
         //Selection Attributes
         wxBitmap m_SelectedBitmap;
         bool m_bHasSelection;
@@ -158,12 +155,6 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void Pixelize(int block = 10);
         void Greyscale();
         void Monochrome();
-
-        // When true, RectangleTool/EllipseTool/PolylineTool fill their
-        // shape with the current background colour instead of leaving it
-        // transparent. Set via View / Filled Shapes.
-        void SetShapesFilled(bool filled) { m_bShapesFilled = filled; }
-        bool GetShapesFilled() const { return m_bShapesFilled; }
 };
 
 #endif // __OpenPaintMDIChildFrame__

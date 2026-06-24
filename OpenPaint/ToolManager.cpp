@@ -33,6 +33,20 @@ ToolManager::ToolManager()
     m_colorBackground = wxColour( 255, 255, 255 );
     m_brushRadius = 10;
     m_brushTip = 0; // round
+
+    // Per-tool defaults. Sizes are conservative so a fresh document still
+    // looks like classic MS Paint.
+    m_pencilSize = 1;
+    m_eraserSize = 5;
+    m_sprayCanSize = 10;
+    m_shapeLineWidth = 1;
+    m_bShapesFilled = false;
+
+    m_textFontFace = wxEmptyString; // empty -> use the canvas's default face
+    m_textFontSize = 12;
+    m_textFontBold = false;
+    m_textFontItalic = false;
+    m_textFontUnderline = false;
 }
 
 ToolManager::~ToolManager()
@@ -58,6 +72,41 @@ void ToolManager::SetBrushTip(int tip)
     if (tip < 0) tip = 0;
     if (tip > 3) tip = 3;
     m_brushTip = tip;
+}
+
+void ToolManager::SetPencilSize(int size)
+{
+    if (size < 1) size = 1;
+    if (size > 30) size = 30;
+    m_pencilSize = size;
+}
+
+void ToolManager::SetEraserSize(int size)
+{
+    if (size < 1) size = 1;
+    if (size > 50) size = 50;
+    m_eraserSize = size;
+}
+
+void ToolManager::SetSprayCanSize(int size)
+{
+    if (size < 1) size = 1;
+    if (size > 50) size = 50;
+    m_sprayCanSize = size;
+}
+
+void ToolManager::SetShapeLineWidth(int width)
+{
+    if (width < 1) width = 1;
+    if (width > 30) width = 30;
+    m_shapeLineWidth = width;
+}
+
+void ToolManager::SetTextFontSize(int size)
+{
+    if (size < 4) size = 4;
+    if (size > 200) size = 200;
+    m_textFontSize = size;
 }
 
 ToolType ToolManager::GetSelectedTool()

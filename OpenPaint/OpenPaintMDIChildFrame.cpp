@@ -84,10 +84,6 @@ wxAuiMDIChildFrame( parent, id, title)
     m_prevY2 = 0;
     m_drawLine.clear();
 
-    // Filled-shape toggle starts off; the user can enable it from the View
-    // menu (or a future toolbar button).
-    m_bShapesFilled = false;
-
     SetImage(m_Image);
 
     //Listen to tab changes
@@ -1215,7 +1211,15 @@ void OpenPaintMDIChildFrame::PencilTool(int x, int y, wxColour color, MouseStatu
         m_prevX = x;
         m_prevY = y;
     }
-    m_customPen = wxPen(color, 1, wxSOLID);
+    // The eraser reuses PencilTool with the background colour. Read the
+    // matching size from the ToolManager so the size spinner in the
+    // tool-properties panel actually affects what the user sees.
+    ToolManager* tm = Globals::Instance()->GetToolManager();
+    int width = (tm->GetSelectedTool() == TOOL_ERASER)
+                    ? tm->GetEraserSize()
+                    : tm->GetPencilSize();
+    if (width < 1) width = 1;
+    m_customPen = wxPen(color, width, wxSOLID);
 
     dc.SetPen(m_customPen);
     dc.DrawPoint(x,y);
@@ -1386,10 +1390,15 @@ void OpenPaintMDIChildFrame::SprayCanTool(int x, int y, wxColour color)
 {
     srand((unsigned)time(0)+x+y);
 
+    // Read the spray-can size from the ToolManager so the size spinner in
+    // the Spray Can properties panel affects how wide the spray pattern is.
+    ToolManager* tm = Globals::Instance()->GetToolManager();
+    int spraySize = tm->GetSprayCanSize();
+    if (spraySize < 1) spraySize = 1;
 
     //SQUARE SPRAY
     int random_integer1,random_integer2;
-    int lowest=-10, highest=10;
+    int lowest=-spraySize, highest=spraySize;
     int range=(highest-lowest)+1;
     const int w = m_Image.GetWidth();
     const int h = m_Image.GetHeight();
@@ -1451,15 +1460,18 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
         m_prevY2 = y;
     }
 
-    m_customPen = wxPen(color, 1, wxSOLID);
+    ToolManager* tm = Globals::Instance()->GetToolManager();
+    int penWidth = tm->GetShapeLineWidth();
+    if (penWidth < 1) penWidth = 1;
+    m_customPen = wxPen(color, penWidth, wxSOLID);
     dc.SetPen(m_customPen);
 
     // If the user has filled shapes enabled, fill with the current background
     // colour; otherwise leave the interior transparent so only the outline
     // shows.
-    if (m_bShapesFilled)
+    if (tm->GetShapesFilled())
     {
-        dc.SetBrush(wxBrush(Globals::Instance()->GetToolManager()->GetBackground(), wxSOLID));
+        dc.SetBrush(wxBrush(tm->GetBackground(), wxSOLID));
     }
     else
     {
@@ -1483,9 +1495,9 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
         wxMemoryDC memDC;
         memDC.SelectObject(m_Bitmap);
         memDC.SetPen(m_customPen);
-        if (m_bShapesFilled)
+        if (tm->GetShapesFilled())
         {
-            memDC.SetBrush(wxBrush(Globals::Instance()->GetToolManager()->GetBackground(), wxSOLID));
+            memDC.SetBrush(wxBrush(tm->GetBackground(), wxSOLID));
         }
         else
         {
@@ -1512,12 +1524,15 @@ void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseSt
         m_prevY2 = y;
     }
 
-    m_customPen = wxPen(color, 1, wxSOLID);
+    ToolManager* tm = Globals::Instance()->GetToolManager();
+    int penWidth = tm->GetShapeLineWidth();
+    if (penWidth < 1) penWidth = 1;
+    m_customPen = wxPen(color, penWidth, wxSOLID);
     dc.SetPen(m_customPen);
 
-    if (m_bShapesFilled)
+    if (tm->GetShapesFilled())
     {
-        dc.SetBrush(wxBrush(Globals::Instance()->GetToolManager()->GetBackground(), wxSOLID));
+        dc.SetBrush(wxBrush(tm->GetBackground(), wxSOLID));
     }
     else
     {
@@ -1552,9 +1567,9 @@ void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseSt
         wxMemoryDC memDC;
         memDC.SelectObject(m_Bitmap);
         memDC.SetPen(m_customPen);
-        if (m_bShapesFilled)
+        if (tm->GetShapesFilled())
         {
-            memDC.SetBrush(wxBrush(Globals::Instance()->GetToolManager()->GetBackground(), wxSOLID));
+            memDC.SetBrush(wxBrush(tm->GetBackground(), wxSOLID));
         }
         else
         {
@@ -1663,11 +1678,13 @@ void OpenPaintMDIChildFrame::PolylineTool(int x, int y, MouseStatus drawState)
         }
         ToolManager* tm = Globals::Instance()->GetToolManager();
         wxColour color = tm->GetForeground();
-        m_customPen = wxPen(color, 1, wxSOLID);
+        int penWidth = tm->GetShapeLineWidth();
+        if (penWidth < 1) penWidth = 1;
+        m_customPen = wxPen(color, penWidth, wxSOLID);
 
         wxMemoryDC memDC(m_Bitmap);
         memDC.SetPen(m_customPen);
-        if (m_bShapesFilled)
+        if (tm->GetShapesFilled())
         {
             memDC.SetBrush(wxBrush(tm->GetBackground(), wxSOLID));
         }
@@ -1676,7 +1693,7 @@ void OpenPaintMDIChildFrame::PolylineTool(int x, int y, MouseStatus drawState)
             memDC.DrawLine(m_drawLine[i].x, m_drawLine[i].y,
                            m_drawLine[i + 1].x, m_drawLine[i + 1].y);
         }
-        if (m_bShapesFilled && m_drawLine.size() >= 3)
+        if (tm->GetShapesFilled() && m_drawLine.size() >= 3)
         {
             // For a filled polyline, close and fill the polygon.
             memDC.DrawPolygon(static_cast<int>(m_drawLine.size()), &m_drawLine[0]);
@@ -1763,12 +1780,28 @@ void OpenPaintMDIChildFrame::TextTool(int x, int y, wxColour color)
 {
     wxString strText = wxGetTextFromUser(wxT("Write text."));
 
+    // Apply the text-tool font settings from the ToolManager: face name,
+    // point size, bold/italic/underline. If the face is empty, fall back
+    // to whatever font the child frame currently has (so the old
+    // wxGetFontFromUser dialog still works for picking faces).
+    ToolManager* tm = Globals::Instance()->GetToolManager();
+    wxFont font = GetFont();
+    wxString face = tm->GetTextFontFace();
+    if (!face.IsEmpty())
+    {
+        font.SetFaceName(face);
+    }
+    font.SetPointSize(tm->GetTextFontSize());
+    font.SetStyle(tm->GetTextFontItalic() ? wxFONTSTYLE_ITALIC : wxFONTSTYLE_NORMAL);
+    font.SetUnderlined(tm->GetTextFontUnderline());
+    font.SetWeight(tm->GetTextFontBold() ? wxFONTWEIGHT_BOLD : wxFONTWEIGHT_NORMAL);
+
     // Drawing via wxMemoryDC + wxFont (the previous approach used
     // wxGraphicsContext but never deleted the context, leaking every
     // invocation; the graphics backend also has no easy way to honour the
     // font that the user picked in the Set Font dialog).
     wxMemoryDC mdc(m_Bitmap);
-    mdc.SetFont(GetFont());
+    mdc.SetFont(font);
     mdc.SetTextForeground(color);
     mdc.DrawText(strText, x, y);
 

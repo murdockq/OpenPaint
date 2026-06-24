@@ -1,5 +1,10 @@
 #include "SubToolPanel.h"
 #include "SubBrushToolPanel.h"
+#include "SubPencilToolPanel.h"
+#include "SubEraserToolPanel.h"
+#include "SubSprayCanToolPanel.h"
+#include "SubShapeToolPanel.h"
+#include "SubTextToolPanel.h"
 #include "Globals.h"
 #include "ToolManager.h"
 #include <wx/statbox.h>
@@ -72,6 +77,15 @@ void SubToolPanel::UpdateToolPropertiesLayout()
     }
 }
 
+void SubToolPanel::AddToolPropertiesPanel(wxWindow* panel)
+{
+    // wxFormBuilder-generated panels hide themselves in their constructor.
+    // Re-show the panel before adding it to the sizer so the controls are
+    // actually visible inside the tool-properties box.
+    panel->Show();
+    m_sbSizerToolProperties->Add(panel);
+}
+
 void SubToolPanel::OnPickColor( wxCommandEvent& event )
 {
     Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_PICK_COLOR);
@@ -87,6 +101,7 @@ void SubToolPanel::OnPencil( wxCommandEvent& event )
     Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_PENCIL);
     m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Pencil"));
     ClearToolProperties();
+    AddToolPropertiesPanel(new SubPencilToolPanel(this));
     UpdateToolPropertiesLayout();
     EnableTools();
     m_bpButtonPencil->Enable(false);
@@ -98,11 +113,7 @@ void SubToolPanel::OnBrush( wxCommandEvent& event )
 
     m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Brush"));
     ClearToolProperties();
-    SubBrushToolPanel* brushPanel = new SubBrushToolPanel(this);
-    // BrushToolPanel hides itself in its constructor; reveal it so the
-    // radius/tip controls are actually visible inside the tool-properties box.
-    brushPanel->Show();
-    m_sbSizerToolProperties->Add(brushPanel);
+    AddToolPropertiesPanel(new SubBrushToolPanel(this));
     UpdateToolPropertiesLayout();
 
     EnableTools();
@@ -121,9 +132,10 @@ void SubToolPanel::OnFill( wxCommandEvent& event )
 
 void SubToolPanel::OnEraser( wxCommandEvent& event )
 {
-	Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_ERASER);
+    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_ERASER);
     m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Eraser"));
     ClearToolProperties();
+    AddToolPropertiesPanel(new SubEraserToolPanel(this));
     UpdateToolPropertiesLayout();
     EnableTools();
     m_bpButtonEraser->Enable(false);
@@ -141,9 +153,10 @@ void SubToolPanel::OnMagnify( wxCommandEvent& event )
 
 void SubToolPanel::OnSprayCan( wxCommandEvent& event )
 {
-	Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_SPRAY_CAN);
+    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_SPRAY_CAN);
     m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Spray Can"));
     ClearToolProperties();
+    AddToolPropertiesPanel(new SubSprayCanToolPanel(this));
     UpdateToolPropertiesLayout();
     EnableTools();
     m_bpButtonSprayCan->Enable(false);
@@ -151,9 +164,10 @@ void SubToolPanel::OnSprayCan( wxCommandEvent& event )
 
 void SubToolPanel::OnRectangle( wxCommandEvent& event )
 {
-	Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_RECTANGLE);
+    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_RECTANGLE);
     m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Rectangle"));
     ClearToolProperties();
+    AddToolPropertiesPanel(new SubShapeToolPanel(this));
     UpdateToolPropertiesLayout();
     EnableTools();
     m_bpButtonRectangle->Enable(false);
@@ -161,9 +175,10 @@ void SubToolPanel::OnRectangle( wxCommandEvent& event )
 
 void SubToolPanel::OnEllipse( wxCommandEvent& event )
 {
-	Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_ELLIPSE);
+    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_ELLIPSE);
     m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Ellipse"));
     ClearToolProperties();
+    AddToolPropertiesPanel(new SubShapeToolPanel(this));
     UpdateToolPropertiesLayout();
     EnableTools();
     m_bpButtonEllipse->Enable(false);
@@ -171,9 +186,10 @@ void SubToolPanel::OnEllipse( wxCommandEvent& event )
 
 void SubToolPanel::OnRectangleRounded( wxCommandEvent& event )
 {
-	Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_RECTANGLE_ROUNDED);
+    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_RECTANGLE_ROUNDED);
     m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Round Rect"));
     ClearToolProperties();
+    AddToolPropertiesPanel(new SubShapeToolPanel(this));
     UpdateToolPropertiesLayout();
     EnableTools();
     m_bpButtonRectangleRounded->Enable(false);
@@ -181,9 +197,10 @@ void SubToolPanel::OnRectangleRounded( wxCommandEvent& event )
 
 void SubToolPanel::OnPolyline( wxCommandEvent& event )
 {
-	Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_POLYLINE);
+    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_POLYLINE);
     m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Polyline"));
     ClearToolProperties();
+    AddToolPropertiesPanel(new SubShapeToolPanel(this));
     UpdateToolPropertiesLayout();
     EnableTools();
     m_bpButtonPolyline->Enable(false);
@@ -211,9 +228,10 @@ void SubToolPanel::OnSelect( wxCommandEvent& event )
 
 void SubToolPanel::OnText( wxCommandEvent& event )
 {
-	Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_TEXT);
+    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_TEXT);
     m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Text"));
     ClearToolProperties();
+    AddToolPropertiesPanel(new SubTextToolPanel(this));
     UpdateToolPropertiesLayout();
     EnableTools();
     m_bpButtonText->Enable(false);

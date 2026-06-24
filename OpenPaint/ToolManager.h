@@ -59,6 +59,24 @@ class ToolManager
         int m_brushRadius;
         int m_brushTip; // 0 = round, 1 = square, 2 = vertical line, 3 = horizontal line
 
+        // Per-tool sizes / settings that the corresponding *ToolPanel UI
+        // controls drive. Each tool reads its own field at draw time so
+        // the spinner/checkbox values actually affect rendering.
+        int m_pencilSize;
+        int m_eraserSize;
+        int m_sprayCanSize;
+        int m_shapeLineWidth;
+        bool m_bShapesFilled;
+
+        // Text-tool font settings: face name, point size, style flags and an
+        // underline toggle. The TextTool panel populates these and
+        // TextTool() applies them when drawing the entered text.
+        wxString m_textFontFace;
+        int m_textFontSize;
+        bool m_textFontBold;
+        bool m_textFontItalic;
+        bool m_textFontUnderline;
+
     public:
         ToolManager();
         virtual ~ToolManager();
@@ -80,6 +98,30 @@ class ToolManager
         void SetBrushRadius(int radius);
         int GetBrushTip() const { return m_brushTip; }
         void SetBrushTip(int tip);
+
+        // Per-tool size / settings
+        int GetPencilSize() const { return m_pencilSize; }
+        void SetPencilSize(int size);
+        int GetEraserSize() const { return m_eraserSize; }
+        void SetEraserSize(int size);
+        int GetSprayCanSize() const { return m_sprayCanSize; }
+        void SetSprayCanSize(int size);
+        int GetShapeLineWidth() const { return m_shapeLineWidth; }
+        void SetShapeLineWidth(int width);
+        bool GetShapesFilled() const { return m_bShapesFilled; }
+        void SetShapesFilled(bool filled) { m_bShapesFilled = filled; }
+
+        // Text-tool font settings
+        wxString GetTextFontFace() const { return m_textFontFace; }
+        void SetTextFontFace(const wxString& face) { m_textFontFace = face; }
+        int GetTextFontSize() const { return m_textFontSize; }
+        void SetTextFontSize(int size);
+        bool GetTextFontBold() const { return m_textFontBold; }
+        void SetTextFontBold(bool bold) { m_textFontBold = bold; }
+        bool GetTextFontItalic() const { return m_textFontItalic; }
+        void SetTextFontItalic(bool italic) { m_textFontItalic = italic; }
+        bool GetTextFontUnderline() const { return m_textFontUnderline; }
+        void SetTextFontUnderline(bool ul) { m_textFontUnderline = ul; }
 };
 
 

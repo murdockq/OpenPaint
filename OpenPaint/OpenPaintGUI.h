@@ -39,6 +39,8 @@ class wxAuiMDIParentFrame;
 #include <wx/combobox.h>
 #include <wx/statline.h>
 #include <wx/dialog.h>
+#include <wx/textctrl.h>
+#include <wx/checkbox.h>
 
 #include "resource.h"
 
@@ -280,26 +282,155 @@ class ToolPanel : public wxPanel
 ///////////////////////////////////////////////////////////////////////////////
 /// Class BrushToolPanel
 ///////////////////////////////////////////////////////////////////////////////
-class BrushToolPanel : public wxPanel 
+class BrushToolPanel : public wxPanel
 {
 	private:
-	
+
 	protected:
 		wxStaticText* m_staticText1;
 		wxSpinCtrl* m_spinCtrlRadius;
 		wxStaticText* m_staticText2;
 		wxComboBox* m_comboBoxTip;
-		
+
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnWidth( wxSpinEvent& event ){ event.Skip(); }
 		virtual void OnTip( wxCommandEvent& event ){ event.Skip(); }
-		
-	
+
+
 	public:
-		
+
 		BrushToolPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 147,300 ), long style = wxTAB_TRAVERSAL );
 		~BrushToolPanel();
-	
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class PencilToolPanel
+///
+/// Properties panel for the Pencil tool. Mirrors the MS Paint "Size" spinner.
+///////////////////////////////////////////////////////////////////////////////
+class PencilToolPanel : public wxPanel
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticTextSize;
+		wxSpinCtrl* m_spinCtrlSize;
+
+		// Virtual event handlers
+		virtual void OnSize( wxSpinEvent& event ){ event.Skip(); }
+
+	public:
+
+		PencilToolPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 147,80 ), long style = wxTAB_TRAVERSAL );
+		~PencilToolPanel();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class EraserToolPanel
+///
+/// Properties panel for the Eraser tool. Mirrors the MS Paint "Size" spinner.
+///////////////////////////////////////////////////////////////////////////////
+class EraserToolPanel : public wxPanel
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticTextSize;
+		wxSpinCtrl* m_spinCtrlSize;
+
+		// Virtual event handlers
+		virtual void OnSize( wxSpinEvent& event ){ event.Skip(); }
+
+	public:
+
+		EraserToolPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 147,80 ), long style = wxTAB_TRAVERSAL );
+		~EraserToolPanel();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class SprayCanToolPanel
+///
+/// Properties panel for the Spray Can tool. Mirrors the MS Paint "Size" spinner.
+///////////////////////////////////////////////////////////////////////////////
+class SprayCanToolPanel : public wxPanel
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticTextSize;
+		wxSpinCtrl* m_spinCtrlSize;
+
+		// Virtual event handlers
+		virtual void OnSize( wxSpinEvent& event ){ event.Skip(); }
+
+	public:
+
+		SprayCanToolPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 147,80 ), long style = wxTAB_TRAVERSAL );
+		~SprayCanToolPanel();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class ShapeToolPanel
+///
+/// Properties panel shared by Rectangle, Rounded Rectangle, Ellipse and
+/// Polyline tools. Matches the MS Paint "Outline size" and "Fill" controls.
+///////////////////////////////////////////////////////////////////////////////
+class ShapeToolPanel : public wxPanel
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticTextWidth;
+		wxSpinCtrl* m_spinCtrlWidth;
+		wxCheckBox* m_checkBoxFilled;
+
+		// Virtual event handlers
+		virtual void OnWidth( wxSpinEvent& event ){ event.Skip(); }
+		virtual void OnFilled( wxCommandEvent& event ){ event.Skip(); }
+
+	public:
+
+		ShapeToolPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 147,120 ), long style = wxTAB_TRAVERSAL );
+		~ShapeToolPanel();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class TextToolPanel
+///
+/// Properties panel for the Text tool. Mirrors the MS Paint "Font face",
+/// "Size", "Bold", "Italic" and "Underline" controls. If the face is left
+/// blank, TextTool falls back to the child frame's current font.
+///////////////////////////////////////////////////////////////////////////////
+class TextToolPanel : public wxPanel
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticTextFont;
+		wxTextCtrl* m_textCtrlFont;
+		wxStaticText* m_staticTextSize;
+		wxSpinCtrl* m_spinCtrlSize;
+		wxCheckBox* m_checkBoxBold;
+		wxCheckBox* m_checkBoxItalic;
+		wxCheckBox* m_checkBoxUnderline;
+
+		// Virtual event handlers
+		virtual void OnFont( wxCommandEvent& event ){ event.Skip(); }
+		virtual void OnSize( wxSpinEvent& event ){ event.Skip(); }
+		virtual void OnBold( wxCommandEvent& event ){ event.Skip(); }
+		virtual void OnItalic( wxCommandEvent& event ){ event.Skip(); }
+		virtual void OnUnderline( wxCommandEvent& event ){ event.Skip(); }
+
+	public:
+
+		TextToolPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 147,200 ), long style = wxTAB_TRAVERSAL );
+		~TextToolPanel();
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////

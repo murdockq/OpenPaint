@@ -29,6 +29,9 @@
 class PaletteCtrl : public wxPanel
 {
 protected:
+    bool m_bPickerMode;
+    bool m_bIsForeground;
+
 	// Handlers for ColorPanel events.
 	virtual void OnPalette( wxMouseEvent& event );
 	virtual void OnForeground( wxMouseEvent& event );
@@ -39,6 +42,8 @@ public:
     PaletteCtrl( wxWindow* parent, int id = wxID_ANY, wxPoint pos = wxDefaultPosition, wxSize size = wxDefaultSize, int style = wxTAB_TRAVERSAL );
     /** Destructor */
     ~PaletteCtrl();
+
+    void SetPickerMode( bool foreground );
 
 };
 

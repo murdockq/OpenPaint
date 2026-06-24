@@ -543,16 +543,20 @@ ColorPanel::ColorPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, con
 	fgSizer4->SetFlexibleDirection( wxBOTH );
 	fgSizer4->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
-	m_colourPickerForeground = new wxColourPickerCtrl( this, IDX_FOREGROUND, wxColour( 0, 0, 0 ), wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
+	m_colourPickerForeground = new PaletteCtrl( this, IDX_FOREGROUND, wxDefaultPosition, wxSize( 33, 33 ), wxSUNKEN_BORDER );
+	m_colourPickerForeground->SetBackgroundColour( wxColour( 0, 0, 0 ) );
+	m_colourPickerForeground->SetPickerMode( true );
 	fgSizer4->Add( m_colourPickerForeground, 0, wxALL, 0 );
 	
 	
-	fgSizer4->Add( 0, 0, 1, wxEXPAND, 0 );
+	fgSizer4->Add( 2, 2, 0 );
 	
 	
-	fgSizer4->Add( 0, 0, 1, wxEXPAND, 0 );
+	fgSizer4->Add( 2, 2, 0 );
 	
-	m_colourPickerBackground = new wxColourPickerCtrl( this, IDX_BACKGROUND, wxColour( 255, 255, 255 ), wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
+	m_colourPickerBackground = new PaletteCtrl( this, IDX_BACKGROUND, wxDefaultPosition, wxSize( 33, 33 ), wxSUNKEN_BORDER );
+	m_colourPickerBackground->SetBackgroundColour( wxColour( 255, 255, 255 ) );
+	m_colourPickerBackground->SetPickerMode( false );
 	fgSizer4->Add( m_colourPickerBackground, 0, wxALL, 0 );
 	
 	sbSizer3->Add( fgSizer4, 0, wxEXPAND, 0 );
@@ -567,124 +571,117 @@ ColorPanel::ColorPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, con
 	fgSizer3->SetFlexibleDirection( wxBOTH );
 	fgSizer3->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
-	m_panelPalette0 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette0 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette0->SetBackgroundColour( wxColour( 0, 0, 0 ) );
 	
-	fgSizer3->Add( m_panelPalette0, 1, wxALL|wxEXPAND, 0 );
+	fgSizer3->Add( m_panelPalette0, 0, wxALL, 0 );
 	
-	m_panelPalette1 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette1 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette1->SetBackgroundColour( wxColour( 128, 128, 128 ) );
 	
-	fgSizer3->Add( m_panelPalette1, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette1, 0, wxALL, 0 );
 	
-	m_panelPalette2 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette2 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette2->SetBackgroundColour( wxColour( 128, 0, 0 ) );
 	
-	fgSizer3->Add( m_panelPalette2, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette2, 0, wxALL, 0 );
 	
-	m_panelPalette3 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette3 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette3->SetBackgroundColour( wxColour( 128, 128, 0 ) );
 	
-	fgSizer3->Add( m_panelPalette3, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette3, 0, wxALL, 0 );
 	
-	m_panelPalette4 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette4 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette4->SetBackgroundColour( wxColour( 0, 128, 0 ) );
 	
-	fgSizer3->Add( m_panelPalette4, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette4, 0, wxALL, 0 );
 	
-	m_panelPalette5 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette5 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette5->SetBackgroundColour( wxColour( 255, 128, 64 ) );
 	
-	fgSizer3->Add( m_panelPalette5, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette5, 0, wxALL, 0 );
 	
-	m_panelPalette6 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette6 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette6->SetBackgroundColour( wxColour( 0, 128, 192 ) );
 	
-	fgSizer3->Add( m_panelPalette6, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette6, 0, wxALL, 0 );
 	
-	m_panelPalette7 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette7 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette7->SetBackgroundColour( wxColour( 0, 0, 64 ) );
 	
-	fgSizer3->Add( m_panelPalette7, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette7, 0, wxALL, 0 );
 	
-	m_panelPalette8 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette8 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette8->SetBackgroundColour( wxColour( 128, 128, 255 ) );
 	
-	fgSizer3->Add( m_panelPalette8, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette8, 0, wxALL, 0 );
 	
-	m_panelPalette9 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette9 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette9->SetBackgroundColour( wxColour( 0, 0, 128 ) );
 	
-	fgSizer3->Add( m_panelPalette9, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette9, 0, wxALL, 0 );
 	
-	m_panelPalette10 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette10 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette10->SetBackgroundColour( wxColour( 255, 255, 255 ) );
 	
-	fgSizer3->Add( m_panelPalette10, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette10, 0, wxALL, 0 );
 	
-	m_panelPalette11 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette11 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette11->SetBackgroundColour( wxColour( 192, 192, 192 ) );
 	
-	fgSizer3->Add( m_panelPalette11, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette11, 0, wxALL, 0 );
 	
-	m_panelPalette12 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette12 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette12->SetBackgroundColour( wxColour( 255, 0, 0 ) );
 	
-	fgSizer3->Add( m_panelPalette12, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette12, 0, wxALL, 0 );
 	
-	m_panelPalette13 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette13 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette13->SetBackgroundColour( wxColour( 255, 255, 0 ) );
 	
-	fgSizer3->Add( m_panelPalette13, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette13, 0, wxALL, 0 );
 	
-	m_panelPalette14 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette14 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette14->SetBackgroundColour( wxColour( 0, 255, 0 ) );
 	
-	fgSizer3->Add( m_panelPalette14, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette14, 0, wxALL, 0 );
 	
-	m_panelPalette15 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette15 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette15->SetBackgroundColour( wxColour( 128, 255, 255 ) );
 	
-	fgSizer3->Add( m_panelPalette15, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette15, 0, wxALL, 0 );
 	
-	m_panelPalette16 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette16 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette16->SetBackgroundColour( wxColour( 0, 0, 255 ) );
 	
-	fgSizer3->Add( m_panelPalette16, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette16, 0, wxALL, 0 );
 	
-	m_panelPalette17 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette17 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette17->SetBackgroundColour( wxColour( 255, 128, 255 ) );
 	
-	fgSizer3->Add( m_panelPalette17, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette17, 0, wxALL, 0 );
 	
-	m_panelPalette18 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette18 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette18->SetBackgroundColour( wxColour( 255, 255, 128 ) );
 	
-	fgSizer3->Add( m_panelPalette18, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette18, 0, wxALL, 0 );
 	
-	m_panelPalette19 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( -1,-1 ), wxSUNKEN_BORDER );
+	m_panelPalette19 = new PaletteCtrl( this, IDX_PALETTE, wxDefaultPosition, wxSize( 22, 22 ), wxSUNKEN_BORDER );
 	m_panelPalette19->SetBackgroundColour( wxColour( 255, 128, 0 ) );
 	
-	fgSizer3->Add( m_panelPalette19, 1, wxEXPAND | wxALL, 0 );
+	fgSizer3->Add( m_panelPalette19, 0, wxALL, 0 );
 	
 	sbSizer4->Add( fgSizer3, 1, wxEXPAND, 5 );
-	
-	bSizer4->Add( sbSizer4, 0, 0, 5 );
+
+	bSizer4->Add( sbSizer4, 1, wxEXPAND, 5 );
 	
 	this->SetSizer( bSizer4 );
 	this->Layout();
 	bSizer4->Fit( this );
-	
-	// Connect Events
-	m_colourPickerForeground->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( ColorPanel::OnForegroundSet ), NULL, this );
-	m_colourPickerBackground->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( ColorPanel::OnBackgroundSet ), NULL, this );
 }
 
 ColorPanel::~ColorPanel()
 {
-	// Disconnect Events
-	m_colourPickerForeground->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( ColorPanel::OnForegroundSet ), NULL, this );
-	m_colourPickerBackground->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( ColorPanel::OnBackgroundSet ), NULL, this );
 }
 
 ToolPanel::ToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
@@ -706,16 +703,16 @@ ToolPanel::ToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const
 	m_bpButtonFill = new wxBitmapButton( this, IDX_TOOL_FILL, wxICON( IDI_ICON_COLOR_FILL ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonFill, 0, wxALL, 0 );
 	
-	m_bpButtonPickColor = new wxBitmapButton( this, IDX_TOOL_PICK_COLOR, wxICON( IDI_ICON_COLOR_PICKER ), wxDefaultPosition, wxSize( -1,-1 ), wxBU_AUTODRAW );
+	m_bpButtonPickColor = new wxBitmapButton( this, IDX_TOOL_PICK_COLOR, wxICON( IDI_ICON_COLOR_PICKER ), wxDefaultPosition, wxSize( 22, 22 ), wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonPickColor, 0, wxALL, 0 );
 	
 	m_bpButtonMagnify = new wxBitmapButton( this, IDX_TOOL_MAGNIFY, wxICON( IDI_ICON_PAGE_MAGNIFIER ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonMagnify, 0, wxALL, 0 );
 	
-	m_bpButtonPencil = new wxBitmapButton( this, IDX_TOOL_PENCIL, wxICON( IDI_ICON_DRAW_FREEHAND ), wxDefaultPosition, wxSize( -1,-1 ), wxBU_AUTODRAW );
+	m_bpButtonPencil = new wxBitmapButton( this, IDX_TOOL_PENCIL, wxICON( IDI_ICON_DRAW_FREEHAND ), wxDefaultPosition, wxSize( 22, 22 ), wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonPencil, 0, wxALL, 0 );
 	
-	m_bpButtonBrush = new wxBitmapButton( this, IDX_TOOL_BRUSH, wxICON( IDI_ICON_DRAW_BRUSH ), wxDefaultPosition, wxSize( -1,-1 ), wxBU_AUTODRAW );
+	m_bpButtonBrush = new wxBitmapButton( this, IDX_TOOL_BRUSH, wxICON( IDI_ICON_DRAW_BRUSH ), wxDefaultPosition, wxSize( 22, 22 ), wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonBrush, 0, wxALL, 0 );
 	
 	m_bpButtonSprayCan = new wxBitmapButton( this, IDX_TOOL_SPRAY_CAN, wxICON( IDI_ICON_DRAW_AIRBRUSH ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );

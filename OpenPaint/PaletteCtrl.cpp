@@ -25,12 +25,20 @@
 
 PaletteCtrl::PaletteCtrl( wxWindow* parent, int id , wxPoint pos , wxSize size, int style )
     : wxPanel( parent, id, pos, size, style )
+    , m_bPickerMode( false )
+    , m_bIsForeground( true )
 {
     this->Connect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( PaletteCtrl::OnPalette ) );
     this->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( PaletteCtrl::OnForeground ) );
     this->Connect( wxEVT_RIGHT_DCLICK, wxMouseEventHandler( PaletteCtrl::OnPalette ) );
     this->Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( PaletteCtrl::OnBackground ) );
 
+}
+
+void PaletteCtrl::SetPickerMode( bool foreground )
+{
+    m_bPickerMode = true;
+    m_bIsForeground = foreground;
 }
 
 PaletteCtrl::~PaletteCtrl()
@@ -76,6 +84,22 @@ void PaletteCtrl::OnForeground( wxMouseEvent& event )
         return;
     }
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
+
+    if( m_bPickerMode )
+    {
+        if( m_bIsForeground )
+        {
+            pToolManager->SetForeground( pToolManager->PickColor() );
+        }
+        else
+        {
+            pToolManager->SetBackground( pToolManager->PickColor() );
+        }
+        SetBackgroundColour( m_bIsForeground ? pToolManager->GetForeground() : pToolManager->GetBackground() );
+        Refresh();
+        return;
+    }
+
     pToolManager->SetForeground(eventWindow->GetBackgroundColour());
 }
 

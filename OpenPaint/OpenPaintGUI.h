@@ -193,10 +193,10 @@ class ColorPanel : public wxPanel
 	private:
 	
 	protected:
-		wxColourPickerCtrl* m_colourPickerForeground;
+		PaletteCtrl* m_colourPickerForeground;
 		
 		
-		wxColourPickerCtrl* m_colourPickerBackground;
+		PaletteCtrl* m_colourPickerBackground;
 		PaletteCtrl* m_panelPalette0;
 		PaletteCtrl* m_panelPalette1;
 		PaletteCtrl* m_panelPalette2;
@@ -218,11 +218,6 @@ class ColorPanel : public wxPanel
 		PaletteCtrl* m_panelPalette18;
 		PaletteCtrl* m_panelPalette19;
 		
-		// Virtual event handlers, overide them in your derived class
-		virtual void OnForegroundSet( wxColourPickerEvent& event ){ event.Skip(); }
-		virtual void OnBackgroundSet( wxColourPickerEvent& event ){ event.Skip(); }
-		
-	
 	public:
 		
 		ColorPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL );

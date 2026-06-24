@@ -71,4 +71,41 @@ if(wxWidgets_FOUND)
         target_compile_options(test_openpaint_webp PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     catch_discover_tests(test_openpaint_webp)
+
+    # Icon loader smoke tests. Only built when wxWidgets is available; the
+    # wxBitmap / wxBitmapBundle APIs it depends on are part of wx::core.
+    configure_file(
+        "${CMAKE_SOURCE_DIR}/OpenPaint/IconPaths.h.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/generated/IconPaths.h"
+        @ONLY
+    )
+    if(TARGET wx::core)
+        add_executable(test_openpaint_icons
+            test_IconLoader.cpp
+            ${CMAKE_SOURCE_DIR}/OpenPaint/IconLoader.cpp
+        )
+        target_include_directories(test_openpaint_icons PRIVATE
+            ${CMAKE_SOURCE_DIR}/OpenPaint
+            ${CMAKE_CURRENT_BINARY_DIR}/generated)
+        target_link_libraries(test_openpaint_icons PRIVATE
+            Catch2WithMain wx::core wx::base)
+    else()
+        add_executable(test_openpaint_icons
+            test_IconLoader.cpp
+            ${CMAKE_SOURCE_DIR}/OpenPaint/IconLoader.cpp
+        )
+        target_include_directories(test_openpaint_icons PRIVATE
+            ${CMAKE_SOURCE_DIR}/OpenPaint
+            ${wxWidgets_INCLUDE_DIRS}
+            ${CMAKE_CURRENT_BINARY_DIR}/generated)
+        target_compile_options(test_openpaint_icons PRIVATE ${wxWidgets_CXX_FLAGS})
+        target_link_libraries(test_openpaint_icons PRIVATE
+            Catch2WithMain ${wxWidgets_LIBRARIES})
+    endif()
+    if(MSVC)
+        target_compile_options(test_openpaint_icons PRIVATE /W4 /permissive-)
+    else()
+        target_compile_options(test_openpaint_icons PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    catch_discover_tests(test_openpaint_icons)
 endif()

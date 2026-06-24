@@ -41,3 +41,4 @@ openpaint_test_*
 # OS junk
 .DS_Store
 Thumbs.db
+build_check/

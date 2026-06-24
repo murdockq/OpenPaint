@@ -19,6 +19,7 @@ endif()
 set(OPENPAINT_SOURCES
     ConfigFile.cpp
     Globals.cpp
+    IconLoader.cpp
     ImageOps.cpp
     OpenPaintGUI.cpp
     OpenPaintMainApp.cpp
@@ -45,6 +46,8 @@ set(OPENPAINT_SOURCES
 set(OPENPAINT_HEADERS
     ConfigFile.h
     Globals.h
+    IconLoader.h
+    ImageOps.h
     OpenPaintGUI.h
     OpenPaintMainApp.h
     OpenPaintMDIChildFrame.h
@@ -64,6 +67,19 @@ set(OPENPAINT_HEADERS
     tinystr.h
     tinyxml.h
     resource.h
+    IconPaths.h.in
+)
+
+# Pin the on-disk locations of the SVG and XPM icon directories into a
+# generated header. IconLoader.cpp #includes it to locate res/svg and res/
+# regardless of the working directory the binary is launched from.
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/IconPaths.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/IconPaths.h"
+    @ONLY
+)
+list(APPEND OPENPAINT_HEADERS
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/IconPaths.h"
 )
 
 add_executable(openpaint WIN32
@@ -72,8 +88,24 @@ add_executable(openpaint WIN32
     OpenPaint.rc
 )
 
-target_include_directories(openpaint PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(openpaint PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/generated
+)
 target_compile_definitions(openpaint PRIVATE TIXML_USE_STL)
+
+# Copy the SVG icons next to the binary so the loader can find them at
+# runtime without requiring the source tree to be present. On multi-config
+# generators the binary lives under <build>/<config>/, so we resolve the
+# directory from the target itself.
+add_custom_command(TARGET openpaint POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+        "$<TARGET_FILE_DIR:openpaint>/res/svg"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/res/svg"
+        "$<TARGET_FILE_DIR:openpaint>/res/svg"
+    COMMENT "Copying SVG icons next to openpaint binary"
+)
 
 target_link_libraries(openpaint PRIVATE ${OPENPAINT_WX_TARGETS})
 

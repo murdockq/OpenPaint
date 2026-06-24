@@ -22,6 +22,8 @@
 
 #include "SubCanvasSizeDialog.h"
 
+#include "IconLoader.h"
+
 SubCanvasSizeDialog::SubCanvasSizeDialog( wxWindow* parent, int iWidth, int iHeight)
 :
 CanvasSizeDialog( parent )
@@ -107,11 +109,11 @@ void SubCanvasSizeDialog::OnLink( wxCommandEvent& event )
     m_bIsLinked = !m_bIsLinked;
     if(m_bIsLinked)
     {
-        m_bpButtonLink->SetBitmapLabel(wxICON( IDI_ICON_LINKED ));
+        m_bpButtonLink->SetBitmapLabel(IconLoader::Load(wxT("linked"), IconLoader::LogicalToolbarSize()));
     }
     else
     {
-        m_bpButtonLink->SetBitmapLabel(wxICON( IDI_ICON_UNLINKED ));
+        m_bpButtonLink->SetBitmapLabel(IconLoader::Load(wxT("unlinked"), IconLoader::LogicalToolbarSize()));
     }
 }
 

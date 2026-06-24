@@ -19,6 +19,7 @@
 
 #include "PaletteCtrl.h"
 
+#include "IconLoader.h"
 #include "OpenPaintGUI.h"
 
 ///////////////////////////////////////////////////////////////////////////
@@ -211,130 +212,74 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_menuTools = new wxMenu();
 	wxMenuItem* menuItemBrush;
 	menuItemBrush = new wxMenuItem( m_menuTools, IDX_TOOL_BRUSH, wxString( _("Brush") ) + wxT('\t') + wxT("B"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemBrush->SetBitmaps( wxICON( IDI_ICON_DRAW_BRUSH ) );
-	#elif defined( __WXGTK__ )
-	menuItemBrush->SetBitmap( wxICON( IDI_ICON_DRAW_BRUSH ) );
-	#endif
+	menuItemBrush->SetBitmap( IconLoader::Load( wxT("draw-brush"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemBrush );
-	
+
 	wxMenuItem* menuItemEllipse;
 	menuItemEllipse = new wxMenuItem( m_menuTools, IDX_TOOL_ELLIPSE, wxString( _("Ellipse") ) + wxT('\t') + wxT("O"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemEllipse->SetBitmaps( wxICON( IDI_ICON_DRAW_ELLIPSE ) );
-	#elif defined( __WXGTK__ )
-	menuItemEllipse->SetBitmap( wxICON( IDI_ICON_DRAW_ELLIPSE ) );
-	#endif
+	menuItemEllipse->SetBitmap( IconLoader::Load( wxT("draw-ellipse"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemEllipse );
-	
+
 	wxMenuItem* menuItemEraser;
 	menuItemEraser = new wxMenuItem( m_menuTools, IDX_TOOL_ERASER, wxString( _("Eraser") ) + wxT('\t') + wxT("E"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemEraser->SetBitmaps( wxICON( IDI_ICON_DRAW_ERASER ) );
-	#elif defined( __WXGTK__ )
-	menuItemEraser->SetBitmap( wxICON( IDI_ICON_DRAW_ERASER ) );
-	#endif
+	menuItemEraser->SetBitmap( IconLoader::Load( wxT("draw-eraser"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemEraser );
-	
+
 	wxMenuItem* menuItemFill;
 	menuItemFill = new wxMenuItem( m_menuTools, IDX_TOOL_FILL, wxString( _("Fill Bucket") ) + wxT('\t') + wxT("F"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemFill->SetBitmaps( wxICON( IDI_ICON_COLOR_FILL ) );
-	#elif defined( __WXGTK__ )
-	menuItemFill->SetBitmap( wxICON( IDI_ICON_COLOR_FILL ) );
-	#endif
+	menuItemFill->SetBitmap( IconLoader::Load( wxT("color-fill"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemFill );
-	
+
 	wxMenuItem* menuItemMagnify;
 	menuItemMagnify = new wxMenuItem( m_menuTools, IDX_TOOL_MAGNIFY, wxString( _("Magnify") ) + wxT('\t') + wxT("M"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemMagnify->SetBitmaps( wxICON( IDI_ICON_PAGE_MAGNIFIER ) );
-	#elif defined( __WXGTK__ )
-	menuItemMagnify->SetBitmap( wxICON( IDI_ICON_PAGE_MAGNIFIER ) );
-	#endif
+	menuItemMagnify->SetBitmap( IconLoader::Load( wxT("page-magnifier"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemMagnify );
-	
+
 	wxMenuItem* menuItemPencil;
 	menuItemPencil = new wxMenuItem( m_menuTools, IDX_TOOL_PENCIL, wxString( _("Pencil") ) + wxT('\t') + wxT("P"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemPencil->SetBitmaps( wxICON( IDI_ICON_DRAW_FREEHAND ) );
-	#elif defined( __WXGTK__ )
-	menuItemPencil->SetBitmap( wxICON( IDI_ICON_DRAW_FREEHAND ) );
-	#endif
+	menuItemPencil->SetBitmap( IconLoader::Load( wxT("draw-freehand"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemPencil );
-	
+
 	wxMenuItem* menuItemPickColor;
 	menuItemPickColor = new wxMenuItem( m_menuTools, IDX_TOOL_PICK_COLOR, wxString( _("Pick Color") ) + wxT('\t') + wxT("C"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemPickColor->SetBitmaps( wxICON( IDI_ICON_COLOR_PICKER ) );
-	#elif defined( __WXGTK__ )
-	menuItemPickColor->SetBitmap( wxICON( IDI_ICON_COLOR_PICKER ) );
-	#endif
+	menuItemPickColor->SetBitmap( IconLoader::Load( wxT("color-picker"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemPickColor );
-	
+
 	wxMenuItem* menuItemPolyline;
 	menuItemPolyline = new wxMenuItem( m_menuTools, IDX_TOOL_POLYLINE, wxString( _("Polyline") ) + wxT('\t') + wxT("P"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemPolyline->SetBitmaps( wxICON( IDI_ICON_DRAW_POLYLINE ) );
-	#elif defined( __WXGTK__ )
-	menuItemPolyline->SetBitmap( wxICON( IDI_ICON_DRAW_POLYLINE ) );
-	#endif
+	menuItemPolyline->SetBitmap( IconLoader::Load( wxT("draw-polyline"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemPolyline );
 	menuItemPolyline->Enable( false );
-	
+
 	wxMenuItem* menuItemRectangle;
 	menuItemRectangle = new wxMenuItem( m_menuTools, IDX_TOOL_RECTANGLE, wxString( _("Rectangle") ) + wxT('\t') + wxT("R"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemRectangle->SetBitmaps( wxICON( IDI_ICON_DRAW_RECTANGLE ) );
-	#elif defined( __WXGTK__ )
-	menuItemRectangle->SetBitmap( wxICON( IDI_ICON_DRAW_RECTANGLE ) );
-	#endif
+	menuItemRectangle->SetBitmap( IconLoader::Load( wxT("draw-rectangle"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemRectangle );
-	
+
 	wxMenuItem* menuItemRectangleRounded;
 	menuItemRectangleRounded = new wxMenuItem( m_menuTools, IDX_TOOL_RECTANGLE_ROUNDED, wxString( _("Rounded Rectangle") ) + wxT('\t') + wxT("Q"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemRectangleRounded->SetBitmaps( wxICON( IDI_ICON_DRAW_RECTANGLE_ROUNDED ) );
-	#elif defined( __WXGTK__ )
-	menuItemRectangleRounded->SetBitmap( wxICON( IDI_ICON_DRAW_RECTANGLE_ROUNDED ) );
-	#endif
+	menuItemRectangleRounded->SetBitmap( IconLoader::Load( wxT("draw-rectangle-rounded"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemRectangleRounded );
-	
+
 	wxMenuItem* menuItemSelect;
 	menuItemSelect = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT, wxString( _("Select") ) + wxT('\t') + wxT("S"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemSelect->SetBitmaps( wxICON( IDI_ICON_SELECT_RECTANGULAR ) );
-	#elif defined( __WXGTK__ )
-	menuItemSelect->SetBitmap( wxICON( IDI_ICON_SELECT_RECTANGULAR ) );
-	#endif
+	menuItemSelect->SetBitmap( IconLoader::Load( wxT("select-rectangular"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemSelect );
-	
+
 	wxMenuItem* menuItemSelectLasso;
 	menuItemSelectLasso = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT_LASSO, wxString( _("Select Lasso") ) + wxT('\t') + wxT("L"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemSelectLasso->SetBitmaps( wxICON( IDI_ICON_SELECT_LASSO ) );
-	#elif defined( __WXGTK__ )
-	menuItemSelectLasso->SetBitmap( wxICON( IDI_ICON_SELECT_LASSO ) );
-	#endif
+	menuItemSelectLasso->SetBitmap( IconLoader::Load( wxT("select-lasso"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemSelectLasso );
 	menuItemSelectLasso->Enable( false );
-	
+
 	wxMenuItem* menuItemSprayCan;
 	menuItemSprayCan = new wxMenuItem( m_menuTools, IDX_TOOL_SPRAY_CAN, wxString( _("Spray Can") ) + wxT('\t') + wxT("A"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemSprayCan->SetBitmaps( wxICON( IDI_ICON_DRAW_AIRBRUSH ) );
-	#elif defined( __WXGTK__ )
-	menuItemSprayCan->SetBitmap( wxICON( IDI_ICON_DRAW_AIRBRUSH ) );
-	#endif
+	menuItemSprayCan->SetBitmap( IconLoader::Load( wxT("draw-airbrush"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemSprayCan );
-	
+
 	wxMenuItem* menuItemText;
 	menuItemText = new wxMenuItem( m_menuTools, IDX_TOOL_TEXT, wxString( _("Text") ) + wxT('\t') + wxT("T"), wxEmptyString, wxITEM_NORMAL );
-	#ifdef __WXMSW__
-	menuItemText->SetBitmaps( wxICON( IDI_ICON_DRAW_TEXT ) );
-	#elif defined( __WXGTK__ )
-	menuItemText->SetBitmap( wxICON( IDI_ICON_DRAW_TEXT ) );
-	#endif
+	menuItemText->SetBitmap( IconLoader::Load( wxT("draw-text"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemText );
 	
 	m_menubar1->Append( m_menuTools, _("&Tools") );
@@ -390,17 +335,20 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	this->SetMenuBar( m_menubar1 );
 	
 	m_toolBar1 = this->CreateToolBar( wxTB_DOCKABLE|wxTB_FLAT, wxID_ANY );
-	m_toolBar1->SetToolBitmapSize( wxSize( 32,32 ) );
-	// Use the wxICON() macro so the toolbar picks up the XPM fallbacks from
-	// resource.h on non-Windows platforms. The previous code used
-	// wxBITMAP_TYPE_ICO_RESOURCE which only resolves against the Windows
-	// resource script and produced blank toolbar buttons on Linux/macOS.
-	m_toolBar1->AddTool( wxID_NEW, _("New"), wxICON( IDI_ICON_NEW ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Create a new 800x600 image.") );
-	m_toolBar1->AddTool( wxID_OPEN, _("Open"), wxICON( IDI_ICON_OPEN ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Open an image file.") );
-	m_toolBar1->AddTool( wxID_SAVE, _("Save"), wxICON( IDI_ICON_SAVE ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Save current file.") );
+	// Logical tool size, in DIPs. On HiDPI displays wxWidgets scales the
+	// bitmap up to physical pixels automatically, so 24x24 is the modern
+	// flat-icon size — the previous 32x32 was inherited from the original
+	// 2008 raster set.
+	m_toolBar1->SetToolBitmapSize( IconLoader::LogicalToolbarSize() );
+	// IconLoader picks the SVG when wxWidgets is built with wxUSE_SVG=1, and
+	// falls through to the XPM / legacy wxICON() otherwise, so this works on
+	// every existing build.
+	m_toolBar1->AddTool( wxID_NEW, _("New"), IconLoader::Load( wxT("new"), IconLoader::LogicalToolbarSize() ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Create a new 800x600 image.") );
+	m_toolBar1->AddTool( wxID_OPEN, _("Open"), IconLoader::Load( wxT("open"), IconLoader::LogicalToolbarSize() ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Open an image file.") );
+	m_toolBar1->AddTool( wxID_SAVE, _("Save"), IconLoader::Load( wxT("save"), IconLoader::LogicalToolbarSize() ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, _("Save current file.") );
 	m_toolBar1->AddSeparator();
-	m_toolBar1->AddTool( wxID_UNDO, _("Undo"), wxICON( IDI_ICON_UNDO ), wxNullBitmap, wxITEM_NORMAL, _("Undo (Ctrl +Z)"), _("Undo the last action.") );
-	m_toolBar1->AddTool( wxID_REDO, _("Redo"), wxICON( IDI_ICON_REDO ), wxNullBitmap, wxITEM_NORMAL, _("Redo (Ctrl +Z)"), _("Redo the last action that was undone.") );
+	m_toolBar1->AddTool( wxID_UNDO, _("Undo"), IconLoader::Load( wxT("undo"), IconLoader::LogicalToolbarSize() ), wxNullBitmap, wxITEM_NORMAL, _("Undo (Ctrl +Z)"), _("Undo the last action.") );
+	m_toolBar1->AddTool( wxID_REDO, _("Redo"), IconLoader::Load( wxT("redo"), IconLoader::LogicalToolbarSize() ), wxNullBitmap, wxITEM_NORMAL, _("Redo (Ctrl +Z)"), _("Redo the last action that was undone.") );
 	m_toolBar1->AddSeparator();
 	m_toolBar1->Realize();
 	
@@ -694,54 +642,54 @@ ToolPanel::ToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const
 	fgSizer2->SetFlexibleDirection( wxBOTH );
 	fgSizer2->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
-	m_bpButtonSelect = new wxBitmapButton( this, IDX_TOOL_SELECT, wxICON( IDI_ICON_SELECT_RECTANGULAR ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+	m_bpButtonSelect = new wxBitmapButton( this, IDX_TOOL_SELECT, IconLoader::Load( wxT("select-rectangular"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonSelect, 0, wxALL, 0 );
-	
-	m_bpButtonEraser = new wxBitmapButton( this, IDX_TOOL_ERASER, wxICON( IDI_ICON_DRAW_ERASER ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+
+	m_bpButtonEraser = new wxBitmapButton( this, IDX_TOOL_ERASER, IconLoader::Load( wxT("draw-eraser"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonEraser, 0, wxALL, 0 );
-	
-	m_bpButtonFill = new wxBitmapButton( this, IDX_TOOL_FILL, wxICON( IDI_ICON_COLOR_FILL ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+
+	m_bpButtonFill = new wxBitmapButton( this, IDX_TOOL_FILL, IconLoader::Load( wxT("color-fill"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonFill, 0, wxALL, 0 );
-	
-	m_bpButtonPickColor = new wxBitmapButton( this, IDX_TOOL_PICK_COLOR, wxICON( IDI_ICON_COLOR_PICKER ), wxDefaultPosition, wxSize( 22, 22 ), wxBU_AUTODRAW );
+
+	m_bpButtonPickColor = new wxBitmapButton( this, IDX_TOOL_PICK_COLOR, IconLoader::Load( wxT("color-picker"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonPickColor, 0, wxALL, 0 );
-	
-	m_bpButtonMagnify = new wxBitmapButton( this, IDX_TOOL_MAGNIFY, wxICON( IDI_ICON_PAGE_MAGNIFIER ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+
+	m_bpButtonMagnify = new wxBitmapButton( this, IDX_TOOL_MAGNIFY, IconLoader::Load( wxT("page-magnifier"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonMagnify, 0, wxALL, 0 );
-	
-	m_bpButtonPencil = new wxBitmapButton( this, IDX_TOOL_PENCIL, wxICON( IDI_ICON_DRAW_FREEHAND ), wxDefaultPosition, wxSize( 22, 22 ), wxBU_AUTODRAW );
+
+	m_bpButtonPencil = new wxBitmapButton( this, IDX_TOOL_PENCIL, IconLoader::Load( wxT("draw-freehand"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonPencil, 0, wxALL, 0 );
-	
-	m_bpButtonBrush = new wxBitmapButton( this, IDX_TOOL_BRUSH, wxICON( IDI_ICON_DRAW_BRUSH ), wxDefaultPosition, wxSize( 22, 22 ), wxBU_AUTODRAW );
+
+	m_bpButtonBrush = new wxBitmapButton( this, IDX_TOOL_BRUSH, IconLoader::Load( wxT("draw-brush"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonBrush, 0, wxALL, 0 );
-	
-	m_bpButtonSprayCan = new wxBitmapButton( this, IDX_TOOL_SPRAY_CAN, wxICON( IDI_ICON_DRAW_AIRBRUSH ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+
+	m_bpButtonSprayCan = new wxBitmapButton( this, IDX_TOOL_SPRAY_CAN, IconLoader::Load( wxT("draw-airbrush"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonSprayCan, 0, wxALL, 0 );
-	
-	m_bpButtonText = new wxBitmapButton( this, IDX_TOOL_TEXT, wxICON( IDI_ICON_DRAW_TEXT ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+
+	m_bpButtonText = new wxBitmapButton( this, IDX_TOOL_TEXT, IconLoader::Load( wxT("draw-text"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonText, 0, wxALL, 0 );
-	
-	m_bpButtonRectangle = new wxBitmapButton( this, IDX_TOOL_RECTANGLE, wxICON( IDI_ICON_DRAW_RECTANGLE ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+
+	m_bpButtonRectangle = new wxBitmapButton( this, IDX_TOOL_RECTANGLE, IconLoader::Load( wxT("draw-rectangle"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonRectangle, 0, wxALL, 0 );
-	
-	m_bpButtonEllipse = new wxBitmapButton( this, IDX_TOOL_ELLIPSE, wxICON( IDI_ICON_DRAW_ELLIPSE ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+
+	m_bpButtonEllipse = new wxBitmapButton( this, IDX_TOOL_ELLIPSE, IconLoader::Load( wxT("draw-ellipse"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonEllipse, 0, wxALL, 0 );
-	
-	m_bpButtonRectangleRounded = new wxBitmapButton( this, IDX_TOOL_RECTANGLE_ROUNDED, wxICON( IDI_ICON_DRAW_RECTANGLE_ROUNDED ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+
+	m_bpButtonRectangleRounded = new wxBitmapButton( this, IDX_TOOL_RECTANGLE_ROUNDED, IconLoader::Load( wxT("draw-rectangle-rounded"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonRectangleRounded, 0, wxALL, 0 );
-	
-	m_bpButtonPolyline = new wxBitmapButton( this, IDX_TOOL_POLYLINE, wxICON( IDI_ICON_DRAW_POLYLINE ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+
+	m_bpButtonPolyline = new wxBitmapButton( this, IDX_TOOL_POLYLINE, IconLoader::Load( wxT("draw-polyline"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	m_bpButtonPolyline->Hide();
-	
+
 	m_bpButtonPolyline->Hide();
-	
+
 	fgSizer2->Add( m_bpButtonPolyline, 0, wxALL, 0 );
-	
-	m_bpButtonSelectLasso = new wxBitmapButton( this, IDX_TOOL_SELECT_LASSO, wxICON( IDI_ICON_SELECT_LASSO ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+
+	m_bpButtonSelectLasso = new wxBitmapButton( this, IDX_TOOL_SELECT_LASSO, IconLoader::Load( wxT("select-lasso"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	m_bpButtonSelectLasso->Hide();
-	
+
 	m_bpButtonSelectLasso->Hide();
-	
+
 	fgSizer2->Add( m_bpButtonSelectLasso, 0, wxALL, 0 );
 	
 	bSizer3->Add( fgSizer2, 0, 0, 5 );
@@ -1071,7 +1019,7 @@ CanvasSizeDialog::CanvasSizeDialog( wxWindow* parent, wxWindowID id, const wxStr
 	m_staticText9->Wrap( -1 );
 	bSizer5->Add( m_staticText9, 0, wxALL, 0 );
 	
-	m_bpButtonLink = new wxBitmapButton( this, IDX_LINK_PROPORTION, wxICON( IDI_ICON_LINKED ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+	m_bpButtonLink = new wxBitmapButton( this, IDX_LINK_PROPORTION, IconLoader::Load( wxT("linked"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	bSizer5->Add( m_bpButtonLink, 0, wxALL, 0 );
 	
 	m_staticText10 = new wxStaticText( this, wxID_ANY, _("/"), wxDefaultPosition, wxDefaultSize, 0 );
@@ -1186,7 +1134,7 @@ ImageSizeDialog::ImageSizeDialog( wxWindow* parent, wxWindowID id, const wxStrin
 	m_staticText9->Wrap( -1 );
 	bSizer5->Add( m_staticText9, 0, wxALL, 0 );
 	
-	m_bpButtonLink = new wxBitmapButton( this, IDX_LINK_PROPORTION, wxICON( IDI_ICON_LINKED ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+	m_bpButtonLink = new wxBitmapButton( this, IDX_LINK_PROPORTION, IconLoader::Load( wxT("linked"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	bSizer5->Add( m_bpButtonLink, 0, wxALL, 0 );
 	
 	m_staticText10 = new wxStaticText( this, wxID_ANY, _("/"), wxDefaultPosition, wxDefaultSize, 0 );

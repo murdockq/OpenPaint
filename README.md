@@ -49,3 +49,26 @@ Platform wxWidgets install:
 * **macOS:** `brew install wxwidgets`
 * **Windows:** install via [vcpkg](https://vcpkg.io/) (`vcpkg install wxwidgets`) and pass
   `-DCMAKE_TOOLCHAIN_FILE=<vcpkg>/scripts/buildsystems/vcpkg.cmake` to CMake.
+
+## Icons ##
+
+The tool and menu bar icons live in `OpenPaint/res/svg/` as hand-authored 24×24 SVG
+files. They are loaded at runtime by `IconLoader` (`OpenPaint/IconLoader.cpp`), which
+resolves each icon in this order:
+
+1. **SVG** — the modern, HiDPI-friendly source. Used when wxWidgets is built with
+   `wxUSE_SVG=1` (the `wxBitmapBundle::FromSVGFile` API). On 4K / 200%-scaled
+   displays the toolbar and tool panel icons render as crisp vectors instead of
+   upscaled 32×32 rasters.
+2. **XPM** — the cross-platform raster fallback in `OpenPaint/res/`.
+3. **`wxICON()`** — the legacy Windows resource as a last resort.
+
+To get the SVG path on platforms where it isn't the default:
+
+* **vcpkg** (Windows): rebuild wxWidgets with the `svg` feature, e.g.
+  `vcpkg install wxwidgets[svg]`.
+* **Linux / macOS**: rebuild wxWidgets from source with
+  `./configure --enable-svg && make install` (3.2+).
+
+If `wxUSE_SVG` is off, OpenPaint still runs — the icons simply fall through to
+the XPM raster, which is identical to the pre-SVG behaviour.

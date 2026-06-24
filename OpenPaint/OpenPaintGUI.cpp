@@ -491,7 +491,7 @@ ColorPanel::ColorPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, con
 	m_colourPickerPair->SetFGColour( wxColour( 0, 0, 0 ) );
 	m_colourPickerPair->SetBGColour( wxColour( 255, 255, 255 ) );
 	
-	sbSizer3->Add( m_colourPickerPair, 0, wxALL, 0 );
+	sbSizer3->Add( m_colourPickerPair, 0, wxALL, 5 );
 	
 	bSizer4->Add( sbSizer3, 0, 0, 0 );
 	

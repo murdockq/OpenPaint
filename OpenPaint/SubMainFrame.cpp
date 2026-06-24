@@ -2,7 +2,7 @@
  * OpenPaint
  * www.sourceforge.net/projects/openpaint
  *
- * Copyright (C) 2007, Steven Jedlicka
+ * Copyright (C) 2007, OpenPaint
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -809,14 +809,14 @@ void SubMainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
     info.SetName(wxT("OpenPaint"));
     info.SetVersion(wxT("1.3.0"));
     info.SetDescription(wxT("The open alternative to propriatry painting."));
-    info.SetCopyright(wxT("(C) 2009 Steven Jedlicka"));
-    info.AddDeveloper(wxT("Steven Jedlicka"));
-    info.SetWebSite(wxT("http://www.openpaint.org"));
+    info.SetCopyright(wxT("(C) 2009 OpenPaint"));
+    info.AddDeveloper(wxT("OpenPaint"));
+    info.SetWebSite(wxT("http://github.com/murdockq/openpaint"));
     info.SetLicense(wxString::FromAscii(
          "OpenPaint\n"
-         "www.sourceforge.net/projects/openpaint\n"
+         "github.com/murdockq/openpaint/openpaint\n"
          "\n"
-         "Copyright (C) 2009, Steven Jedlicka\n"
+         "Copyright (C) 2009, OpenPaint\n"
          "\n"
          "This program is free software; you can redistribute it and/or\n"
          "modify it under the terms of the GNU General Public License\n"

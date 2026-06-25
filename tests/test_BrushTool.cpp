@@ -55,9 +55,9 @@ PaintedBitmap PaintSegmentWithTip(int x0, int y0, int x1, int y1,
     wxBitmap bmp(W, H);
     {
         wxMemoryDC dc(bmp);
-        dc.SetBackground(wxBrush(wxColour(255, 255, 255), wxSOLID));
+        dc.SetBackground(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
         dc.Clear();
-        dc.SetBrush(wxBrush(wxColour(0, 0, 0), wxSOLID));
+        dc.SetBrush(wxBrush(wxColour(0, 0, 0), wxBRUSHSTYLE_SOLID));
         StampBrushAlongLine(dc, x0, y0, x1, y1, radius, tip);
     }
     wxImage img = bmp.ConvertToImage();
@@ -175,9 +175,9 @@ TEST_CASE("Brush segments that share an endpoint join without a gap",
     wxBitmap bmp(W, H);
     {
         wxMemoryDC dc(bmp);
-        dc.SetBackground(wxBrush(wxColour(255, 255, 255), wxSOLID));
+        dc.SetBackground(wxBrush(wxColour(255, 255, 255), wxBRUSHSTYLE_SOLID));
         dc.Clear();
-        dc.SetBrush(wxBrush(wxColour(0, 0, 0), wxSOLID));
+        dc.SetBrush(wxBrush(wxColour(0, 0, 0), wxBRUSHSTYLE_SOLID));
         StampBrushAlongLine(dc, 4, 4,  30, 4,   radius, 2); // horizontal
         StampBrushAlongLine(dc, 30, 4, 30, 40, radius, 3); // vertical
     }

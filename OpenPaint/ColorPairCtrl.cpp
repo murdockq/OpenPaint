@@ -42,12 +42,12 @@ void ColorPairCtrl::OnPaint( wxPaintEvent& event )
 
     // Draw the background swatch first (fill + outline) so everything is behind the foreground.
     dc.SetPen( wxPen( wxColour( 128, 128, 128 ), 1 ) );
-    dc.SetBrush( wxBrush( m_background, wxSOLID ) );
+    dc.SetBrush( wxBrush( m_background, wxBRUSHSTYLE_SOLID ) );
     dc.DrawRectangle( m_offset, m_offset, m_buttonSize, m_buttonSize );
 
     // Draw the foreground swatch on top (fill + outline).
     dc.SetPen( wxPen( wxColour( 128, 128, 128 ), 1 ) );
-    dc.SetBrush( wxBrush( m_foreground, wxSOLID ) );
+    dc.SetBrush( wxBrush( m_foreground, wxBRUSHSTYLE_SOLID ) );
     dc.DrawRectangle( 0, 0, m_buttonSize, m_buttonSize );
 }
 

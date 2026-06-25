@@ -970,8 +970,8 @@ wxBitmap OpenPaintMDIChildFrame::Cut()
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     wxColour bColor = pToolManager->GetBackground();
 
-    m_customPen = wxPen(bColor, 1, wxSOLID);
-    m_customBrush = wxBrush(bColor, wxSOLID);
+    m_customPen = wxPen(bColor, 1, wxPENSTYLE_SOLID);
+    m_customBrush = wxBrush(bColor, wxBRUSHSTYLE_SOLID);
 
     wxMemoryDC memDC;
     memDC.SelectObject(m_Bitmap);
@@ -1019,8 +1019,8 @@ void OpenPaintMDIChildFrame::Delete()
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     wxColour bColor = pToolManager->GetBackground();
 
-    m_customPen = wxPen(bColor, 1, wxSOLID);
-    m_customBrush = wxBrush(bColor, wxSOLID);
+    m_customPen = wxPen(bColor, 1, wxPENSTYLE_SOLID);
+    m_customBrush = wxBrush(bColor, wxBRUSHSTYLE_SOLID);
 
     wxMemoryDC memDC;
     memDC.SelectObject(m_Bitmap);
@@ -1331,7 +1331,7 @@ void OpenPaintMDIChildFrame::PencilTool(int x, int y, wxColour color, MouseStatu
                     ? tm->GetEraserSize()
                     : tm->GetPencilSize();
     if (width < 1) width = 1;
-    m_customPen = wxPen(color, width, wxSOLID);
+    m_customPen = wxPen(color, width, wxPENSTYLE_SOLID);
 
     dc.SetPen(m_customPen);
     dc.DrawPoint(x,y);
@@ -1371,7 +1371,7 @@ void OpenPaintMDIChildFrame::FillTool(int x, int y, wxColour color)
     }
 
     wxColour colorOld(m_Image.GetRed(x, y),m_Image.GetGreen(x, y),m_Image.GetBlue(x, y));
-    m_customBrush = wxBrush(color, wxSOLID);
+    m_customBrush = wxBrush(color, wxBRUSHSTYLE_SOLID);
     //can use
     //wxCROSSDIAG_HATCH
     //wxBDIAGONAL_HATCH
@@ -1503,7 +1503,7 @@ void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus
     // "horizontal" brushes render as the user picked them; the
     // pre-stamp-only implementation always rendered a 1-pixel-thick
     // line regardless of the tip selection.
-    dc.SetBrush(wxBrush(color, wxSOLID));
+    dc.SetBrush(wxBrush(color, wxBRUSHSTYLE_SOLID));
     StampBrushAlongLine(dc, m_prevX, m_prevY, x, y, brushRadius, brushTip);
 
     m_drawLine.push_back(wxPoint(x,y));
@@ -1518,7 +1518,7 @@ void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus
         // pixel-by-pixel stamping the live preview used, so the saved
         // image is bit-for-bit identical to what the user saw on screen.
         wxMemoryDC memDC(m_Bitmap);
-        memDC.SetBrush(wxBrush(color, wxSOLID));
+        memDC.SetBrush(wxBrush(color, wxBRUSHSTYLE_SOLID));
         for (size_t i = 0; i + 1 < m_drawLine.size(); i++)
         {
             StampBrushAlongLine(memDC,
@@ -1617,7 +1617,7 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
     ToolManager* tm = Globals::Instance()->GetToolManager();
     int penWidth = tm->GetShapeLineWidth();
     if (penWidth < 1) penWidth = 1;
-    m_customPen = wxPen(color, penWidth, wxSOLID);
+    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
     dc.SetPen(m_customPen);
 
     // If the user has filled shapes enabled, fill with the current background
@@ -1625,7 +1625,7 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
     // shows.
     if (tm->GetShapesFilled())
     {
-        dc.SetBrush(wxBrush(tm->GetBackground(), wxSOLID));
+        dc.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
     }
     else
     {
@@ -1651,7 +1651,7 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
         memDC.SetPen(m_customPen);
         if (tm->GetShapesFilled())
         {
-            memDC.SetBrush(wxBrush(tm->GetBackground(), wxSOLID));
+            memDC.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
         }
         else
         {
@@ -1681,12 +1681,12 @@ void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseSt
     ToolManager* tm = Globals::Instance()->GetToolManager();
     int penWidth = tm->GetShapeLineWidth();
     if (penWidth < 1) penWidth = 1;
-    m_customPen = wxPen(color, penWidth, wxSOLID);
+    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
     dc.SetPen(m_customPen);
 
     if (tm->GetShapesFilled())
     {
-        dc.SetBrush(wxBrush(tm->GetBackground(), wxSOLID));
+        dc.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
     }
     else
     {
@@ -1723,7 +1723,7 @@ void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseSt
         memDC.SetPen(m_customPen);
         if (tm->GetShapesFilled())
         {
-            memDC.SetBrush(wxBrush(tm->GetBackground(), wxSOLID));
+            memDC.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
         }
         else
         {
@@ -1834,13 +1834,13 @@ void OpenPaintMDIChildFrame::PolylineTool(int x, int y, MouseStatus drawState)
         wxColour color = tm->GetForeground();
         int penWidth = tm->GetShapeLineWidth();
         if (penWidth < 1) penWidth = 1;
-        m_customPen = wxPen(color, penWidth, wxSOLID);
+        m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
 
         wxMemoryDC memDC(m_Bitmap);
         memDC.SetPen(m_customPen);
         if (tm->GetShapesFilled())
         {
-            memDC.SetBrush(wxBrush(tm->GetBackground(), wxSOLID));
+            memDC.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
         }
         for (size_t i = 0; i + 1 < m_drawLine.size(); ++i)
         {

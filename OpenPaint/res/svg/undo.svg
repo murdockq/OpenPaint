@@ -1,3 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <path d="M9 6L3.5 11L9 16V12.5H14.5C17 12.5 18.8 14.1 20.5 17.5C20.2 11.6 17.2 8.5 13.8 8.5H9Z" fill="#7db8ff" stroke="#111111" stroke-width="1" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" shape-rendering="crispEdges">
+  <path d="M10 5 H18 V18 H14 V9 H10 Z" fill="#0000ff" stroke="#000000"/>
+  <polygon points="4,7 10,4 10,10" fill="#0000ff" stroke="#000000"/>
+  <path d="M10 6 H17" stroke="#6666ff"/>
 </svg>

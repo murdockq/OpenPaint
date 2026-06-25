@@ -1,17 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <g stroke="#111111" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M10 4.5H15V7.5H10Z" fill="#e6e6e6" stroke-width="1"/>
-    <path d="M9 7.5H16L17 9.5V11.5H8V9.5Z" fill="#b8b8b8" stroke-width="1"/>
-    <path d="M8.5 11.5H16.5L17.6 20H7.4Z" fill="#d8d8d8" stroke-width="1"/>
-    <path d="M10.2 13.2H15.6L16.2 18.1H9.6Z" fill="#ffffff" stroke-width="0.75"/>
-    <path d="M10.4 14.4H15.4" stroke="#9d9d9c" stroke-width="0.75"/>
-    <path d="M10.2 16H15.8" stroke="#9d9d9c" stroke-width="0.75"/>
-    <path d="M12.1 4.5V2.8H15.8" fill="none" stroke-width="1"/>
-    <path d="M15.8 2.8C18.2 2.8 19.2 3.7 19.6 5.1" fill="none" stroke-width="1"/>
-  </g>
-  <circle cx="3.6" cy="5.2" r="1" fill="#204a87"/>
-  <circle cx="5.8" cy="3.4" r="0.85" fill="#1f4986"/>
-  <circle cx="6.3" cy="6.3" r="0.75" fill="#295694"/>
-  <circle cx="8.1" cy="4.7" r="0.55" fill="#204a87"/>
-  <circle cx="20.3" cy="7.1" r="0.7" fill="#295694"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#0000bf" fill-rule="evenodd" stroke="#000" stroke-width=".265" d="M 35.72,1.85 36.86,3 C 37.13,3.26 38.19,2.2 37.92,1.94 L 36.78,0.79 C 36.51,0.53 35.45,1.59 35.72,1.85 Z" transform="translate(-268 20) matrix(3.77958,0,0,3.77958,144,-16)"/><path fill="#fff" fill-rule="evenodd" stroke="#000" stroke-width=".265" d="M 36.115124,0.66144916 C 36.375124,0.66144916 36.52,0.53 36.78,0.79 L 35.72,1.85 C 35.45,1.59 35.585965,1.4456085 35.585965,1.1906085 Z" transform="translate(-268 20) matrix(3.77958,0,0,3.77958,144,-16)"/><path fill="#0000bf" fill-rule="evenodd" d="M 35.59,0.53 C 33.94,-0.12 33.99,0.93 33.99,2.12 L 33.87,3.7 C 35.01,3 34.41,1.7 35.06,0.93 Z" opacity=".3" transform="translate(-268 20) matrix(3.77958,0,0,3.77958,144,-16)"/><g fill="#0000bf" transform="translate(-268 20) matrix(3.77958,0,0,3.77958,144,-16)"><ellipse cx="15.55" cy="-31.73" rx=".19" ry=".09" transform="rotate(64.45)"/><circle cx="35.06" cy=".93" r=".13"/><ellipse cx="35.2" cy=".69" rx=".18" ry=".09" transform="rotate(-0.06)"/><circle cx="34.53" cy=".4" r=".13"/><circle cx="34.53" cy=".93" r=".13"/><circle cx="34.26" cy=".66" r=".13"/><circle cx="34" cy=".93" r=".13"/><circle cx="34.26" cy="1.19" r=".13"/><circle cx="34.79" cy="1.19" r=".13"/><circle cx="34.53" cy="1.46" r=".13"/><circle cx="34" cy="1.46" r=".13"/><circle cx="34.26" cy="1.72" r=".13"/><circle cx="34.79" cy="1.72" r=".13"/><circle cx="34.53" cy="1.98" r=".13"/><circle cx="34" cy="1.98" r=".13"/><circle cx="34.26" cy="2.25" r=".13"/><circle cx="34" cy="2.51" r=".13"/><circle cx="34.53" cy="2.51" r=".13"/><circle cx="34.26" cy="2.78" r=".13"/><circle cx="34" cy="3.04" r=".13"/><circle cx="34.26" cy="3.31" r=".13"/><circle cx="34" cy="3.57" r=".13"/><circle cx="34.79" cy=".66" r=".13"/><ellipse cx="-4.85" cy="-35.22" rx=".1" ry=".07" transform="rotate(98.4)"/><ellipse cx="30.48" cy="-17.24" rx=".13" ry=".07" transform="rotate(30.1)"/></g><path fill-rule="evenodd" stroke="#000" stroke-width=".265" d="M 35.59,0.93 35.5,0.75 C 35.51,0.7 35.61,0.6 35.66,0.59 L 35.84,0.66 Z" transform="translate(-268 20) matrix(3.77958,0,0,3.77958,144,-16)"/><path fill="#fff" fill-rule="evenodd" d="M 37.72,2.18 C 37.76,2.11 36.76,1.04 36.66,1.15 36.63,1.2 36.86,1.42 37.11,1.65 37.39,1.94 37.67,2.22 37.71,2.18 Z" transform="translate(-268 20) matrix(3.77958,0,0,3.77958,144,-16)"/></svg>

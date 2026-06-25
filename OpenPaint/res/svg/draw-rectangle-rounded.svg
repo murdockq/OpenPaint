@@ -1,16 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" shape-rendering="crispEdges">
-  <rect x="0" y="0" width="24" height="24" fill="none"/>
-  <rect x="7" y="5" width="10" height="1" fill="#111111"/>
-  <rect x="5" y="6" width="2" height="1" fill="#111111"/>
-  <rect x="17" y="6" width="2" height="1" fill="#111111"/>
-  <rect x="4" y="7" width="1" height="10" fill="#111111"/>
-  <rect x="19" y="7" width="1" height="10" fill="#111111"/>
-  <rect x="5" y="17" width="2" height="1" fill="#111111"/>
-  <rect x="17" y="17" width="2" height="1" fill="#111111"/>
-  <rect x="7" y="18" width="10" height="1" fill="#111111"/>
-  <rect x="7" y="6" width="10" height="1" fill="#2f69c8"/>
-  <rect x="5" y="7" width="1" height="9" fill="#2f69c8"/>
-  <rect x="6" y="16" width="1" height="1" fill="#2f69c8"/>
-  <rect x="18" y="7" width="1" height="9" fill="#b8d8ff"/>
-  <rect x="7" y="17" width="10" height="1" fill="#b8d8ff"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><rect width="14" height="10" x="496.5" y="-13.5" fill="silver" stroke="#000" stroke-linecap="square" stroke-linejoin="bevel" ry="3" transform="translate(-492 20)"/></svg>

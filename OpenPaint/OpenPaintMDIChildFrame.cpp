@@ -61,6 +61,15 @@ const wxCursor& SprayCanCursor()
     return cursor;
 }
 
+wxPen MakeDashedToolPen(const wxColour& color, int width)
+{
+    if (width < 1)
+    {
+        width = 1;
+    }
+    return wxPen(color, width, wxPENSTYLE_SHORT_DASH);
+}
+
 } // namespace
 
 BEGIN_EVENT_TABLE(OpenPaintMDIChildFrame, wxAuiMDIChildFrame)
@@ -118,6 +127,10 @@ wxAuiMDIChildFrame( parent, id, title)
     m_prevY2 = 0;
     m_curveStage = 0;
     m_bCurvePreviewIsLine = false;
+    m_bToolPreviewActive = false;
+    m_previewTool = TOOL_PENCIL;
+    m_previewColor = *wxBLACK;
+    m_previewPenWidth = 1;
     m_drawLine.clear();
 
     SetImage(m_Image);
@@ -303,6 +316,7 @@ void OpenPaintMDIChildFrame::OnPaint(wxPaintEvent& WXUNUSED(event))
     dc.DrawRectangle(0, height, w/zoom ,(h/zoom));
 
     DrawSelectionOutline(dc);
+    DrawToolPreview(dc);
 
 #if 0
     //Creates anti-aliased view of image
@@ -341,6 +355,54 @@ void OpenPaintMDIChildFrame::DrawSelectionOutline(wxDC& dc) const
 
     dc.DrawRectangle(m_iSelectionOriginX, m_iSelectionOriginY,
                      m_iSelectionWidth, m_iSelectionHeight);
+}
+
+void OpenPaintMDIChildFrame::DrawToolPreview(wxDC& dc)
+{
+    if (!m_bToolPreviewActive)
+    {
+        return;
+    }
+
+    dc.SetPen(MakeDashedToolPen(m_previewColor, m_previewPenWidth));
+    dc.SetBrush(*wxTRANSPARENT_BRUSH);
+
+    switch (m_previewTool)
+    {
+        case TOOL_LINE:
+            dc.DrawLine(m_prevX, m_prevY, m_prevX2, m_prevY2);
+            break;
+        case TOOL_CURVE:
+            DrawCurvePreview(dc);
+            break;
+        case TOOL_POLYGON:
+            if (!m_drawLine.empty())
+            {
+                for (size_t i = 0; i + 1 < m_drawLine.size(); ++i)
+                {
+                    dc.DrawLine(m_drawLine[i].x, m_drawLine[i].y,
+                                m_drawLine[i + 1].x, m_drawLine[i + 1].y);
+                }
+                const wxPoint& tail = m_drawLine.back();
+                dc.DrawLine(tail.x, tail.y, m_prevX2, m_prevY2);
+            }
+            break;
+        case TOOL_SELECT_LASSO:
+            for (size_t i = 0; i + 1 < m_drawLine.size(); ++i)
+            {
+                dc.DrawLine(m_drawLine[i].x, m_drawLine[i].y,
+                            m_drawLine[i + 1].x, m_drawLine[i + 1].y);
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+void OpenPaintMDIChildFrame::RefreshToolPreview()
+{
+    Refresh(false);
+    Update();
 }
 
 
@@ -1676,9 +1738,6 @@ void OpenPaintMDIChildFrame::SprayCanTool(int x, int y, wxColour color)
 
 void OpenPaintMDIChildFrame::LineTool(int x, int y, wxColour color, MouseStatus drawState)
 {
-    wxClientDC dc(this);
-    dc.SetUserScale(m_dZoom, m_dZoom);
-
     if(drawState == MOUSE_BEGIN_DRAWING)
     {
         m_prevX = x;
@@ -1690,19 +1749,19 @@ void OpenPaintMDIChildFrame::LineTool(int x, int y, wxColour color, MouseStatus 
     ToolManager* tm = Globals::Instance()->GetToolManager();
     int penWidth = tm->GetShapeLineWidth();
     if (penWidth < 1) penWidth = 1;
-    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
-
-    dc.SetPen(m_customPen);
-    dc.SetLogicalFunction(wxINVERT);
-    dc.DrawLine(m_prevX, m_prevY, m_prevX2, m_prevY2);
-    dc.DrawLine(m_prevX, m_prevY, x, y);
+    m_previewTool = TOOL_LINE;
+    m_previewColor = color;
+    m_previewPenWidth = penWidth;
+    m_bToolPreviewActive = true;
     m_prevX2 = x;
     m_prevY2 = y;
+    RefreshToolPreview();
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {
+        m_bToolPreviewActive = false;
         wxMemoryDC memDC(m_Bitmap);
-        memDC.SetPen(m_customPen);
+        memDC.SetPen(wxPen(color, penWidth, wxPENSTYLE_SOLID));
         memDC.DrawLine(m_prevX, m_prevY, x, y);
         SetImage(m_Bitmap.ConvertToImage());
         Refresh();
@@ -1734,12 +1793,26 @@ void OpenPaintMDIChildFrame::DrawCurvePath(wxDC& dc, const wxPoint& start,
     }
 }
 
+void OpenPaintMDIChildFrame::DrawCurvePreview(wxDC& dc)
+{
+    if (m_curveStage == 0 || m_bCurvePreviewIsLine)
+    {
+        dc.DrawLine(m_curveStart.x, m_curveStart.y, m_curveEnd.x, m_curveEnd.y);
+        return;
+    }
+
+    DrawCurvePath(dc, m_curveStart, m_curvePreviewControl1,
+                  m_curvePreviewControl2, m_curveEnd);
+}
+
 void OpenPaintMDIChildFrame::CurveTool(int x, int y, wxColour color, MouseStatus drawState)
 {
     ToolManager* tm = Globals::Instance()->GetToolManager();
     int penWidth = tm->GetShapeLineWidth();
     if (penWidth < 1) penWidth = 1;
-    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
+    m_previewTool = TOOL_CURVE;
+    m_previewColor = color;
+    m_previewPenWidth = penWidth;
 
     if (drawState == MOUSE_BEGIN_DRAWING)
     {
@@ -1750,57 +1823,32 @@ void OpenPaintMDIChildFrame::CurveTool(int x, int y, wxColour color, MouseStatus
             m_curvePreviewControl1 = m_curveStart;
             m_curvePreviewControl2 = m_curveEnd;
             m_bCurvePreviewIsLine = true;
+            m_bToolPreviewActive = true;
+            RefreshToolPreview();
         }
         return;
     }
-
-    wxClientDC dc(this);
-    dc.SetUserScale(m_dZoom, m_dZoom);
-    dc.SetPen(m_customPen);
-    dc.SetLogicalFunction(wxINVERT);
 
     if (drawState == MOUSE_CONTINUE_DRAWING)
     {
         if (m_curveStage == 0)
         {
-            dc.DrawLine(m_curveStart.x, m_curveStart.y, m_curveEnd.x, m_curveEnd.y);
             m_curveEnd = wxPoint(x, y);
-            dc.DrawLine(m_curveStart.x, m_curveStart.y, m_curveEnd.x, m_curveEnd.y);
             m_bCurvePreviewIsLine = true;
         }
         else if (m_curveStage == 1)
         {
-            if (m_bCurvePreviewIsLine)
-            {
-                dc.DrawLine(m_curveStart.x, m_curveStart.y, m_curveEnd.x, m_curveEnd.y);
-            }
-            else
-            {
-                DrawCurvePath(dc, m_curveStart, m_curvePreviewControl1,
-                              m_curvePreviewControl2, m_curveEnd);
-            }
             m_curvePreviewControl1 = wxPoint(x, y);
             m_curvePreviewControl2 = wxPoint(x, y);
-            DrawCurvePath(dc, m_curveStart, m_curvePreviewControl1,
-                          m_curvePreviewControl2, m_curveEnd);
             m_bCurvePreviewIsLine = false;
         }
         else if (m_curveStage == 2)
         {
-            if (m_bCurvePreviewIsLine)
-            {
-                dc.DrawLine(m_curveStart.x, m_curveStart.y, m_curveEnd.x, m_curveEnd.y);
-            }
-            else
-            {
-                DrawCurvePath(dc, m_curveStart, m_curvePreviewControl1,
-                              m_curvePreviewControl2, m_curveEnd);
-            }
             m_curvePreviewControl2 = wxPoint(x, y);
-            DrawCurvePath(dc, m_curveStart, m_curvePreviewControl1,
-                          m_curvePreviewControl2, m_curveEnd);
             m_bCurvePreviewIsLine = false;
         }
+        m_bToolPreviewActive = true;
+        RefreshToolPreview();
         return;
     }
 
@@ -1811,6 +1859,8 @@ void OpenPaintMDIChildFrame::CurveTool(int x, int y, wxColour color, MouseStatus
             m_curveEnd = wxPoint(x, y);
             m_curveStage = 1;
             m_bCurvePreviewIsLine = true;
+            m_bToolPreviewActive = true;
+            RefreshToolPreview();
         }
         else if (m_curveStage == 1)
         {
@@ -1818,21 +1868,14 @@ void OpenPaintMDIChildFrame::CurveTool(int x, int y, wxColour color, MouseStatus
             m_curvePreviewControl1 = m_curveControl1;
             m_curvePreviewControl2 = m_curveControl1;
             m_curveStage = 2;
+            m_bToolPreviewActive = true;
+            RefreshToolPreview();
         }
         else
         {
-            if (m_bCurvePreviewIsLine)
-            {
-                dc.DrawLine(m_curveStart.x, m_curveStart.y, m_curveEnd.x, m_curveEnd.y);
-            }
-            else
-            {
-                DrawCurvePath(dc, m_curveStart, m_curvePreviewControl1,
-                              m_curvePreviewControl2, m_curveEnd);
-            }
-
+            m_bToolPreviewActive = false;
             wxMemoryDC memDC(m_Bitmap);
-            memDC.SetPen(m_customPen);
+            memDC.SetPen(wxPen(color, penWidth, wxPENSTYLE_SOLID));
             DrawCurvePath(memDC, m_curveStart, m_curveControl1, wxPoint(x, y), m_curveEnd);
             SetImage(m_Bitmap.ConvertToImage());
             m_curveStage = 0;
@@ -2036,15 +2079,13 @@ void OpenPaintMDIChildFrame::SelectTool(int x, int y, MouseStatus drawState)
 
 void OpenPaintMDIChildFrame::PolygonTool(int x, int y, MouseStatus drawState)
 {
-    wxClientDC dc(this);
-    dc.SetUserScale(m_dZoom, m_dZoom);
     ToolManager* tm = Globals::Instance()->GetToolManager();
     wxColour color = tm->GetForeground();
     int penWidth = tm->GetShapeLineWidth();
     if (penWidth < 1) penWidth = 1;
-    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
-    dc.SetPen(m_customPen);
-    dc.SetLogicalFunction(wxINVERT);
+    m_previewTool = TOOL_POLYGON;
+    m_previewColor = color;
+    m_previewPenWidth = penWidth;
 
     if (drawState == MOUSE_BEGIN_DRAWING)
     {
@@ -2054,13 +2095,12 @@ void OpenPaintMDIChildFrame::PolygonTool(int x, int y, MouseStatus drawState)
         }
         else
         {
-            wxPoint prev = m_drawLine.back();
-            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
-            dc.DrawLine(prev.x, prev.y, x, y);
             m_drawLine.push_back(wxPoint(x, y));
         }
         m_prevX2 = x;
         m_prevY2 = y;
+        m_bToolPreviewActive = true;
+        RefreshToolPreview();
         return;
     }
 
@@ -2068,11 +2108,10 @@ void OpenPaintMDIChildFrame::PolygonTool(int x, int y, MouseStatus drawState)
     {
         if (!m_drawLine.empty())
         {
-            wxPoint prev = m_drawLine.back();
-            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
-            dc.DrawLine(prev.x, prev.y, x, y);
             m_prevX2 = x;
             m_prevY2 = y;
+            m_bToolPreviewActive = true;
+            RefreshToolPreview();
         }
         return;
     }
@@ -2082,7 +2121,6 @@ void OpenPaintMDIChildFrame::PolygonTool(int x, int y, MouseStatus drawState)
         if (!m_drawLine.empty())
         {
             wxPoint prev = m_drawLine.back();
-            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
             if (prev != wxPoint(x, y))
             {
                 m_drawLine.push_back(wxPoint(x, y));
@@ -2092,11 +2130,14 @@ void OpenPaintMDIChildFrame::PolygonTool(int x, int y, MouseStatus drawState)
         if (m_drawLine.size() < 2)
         {
             m_drawLine.clear();
+            m_bToolPreviewActive = false;
+            RefreshToolPreview();
             return;
         }
 
+        m_bToolPreviewActive = false;
         wxMemoryDC memDC(m_Bitmap);
-        memDC.SetPen(m_customPen);
+        memDC.SetPen(wxPen(color, penWidth, wxPENSTYLE_SOLID));
         if (tm->GetShapesFilled() && m_drawLine.size() >= 3)
         {
             memDC.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
@@ -2125,20 +2166,23 @@ void OpenPaintMDIChildFrame::PolygonTool(int x, int y, MouseStatus drawState)
 
 void OpenPaintMDIChildFrame::LassoSelectTool(int x, int y, MouseStatus drawState)
 {
-    wxClientDC dc(this);
-    dc.SetUserScale(m_dZoom, m_dZoom);
-
     if (drawState == MOUSE_BEGIN_DRAWING)
     {
         m_drawLine.clear();
         m_drawLine.push_back(wxPoint(x, y));
         m_prevX2 = x;
         m_prevY2 = y;
+        m_previewTool = TOOL_SELECT_LASSO;
+        m_previewColor = *wxBLACK;
+        m_previewPenWidth = 1;
+        m_bToolPreviewActive = true;
+        RefreshToolPreview();
         return;
     }
 
     if (drawState == MOUSE_FINISHED_DRAWING)
     {
+        m_bToolPreviewActive = false;
         if (!m_drawLine.empty() && m_drawLine.back() != wxPoint(x, y))
         {
             m_drawLine.push_back(wxPoint(x, y));
@@ -2146,6 +2190,7 @@ void OpenPaintMDIChildFrame::LassoSelectTool(int x, int y, MouseStatus drawState
         if (m_drawLine.size() < 3)
         {
             m_drawLine.clear();
+            RefreshToolPreview();
             return;
         }
         // Build the lasso selection: bounding box around the polygon, then
@@ -2198,14 +2243,15 @@ void OpenPaintMDIChildFrame::LassoSelectTool(int x, int y, MouseStatus drawState
     }
     else
     {
-        wxPen dottedPen(*wxBLACK, 1, wxPENSTYLE_DOT);
-        dc.SetPen(dottedPen);
-        dc.SetLogicalFunction(wxINVERT);
-        dc.DrawLine(m_prevX2, m_prevY2, x, y);
         m_drawLine.push_back(wxPoint(x, y));
     }
     m_prevX2 = x;
     m_prevY2 = y;
+    m_previewTool = TOOL_SELECT_LASSO;
+    m_previewColor = *wxBLACK;
+    m_previewPenWidth = 1;
+    m_bToolPreviewActive = true;
+    RefreshToolPreview();
 }
 
 void OpenPaintMDIChildFrame::TextTool(int x, int y, wxColour color)

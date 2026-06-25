@@ -92,6 +92,10 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         wxPoint m_curveControl1;
         wxPoint m_curvePreviewControl1;
         wxPoint m_curvePreviewControl2;
+        bool m_bToolPreviewActive;
+        int m_previewTool;
+        wxColour m_previewColor;
+        int m_previewPenWidth;
         wxPen m_customPen;
         wxBrush m_customBrush;
 
@@ -120,6 +124,8 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         bool IsInsideImage(int x, int y) const;
         bool IsInsideSelection(int x, int y) const;
         void DrawSelectionOutline(wxDC& dc) const;
+        void DrawToolPreview(wxDC& dc);
+        void RefreshToolPreview();
 
         
         void PickColorTool(int x, int y, bool bIsForeground=true);
@@ -141,6 +147,7 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void CurveTool(int x, int y, wxColour color, MouseStatus drawState);
         void DrawCurvePath(wxDC& dc, const wxPoint& start, const wxPoint& control1,
                            const wxPoint& control2, const wxPoint& end);
+        void DrawCurvePreview(wxDC& dc);
         void EllipseTool(int x, int y, wxColour color, MouseStatus drawState);
         void RectangleTool(int x, int y, wxColour color, MouseStatus drawState, bool bIsRounded = false);
         void PolygonTool(int x, int y, MouseStatus drawState);

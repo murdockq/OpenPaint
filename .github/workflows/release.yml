@@ -134,6 +134,10 @@ jobs:
           }
           Copy-Item -Force "LICENSE" -Destination "Installer\bin\"
 
+      - name: Install NSIS (Windows)
+        if: runner.os == 'Windows'
+        run: choco install nsis --no-progress -y
+
       - name: Build NSIS installer (Windows)
         if: runner.os == 'Windows'
         shell: powershell

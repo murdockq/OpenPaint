@@ -82,9 +82,9 @@ jobs:
         run: cmake --build build --config Release
 
       - name: Upload openpaint.exe
-        if: runner.os == 'Windows' && hashFiles('build/Release/openpaint.exe') != ''
+        if: runner.os == 'Windows' && hashFiles('build/bin/Release/openpaint.exe') != ''
         uses: actions/upload-artifact@v4
         with:
           name: openpaint-windows-${{ github.sha }}
-          path: build/Release/openpaint.exe
+          path: build/bin/Release/openpaint.exe
           if-no-files-found: ignore

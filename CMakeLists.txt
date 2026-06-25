@@ -9,6 +9,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Place all runtime binaries in a single, predictable directory. Without this,
+# CMake puts each target's output under its subdirectory (e.g. build/OpenPaint/
+# for the app, build/tests/ for tests). On macOS (case-insensitive HFS+/APFS)
+# "build/openpaint" resolves to the build/OpenPaint/ *directory*, which breaks
+# packaging scripts that expect a binary file at that path. Using a dedicated
+# "bin" directory avoids the name collision.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()

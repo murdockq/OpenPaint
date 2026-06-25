@@ -78,8 +78,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p "pkg/OpenPaint-${VERSION}"
-          cp build/openpaint "pkg/OpenPaint-${VERSION}/"
-          cp -r build/res "pkg/OpenPaint-${VERSION}/" 2>/dev/null || true
+          cp build/bin/openpaint "pkg/OpenPaint-${VERSION}/"
+          cp -r build/bin/res "pkg/OpenPaint-${VERSION}/" 2>/dev/null || true
           cp -r OpenPaint/res/svg "pkg/OpenPaint-${VERSION}/res/svg" 2>/dev/null || true
           cp LICENSE "pkg/OpenPaint-${VERSION}/"
           cp README.md "pkg/OpenPaint-${VERSION}/"
@@ -100,8 +100,8 @@ jobs:
         run: |
           mkdir -p "OpenPaint.app/Contents/MacOS"
           mkdir -p "OpenPaint.app/Contents/Resources"
-          cp build/openpaint "OpenPaint.app/Contents/MacOS/"
-          cp -r build/res "OpenPaint.app/Contents/Resources/" 2>/dev/null || true
+          cp build/bin/openpaint "OpenPaint.app/Contents/MacOS/"
+          cp -r build/bin/res "OpenPaint.app/Contents/Resources/" 2>/dev/null || true
           cp -r OpenPaint/res/svg "OpenPaint.app/Contents/Resources/svg" 2>/dev/null || true
           cp LICENSE "OpenPaint.app/Contents/Resources/"
           hdiutil create -volname "OpenPaint" \
@@ -123,10 +123,10 @@ jobs:
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force -Path "Installer\bin"
-          Copy-Item -Force "build\Release\openpaint.exe" -Destination "Installer\bin\"
-          Copy-Item -Force "build\Release\*.dll" -Destination "Installer\bin\" -ErrorAction SilentlyContinue
-          if (Test-Path "build\Release\res") {
-            Copy-Item -Recurse -Force "build\Release\res" -Destination "Installer\bin\res"
+          Copy-Item -Force "build\bin\Release\openpaint.exe" -Destination "Installer\bin\"
+          Copy-Item -Force "build\bin\Release\*.dll" -Destination "Installer\bin\" -ErrorAction SilentlyContinue
+          if (Test-Path "build\bin\Release\res") {
+            Copy-Item -Recurse -Force "build\bin\Release\res" -Destination "Installer\bin\res"
           }
           if (Test-Path "OpenPaint\res\svg") {
             New-Item -ItemType Directory -Force -Path "Installer\bin\res\svg"

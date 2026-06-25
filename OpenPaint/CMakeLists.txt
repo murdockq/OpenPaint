@@ -110,7 +110,10 @@ add_custom_command(TARGET openpaint POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_SOURCE_DIR}/res/svg"
         "$<TARGET_FILE_DIR:openpaint>/res/svg"
-    COMMENT "Copying SVG icons next to openpaint binary"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/LICENSE"
+        "$<TARGET_FILE_DIR:openpaint>/LICENSE"
+    COMMENT "Copying resources next to openpaint binary"
 )
 
 target_link_libraries(openpaint PRIVATE ${OPENPAINT_WX_TARGETS})

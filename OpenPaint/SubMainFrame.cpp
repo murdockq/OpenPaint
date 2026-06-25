@@ -845,6 +845,8 @@ void SubMainFrame::OnExit( wxCommandEvent& event )
 
 #include <wx/aboutdlg.h>
 #include <wx/generic/aboutdlgg.h>
+#include <wx/stdpaths.h>
+#include <wx/file.h>
 void SubMainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
     wxAboutDialogInfo info;
@@ -852,29 +854,28 @@ void SubMainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
     info.SetName(wxT("OpenPaint"));
     info.SetVersion(wxT("1.3.0"));
     info.SetDescription(wxT("The open alternative to classic painting."));
-    info.SetCopyright(wxT("(C) 2009 OpenPaint"));
+    info.SetCopyright(wxT("(C) 2007-2026 OpenPaint"));
     info.AddDeveloper(wxT("OpenPaint"));
     info.SetWebSite(wxT("http://github.com/murdockq/openpaint"));
-    info.SetLicense(wxString::FromAscii(
-         "OpenPaint\n"
-         "github.com/murdockq/openpaint\n"
-         "\n"
-         "Copyright (C) 2009, OpenPaint\n"
-         "\n"
-         "This program is free software; you can redistribute it and/or\n"
-         "modify it under the terms of the GNU General Public License\n"
-         "as published by the Free Software Foundation; either version 2\n"
-         "of the License, or (at your option) any later version.\n"
-         "\n"
-         "This program is distributed in the hope that it will be useful,\n"
-         "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-         "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-         "GNU General Public License for more details.\n"
-         "\n"
-         "You should have received a copy of the GNU General Public License\n"
-         "along with this program; if not, write to the Free Software\n"
-         "Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.\n"
-        ));
+    {
+        wxFileName licensePath(wxStandardPaths::Get().GetExecutablePath());
+        licensePath.SetFullName("LICENSE");
+        wxString licenseText;
+        wxFile file(licensePath.GetFullPath(), wxFile::read);
+        if (file.IsOpened())
+        {
+            const size_t len = file.Length();
+            std::vector<char> buf(len + 1);
+            file.Read(buf.data(), len);
+            buf[len] = '\0';
+            licenseText = wxString::FromUTF8(buf.data(), len);
+        }
+        if (licenseText.IsEmpty())
+        {
+            licenseText = wxT("MIT License - see LICENSE file");
+        }
+        info.SetLicense(licenseText);
+    }
 
     wxAboutBox(info);
 }

@@ -1,5 +1,6 @@
 # Build directories
 /build/
+/Installer/bin/
 /build-*/
 /out/
 /cmake-build-*/

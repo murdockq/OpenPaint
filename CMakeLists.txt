@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(OpenPaint
-    VERSION 1.3.0
+    VERSION 2.0.0
     DESCRIPTION "Cross-platform open source alternative to MS Paint"
     LANGUAGES CXX)
 

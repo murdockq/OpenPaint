@@ -1,0 +1,172 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g. 2.0.0)'
+        required: false
+        default: '2.0.0'
+        type: string
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve version string
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          else
+            TAG="${{ github.ref_name }}"
+            echo "VERSION=${TAG#v}" >> $GITHUB_ENV
+          fi
+
+      - name: Install wxWidgets (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwxgtk3.2-dev libwxgtk3.2-1t64 || \
+            sudo apt-get install -y libwxgtk3.0-dev
+
+      - name: Install wxWidgets (macOS)
+        if: runner.os == 'macOS'
+        run: brew install wxwidgets
+
+      - name: Cache vcpkg (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_ROOT }}/installed
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+
+      - name: Install wxWidgets (Windows via vcpkg)
+        if: runner.os == 'Windows'
+        run: vcpkg install wxwidgets
+
+      - name: Configure CMake (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DOPENPAINT_BUILD_APP=ON -DOPENPAINT_BUILD_TESTS=OFF
+
+      - name: Configure CMake (Windows)
+        if: runner.os == 'Windows'
+        run: cmake -B build -DOPENPAINT_BUILD_APP=ON -DOPENPAINT_BUILD_TESTS=OFF -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build app
+        run: cmake --build build --config Release
+
+      # --- Linux packaging -------------------------------------------------
+      - name: Package (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          mkdir -p "pkg/OpenPaint-${VERSION}"
+          cp build/openpaint "pkg/OpenPaint-${VERSION}/"
+          cp -r build/res "pkg/OpenPaint-${VERSION}/" 2>/dev/null || true
+          cp -r OpenPaint/res/svg "pkg/OpenPaint-${VERSION}/res/svg" 2>/dev/null || true
+          cp LICENSE "pkg/OpenPaint-${VERSION}/"
+          cp README.md "pkg/OpenPaint-${VERSION}/"
+          tar -czf "OpenPaint_${VERSION}_Linux.tar.gz" -C pkg "OpenPaint-${VERSION}"
+
+      - name: Upload artifact (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: openpaint-linux
+          path: OpenPaint_*_Linux.tar.gz
+          if-no-files-found: error
+
+      # --- macOS packaging -------------------------------------------------
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p "OpenPaint.app/Contents/MacOS"
+          mkdir -p "OpenPaint.app/Contents/Resources"
+          cp build/openpaint "OpenPaint.app/Contents/MacOS/"
+          cp -r build/res "OpenPaint.app/Contents/Resources/" 2>/dev/null || true
+          cp -r OpenPaint/res/svg "OpenPaint.app/Contents/Resources/svg" 2>/dev/null || true
+          cp LICENSE "OpenPaint.app/Contents/Resources/"
+          hdiutil create -volname "OpenPaint" \
+            -srcfolder "OpenPaint.app" \
+            -ov -format UDZO \
+            "OpenPaint_${VERSION}_macOS.dmg"
+
+      - name: Upload artifact (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: openpaint-macos
+          path: OpenPaint_*_macOS.dmg
+          if-no-files-found: error
+
+      # --- Windows packaging -----------------------------------------------
+      - name: Stage files for NSIS (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path "Installer\bin"
+          Copy-Item -Force "build\Release\openpaint.exe" -Destination "Installer\bin\"
+          Copy-Item -Force "build\Release\*.dll" -Destination "Installer\bin\" -ErrorAction SilentlyContinue
+          if (Test-Path "build\Release\res") {
+            Copy-Item -Recurse -Force "build\Release\res" -Destination "Installer\bin\res"
+          }
+          if (Test-Path "OpenPaint\res\svg") {
+            New-Item -ItemType Directory -Force -Path "Installer\bin\res\svg"
+            Copy-Item -Recurse -Force "OpenPaint\res\svg\*" -Destination "Installer\bin\res\svg\"
+          }
+          Copy-Item -Force "LICENSE" -Destination "Installer\bin\"
+
+      - name: Build NSIS installer (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        working-directory: Installer
+        run: makensis /DVERSION="$env:VERSION" "OpenPaint Installer.nsi"
+
+      - name: Upload artifact (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: openpaint-windows
+          path: Installer\OpenPaint_Setup_*.exe
+          if-no-files-found: error
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Resolve version string
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: openpaint-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -la artifacts/
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "OpenPaint v${{ env.VERSION }}"
+          tag_name: ${{ github.ref_name }}
+          files: artifacts/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -10,7 +10,7 @@
 
   ;Name and file
   Name "OpenPaint"
-  OutFile "OpenPaint_v1.1_Beta.exe"
+  OutFile "OpenPaint_Setup_${VERSION}.exe"
   BrandingText "OpenPaint"
 ;  Icon "${NSISDIR}\Contrib\Graphics\Icons\std.ico"
 
@@ -19,10 +19,10 @@
   !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\win-uninstall.ico"
 
   ;Default installation folder
-  InstallDir "$PROGRAMFILES\OpenPaint"
-  
-  ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\OpenPaint" ""
+  InstallDir "$PROGRAMFILES64\OpenPaint"
+   
+   ;Get installation folder from registry if available
+   InstallDirRegKey HKCU "Software\OpenPaint" ""
 
 ;--------------------------------
 ;Variables
@@ -38,7 +38,7 @@
 ;--------------------------------
 ;Pages
 
-  !insertmacro MUI_PAGE_LICENSE "License.txt"
+  !insertmacro MUI_PAGE_LICENSE "..\LICENSE"
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   
@@ -49,7 +49,10 @@
   
   !insertmacro MUI_PAGE_STARTMENU Application $STARTMENU_FOLDER
   
+  !define MUI_FINISHPAGE_RUN "$INSTDIR\OpenPaint.exe"
+  !define MUI_FINISHPAGE_RUN_TEXT "Run OpenPaint"
   !insertmacro MUI_PAGE_INSTFILES
+  !insertmacro MUI_PAGE_FINISH
   
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES

@@ -1,3 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2C3E50" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-  <ellipse cx="12" cy="12" rx="9" ry="6" fill="#D6EAF8"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <ellipse cx="12" cy="12" rx="8" ry="5.8" fill="#ffffff" stroke="#111111" stroke-width="1"/>
+  <path d="M5.6 10.5C7 8 9.3 6.7 12 6.7C15.2 6.7 17.8 8.5 19 11.2" fill="none" stroke="#357fd6" stroke-width="1"/>
 </svg>

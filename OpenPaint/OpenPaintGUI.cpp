@@ -48,18 +48,23 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	menuItemNewFile1024 = new wxMenuItem( m_menuNew, IDX_NEW_FILE_1024, wxString( _("1024x768") ) , wxEmptyString, wxITEM_NORMAL );
 	m_menuNew->Append( menuItemNewFile1024 );
 	
-	m_menuFile->Append( -1, _("New"), m_menuNew );
+	wxMenuItem* menuItemNewSubmenu;
+	menuItemNewSubmenu = m_menuFile->Append( -1, _("New"), m_menuNew );
+	menuItemNewSubmenu->SetBitmap( IconLoader::Load( wxT("new"), wxSize( 16,16 ) ) );
 	
 	wxMenuItem* menuItemOpen;
 	menuItemOpen = new wxMenuItem( m_menuFile, wxID_OPEN, wxString( _("Open...") ) + wxT('\t') + wxT("Ctrl+O"), wxEmptyString, wxITEM_NORMAL );
+	menuItemOpen->SetBitmap( IconLoader::Load( wxT("open"), wxSize( 16,16 ) ) );
 	m_menuFile->Append( menuItemOpen );
 	
 	wxMenuItem* menuItemSave;
 	menuItemSave = new wxMenuItem( m_menuFile, wxID_SAVE, wxString( _("Save") ) + wxT('\t') + wxT("Ctrl+S"), wxEmptyString, wxITEM_NORMAL );
+	menuItemSave->SetBitmap( IconLoader::Load( wxT("save"), wxSize( 16,16 ) ) );
 	m_menuFile->Append( menuItemSave );
 	
 	wxMenuItem* menuItemSaveAs;
 	menuItemSaveAs = new wxMenuItem( m_menuFile, wxID_SAVEAS, wxString( _("Save As...") ) + wxT('\t') + wxT("Ctrl+Shift+S"), wxEmptyString, wxITEM_NORMAL );
+	menuItemSaveAs->SetBitmap( IconLoader::Load( wxT("save"), wxSize( 16,16 ) ) );
 	m_menuFile->Append( menuItemSaveAs );
 	
 	m_menuFile->AppendSeparator();
@@ -83,11 +88,13 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_menuEdit = new wxMenu();
 	wxMenuItem* menuItemUndo;
 	menuItemUndo = new wxMenuItem( m_menuEdit, wxID_UNDO, wxString( _("Undo") ) + wxT('\t') + wxT("Ctrl+Z"), wxEmptyString, wxITEM_NORMAL );
+	menuItemUndo->SetBitmap( IconLoader::Load( wxT("undo"), wxSize( 16,16 ) ) );
 	m_menuEdit->Append( menuItemUndo );
 	menuItemUndo->Enable( false );
 	
 	wxMenuItem* menuItemRedo;
 	menuItemRedo = new wxMenuItem( m_menuEdit, wxID_REDO, wxString( _("Redo") ) + wxT('\t') + wxT("Ctrl+Y"), wxEmptyString, wxITEM_NORMAL );
+	menuItemRedo->SetBitmap( IconLoader::Load( wxT("redo"), wxSize( 16,16 ) ) );
 	m_menuEdit->Append( menuItemRedo );
 	menuItemRedo->Enable( false );
 	
@@ -211,15 +218,18 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_menubar1->Append( m_menuImage, _("&Image") );
 	
 	m_menuTools = new wxMenu();
-	wxMenuItem* menuItemBrush;
-	menuItemBrush = new wxMenuItem( m_menuTools, IDX_TOOL_BRUSH, wxString( _("Brush") ) + wxT('\t') + wxT("B"), wxEmptyString, wxITEM_NORMAL );
-	menuItemBrush->SetBitmap( IconLoader::Load( wxT("draw-brush"), wxSize( 16,16 ) ) );
-	m_menuTools->Append( menuItemBrush );
+	wxMenuItem* menuItemSelect;
+	menuItemSelect = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT, wxString( _("Select") ) + wxT('\t') + wxT("S"), wxEmptyString, wxITEM_NORMAL );
+	menuItemSelect->SetBitmap( IconLoader::Load( wxT("select-rectangular"), wxSize( 16,16 ) ) );
+	m_menuTools->Append( menuItemSelect );
 
-	wxMenuItem* menuItemEllipse;
-	menuItemEllipse = new wxMenuItem( m_menuTools, IDX_TOOL_ELLIPSE, wxString( _("Ellipse") ) + wxT('\t') + wxT("O"), wxEmptyString, wxITEM_NORMAL );
-	menuItemEllipse->SetBitmap( IconLoader::Load( wxT("draw-ellipse"), wxSize( 16,16 ) ) );
-	m_menuTools->Append( menuItemEllipse );
+	wxMenuItem* menuItemSelectLasso;
+	menuItemSelectLasso = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT_LASSO, wxString( _("Free-form Select") ) + wxT('\t') + wxT("L"), wxEmptyString, wxITEM_NORMAL );
+	menuItemSelectLasso->SetBitmap( IconLoader::Load( wxT("select-lasso"), wxSize( 16,16 ) ) );
+	m_menuTools->Append( menuItemSelectLasso );
+	menuItemSelectLasso->Enable( false );
+
+	m_menuTools->AppendSeparator();
 
 	wxMenuItem* menuItemEraser;
 	menuItemEraser = new wxMenuItem( m_menuTools, IDX_TOOL_ERASER, wxString( _("Eraser") ) + wxT('\t') + wxT("E"), wxEmptyString, wxITEM_NORMAL );
@@ -231,23 +241,42 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	menuItemFill->SetBitmap( IconLoader::Load( wxT("color-fill"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemFill );
 
+	wxMenuItem* menuItemPickColor;
+	menuItemPickColor = new wxMenuItem( m_menuTools, IDX_TOOL_PICK_COLOR, wxString( _("Pick Color") ) + wxT('\t') + wxT("C"), wxEmptyString, wxITEM_NORMAL );
+	menuItemPickColor->SetBitmap( IconLoader::Load( wxT("color-picker"), wxSize( 16,16 ) ) );
+	m_menuTools->Append( menuItemPickColor );
+
 	wxMenuItem* menuItemMagnify;
 	menuItemMagnify = new wxMenuItem( m_menuTools, IDX_TOOL_MAGNIFY, wxString( _("Magnify") ) + wxT('\t') + wxT("M"), wxEmptyString, wxITEM_NORMAL );
 	menuItemMagnify->SetBitmap( IconLoader::Load( wxT("page-magnifier"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemMagnify );
+
+	m_menuTools->AppendSeparator();
 
 	wxMenuItem* menuItemPencil;
 	menuItemPencil = new wxMenuItem( m_menuTools, IDX_TOOL_PENCIL, wxString( _("Pencil") ) + wxT('\t') + wxT("P"), wxEmptyString, wxITEM_NORMAL );
 	menuItemPencil->SetBitmap( IconLoader::Load( wxT("draw-freehand"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemPencil );
 
-	wxMenuItem* menuItemPickColor;
-	menuItemPickColor = new wxMenuItem( m_menuTools, IDX_TOOL_PICK_COLOR, wxString( _("Pick Color") ) + wxT('\t') + wxT("C"), wxEmptyString, wxITEM_NORMAL );
-	menuItemPickColor->SetBitmap( IconLoader::Load( wxT("color-picker"), wxSize( 16,16 ) ) );
-	m_menuTools->Append( menuItemPickColor );
+	wxMenuItem* menuItemBrush;
+	menuItemBrush = new wxMenuItem( m_menuTools, IDX_TOOL_BRUSH, wxString( _("Brush") ) + wxT('\t') + wxT("B"), wxEmptyString, wxITEM_NORMAL );
+	menuItemBrush->SetBitmap( IconLoader::Load( wxT("draw-brush"), wxSize( 16,16 ) ) );
+	m_menuTools->Append( menuItemBrush );
+
+	wxMenuItem* menuItemSprayCan;
+	menuItemSprayCan = new wxMenuItem( m_menuTools, IDX_TOOL_SPRAY_CAN, wxString( _("Airbrush") ) + wxT('\t') + wxT("A"), wxEmptyString, wxITEM_NORMAL );
+	menuItemSprayCan->SetBitmap( IconLoader::Load( wxT("draw-airbrush"), wxSize( 16,16 ) ) );
+	m_menuTools->Append( menuItemSprayCan );
+
+	wxMenuItem* menuItemText;
+	menuItemText = new wxMenuItem( m_menuTools, IDX_TOOL_TEXT, wxString( _("Text") ) + wxT('\t') + wxT("T"), wxEmptyString, wxITEM_NORMAL );
+	menuItemText->SetBitmap( IconLoader::Load( wxT("draw-text"), wxSize( 16,16 ) ) );
+	m_menuTools->Append( menuItemText );
+
+	m_menuTools->AppendSeparator();
 
 	wxMenuItem* menuItemPolyline;
-	menuItemPolyline = new wxMenuItem( m_menuTools, IDX_TOOL_POLYLINE, wxString( _("Polyline") ) + wxT('\t') + wxT("P"), wxEmptyString, wxITEM_NORMAL );
+	menuItemPolyline = new wxMenuItem( m_menuTools, IDX_TOOL_POLYLINE, wxString( _("Line / Polyline") ), wxEmptyString, wxITEM_NORMAL );
 	menuItemPolyline->SetBitmap( IconLoader::Load( wxT("draw-polyline"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemPolyline );
 	menuItemPolyline->Enable( false );
@@ -257,31 +286,15 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	menuItemRectangle->SetBitmap( IconLoader::Load( wxT("draw-rectangle"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemRectangle );
 
+	wxMenuItem* menuItemEllipse;
+	menuItemEllipse = new wxMenuItem( m_menuTools, IDX_TOOL_ELLIPSE, wxString( _("Ellipse") ) + wxT('\t') + wxT("O"), wxEmptyString, wxITEM_NORMAL );
+	menuItemEllipse->SetBitmap( IconLoader::Load( wxT("draw-ellipse"), wxSize( 16,16 ) ) );
+	m_menuTools->Append( menuItemEllipse );
+
 	wxMenuItem* menuItemRectangleRounded;
 	menuItemRectangleRounded = new wxMenuItem( m_menuTools, IDX_TOOL_RECTANGLE_ROUNDED, wxString( _("Rounded Rectangle") ) + wxT('\t') + wxT("Q"), wxEmptyString, wxITEM_NORMAL );
 	menuItemRectangleRounded->SetBitmap( IconLoader::Load( wxT("draw-rectangle-rounded"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemRectangleRounded );
-
-	wxMenuItem* menuItemSelect;
-	menuItemSelect = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT, wxString( _("Select") ) + wxT('\t') + wxT("S"), wxEmptyString, wxITEM_NORMAL );
-	menuItemSelect->SetBitmap( IconLoader::Load( wxT("select-rectangular"), wxSize( 16,16 ) ) );
-	m_menuTools->Append( menuItemSelect );
-
-	wxMenuItem* menuItemSelectLasso;
-	menuItemSelectLasso = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT_LASSO, wxString( _("Select Lasso") ) + wxT('\t') + wxT("L"), wxEmptyString, wxITEM_NORMAL );
-	menuItemSelectLasso->SetBitmap( IconLoader::Load( wxT("select-lasso"), wxSize( 16,16 ) ) );
-	m_menuTools->Append( menuItemSelectLasso );
-	menuItemSelectLasso->Enable( false );
-
-	wxMenuItem* menuItemSprayCan;
-	menuItemSprayCan = new wxMenuItem( m_menuTools, IDX_TOOL_SPRAY_CAN, wxString( _("Spray Can") ) + wxT('\t') + wxT("A"), wxEmptyString, wxITEM_NORMAL );
-	menuItemSprayCan->SetBitmap( IconLoader::Load( wxT("draw-airbrush"), wxSize( 16,16 ) ) );
-	m_menuTools->Append( menuItemSprayCan );
-
-	wxMenuItem* menuItemText;
-	menuItemText = new wxMenuItem( m_menuTools, IDX_TOOL_TEXT, wxString( _("Text") ) + wxT('\t') + wxT("T"), wxEmptyString, wxITEM_NORMAL );
-	menuItemText->SetBitmap( IconLoader::Load( wxT("draw-text"), wxSize( 16,16 ) ) );
-	m_menuTools->Append( menuItemText );
 	
 	m_menubar1->Append( m_menuTools, _("&Tools") );
 	

@@ -84,6 +84,8 @@ BEGIN_EVENT_TABLE(SubMainFrame, MainFrame)
     EVT_MENU( IDX_MENU_HISTORYOPEN+8, SubMainFrame::HistoryOpen )
     EVT_MENU( IDX_MENU_HISTORYOPEN+9, SubMainFrame::HistoryOpen )
     EVT_SIZE(SubMainFrame::OnSize)
+    EVT_AUI_PANE_CLOSE(SubMainFrame::OnAuiPaneClose)
+    EVT_MENU_OPEN(SubMainFrame::OnMenuOpen)
 END_EVENT_TABLE()
 
 SubMainFrame::SubMainFrame( wxWindow* parent, int id, wxString title, wxPoint pos, wxSize size, int style )
@@ -433,6 +435,52 @@ void SubMainFrame::OnStatusBar( wxCommandEvent& event )
     m_mAuiManager->Update();
 }
 
+void SubMainFrame::OnAuiPaneClose( wxAuiManagerEvent& event )
+{
+    wxWindow* closedWindow = event.GetPane() ? event.GetPane()->window : nullptr;
+    if (closedWindow)
+    {
+        if (closedWindow == Globals::Instance()->GetToolPanel())
+        {
+            wxMenuItem* item = GetMenuBar()->FindItem(IDX_TOOL_WINDOW);
+            if (item)
+            {
+                item->Check(false);
+            }
+        }
+        else if (closedWindow == Globals::Instance()->GetColorPanel())
+        {
+            wxMenuItem* item = GetMenuBar()->FindItem(IDX_COLOR_WINDOW);
+            if (item)
+            {
+                item->Check(false);
+            }
+        }
+    }
+    event.Skip();
+}
+
+void SubMainFrame::OnMenuOpen( wxMenuEvent& event )
+{
+    wxMenu* menu = event.GetMenu();
+    if (menu == m_menuView || menu == m_menuWindows)
+    {
+        wxAuiPaneInfo& toolPane = m_mAuiManager->GetPane(Globals::Instance()->GetToolPanel());
+        wxMenuItem* toolItem = GetMenuBar()->FindItem(IDX_TOOL_WINDOW);
+        if (toolItem)
+        {
+            toolItem->Check(toolPane.IsOk() && toolPane.IsShown());
+        }
+
+        wxAuiPaneInfo& colorPane = m_mAuiManager->GetPane(Globals::Instance()->GetColorPanel());
+        wxMenuItem* colorItem = GetMenuBar()->FindItem(IDX_COLOR_WINDOW);
+        if (colorItem)
+        {
+            colorItem->Check(colorPane.IsOk() && colorPane.IsShown());
+        }
+    }
+    event.Skip();
+}
 
 void SubMainFrame::OnZoomOut( wxCommandEvent& event )
 {
@@ -824,13 +872,13 @@ void SubMainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 
     info.SetName(wxT("OpenPaint"));
     info.SetVersion(wxT("1.3.0"));
-    info.SetDescription(wxT("The open alternative to propriatry painting."));
+    info.SetDescription(wxT("The open alternative to classic painting."));
     info.SetCopyright(wxT("(C) 2009 OpenPaint"));
     info.AddDeveloper(wxT("OpenPaint"));
     info.SetWebSite(wxT("http://github.com/murdockq/openpaint"));
     info.SetLicense(wxString::FromAscii(
          "OpenPaint\n"
-         "github.com/murdockq/openpaint/openpaint\n"
+         "github.com/murdockq/openpaint\n"
          "\n"
          "Copyright (C) 2009, OpenPaint\n"
          "\n"

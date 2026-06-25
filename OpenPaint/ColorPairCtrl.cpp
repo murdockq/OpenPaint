@@ -58,7 +58,7 @@ void ColorPairCtrl::OnPaint( wxPaintEvent& event )
     else
     {
         dc.SetPen( *wxTRANSPARENT_PEN );
-        int checkSize = 5;
+        int checkSize = 2;
         for( int y = 0; y < altSize; y += checkSize )
         {
             for( int x = 0; x < altSize; x += checkSize )

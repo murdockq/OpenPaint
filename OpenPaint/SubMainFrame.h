@@ -58,6 +58,9 @@ class SubMainFrame : public MainFrame
         virtual void OnToolbar( wxCommandEvent& event );
         virtual void OnStatusBar( wxCommandEvent& event );
 
+        void OnAuiPaneClose( wxAuiManagerEvent& event );
+        void OnMenuOpen( wxMenuEvent& event );
+
         virtual void OnZoomOut( wxCommandEvent& event );
         virtual void OnZoomIn( wxCommandEvent& event );
         virtual void OnNormalZoom( wxCommandEvent& event );

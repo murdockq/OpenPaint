@@ -619,6 +619,16 @@ void SubMainFrame::OnSprayCan( wxCommandEvent& event )
     Globals::Instance()->GetToolPanel()->OnSprayCan(event);
 }
 
+void SubMainFrame::OnLine( wxCommandEvent& event )
+{
+    Globals::Instance()->GetToolPanel()->OnLine(event);
+}
+
+void SubMainFrame::OnCurve( wxCommandEvent& event )
+{
+    Globals::Instance()->GetToolPanel()->OnCurve(event);
+}
+
 void SubMainFrame::OnRectangle( wxCommandEvent& event )
 {
     Globals::Instance()->GetToolPanel()->OnRectangle(event);
@@ -637,6 +647,11 @@ void SubMainFrame::OnRectangleRounded( wxCommandEvent& event )
 void SubMainFrame::OnPolyline( wxCommandEvent& event )
 {
     Globals::Instance()->GetToolPanel()->OnPolyline(event);
+}
+
+void SubMainFrame::OnPolygon( wxCommandEvent& event )
+{
+    Globals::Instance()->GetToolPanel()->OnPolygon(event);
 }
 
 void SubMainFrame::OnSelectLasso( wxCommandEvent& event )

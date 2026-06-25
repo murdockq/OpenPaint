@@ -141,8 +141,11 @@ wxStockCursor ToolManager::GetToolCursor(ToolType tool)
         case TOOL_PICK_COLOR:
         case TOOL_FILL:
         case TOOL_ERASER:
+        case TOOL_LINE:
+        case TOOL_CURVE:
         case TOOL_RECTANGLE:
         case TOOL_POLYLINE:
+        case TOOL_POLYGON:
         case TOOL_ELLIPSE:
         case TOOL_RECTANGLE_ROUNDED:
         case TOOL_SELECT_LASSO:

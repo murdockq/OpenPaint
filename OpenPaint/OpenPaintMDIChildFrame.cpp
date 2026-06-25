@@ -116,6 +116,8 @@ wxAuiMDIChildFrame( parent, id, title)
     m_prevY = 0;
     m_prevX2 = 0;
     m_prevY2 = 0;
+    m_curveStage = 0;
+    m_bCurvePreviewIsLine = false;
     m_drawLine.clear();
 
     SetImage(m_Image);
@@ -563,6 +565,12 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
             case TOOL_SPRAY_CAN:
                 SprayCanTool(i,j, fColor);
                 break;
+            case TOOL_LINE:
+                LineTool(i,j, fColor, MOUSE_BEGIN_DRAWING);
+                break;
+            case TOOL_CURVE:
+                CurveTool(i,j, fColor, MOUSE_BEGIN_DRAWING);
+                break;
             case TOOL_ELLIPSE:
                 EllipseTool(i,j, fColor, MOUSE_BEGIN_DRAWING);
                 break;
@@ -574,6 +582,9 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 break;
             case TOOL_POLYLINE:
                 PolylineTool(i,j, MOUSE_BEGIN_DRAWING);
+                break;
+            case TOOL_POLYGON:
+                PolygonTool(i,j, MOUSE_BEGIN_DRAWING);
                 break;
             case TOOL_SELECT_LASSO:
                 LassoSelectTool(i,j, MOUSE_BEGIN_DRAWING);
@@ -593,6 +604,9 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
         {
             case TOOL_POLYLINE:
                 PolylineTool(i, j, MOUSE_FINISHED_DRAWING);
+                break;
+            case TOOL_POLYGON:
+                PolygonTool(i, j, MOUSE_FINISHED_DRAWING);
                 break;
             case TOOL_SELECT_LASSO:
                 LassoSelectTool(i, j, MOUSE_FINISHED_DRAWING);
@@ -621,6 +635,12 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
             case TOOL_SPRAY_CAN:
                 SprayCanTool(i,j, fColor);
                 break;
+            case TOOL_LINE:
+                LineTool(i,j, fColor, MOUSE_CONTINUE_DRAWING);
+                break;
+            case TOOL_CURVE:
+                CurveTool(i,j, fColor, MOUSE_CONTINUE_DRAWING);
+                break;
             case TOOL_ELLIPSE:
                 EllipseTool(i,j, fColor, MOUSE_CONTINUE_DRAWING);
                 break;
@@ -632,6 +652,9 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 break;
             case TOOL_POLYLINE:
                 PolylineTool(i,j, MOUSE_CONTINUE_DRAWING);
+                break;
+            case TOOL_POLYGON:
+                PolygonTool(i,j, MOUSE_CONTINUE_DRAWING);
                 break;
             case TOOL_SELECT_LASSO:
                 LassoSelectTool(i,j, MOUSE_CONTINUE_DRAWING);
@@ -651,6 +674,12 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
             case TOOL_SELECT:
                 SelectTool(i,j, MOUSE_FINISHED_DRAWING);
                 break;
+            case TOOL_LINE:
+                LineTool(i,j, fColor, MOUSE_FINISHED_DRAWING);
+                break;
+            case TOOL_CURVE:
+                CurveTool(i,j, fColor, MOUSE_FINISHED_DRAWING);
+                break;
             case TOOL_ELLIPSE:
                 EllipseTool(i,j, fColor, MOUSE_FINISHED_DRAWING);
                 break;
@@ -659,6 +688,20 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 break;
             case TOOL_RECTANGLE_ROUNDED:
                 RectangleTool(i,j, fColor, MOUSE_FINISHED_DRAWING, true);
+                break;
+        }
+    }
+    else if(event.Moving())
+    {
+        switch(pToolManager->GetSelectedTool())
+        {
+            case TOOL_POLYLINE:
+                PolylineTool(i,j, MOUSE_CONTINUE_DRAWING);
+                break;
+            case TOOL_POLYGON:
+                PolygonTool(i,j, MOUSE_CONTINUE_DRAWING);
+                break;
+            default:
                 break;
         }
     }
@@ -1643,6 +1686,174 @@ void OpenPaintMDIChildFrame::SprayCanTool(int x, int y, wxColour color)
     Refresh();
 }
 
+void OpenPaintMDIChildFrame::LineTool(int x, int y, wxColour color, MouseStatus drawState)
+{
+    wxClientDC dc(this);
+    dc.SetUserScale(m_dZoom, m_dZoom);
+
+    if(drawState == MOUSE_BEGIN_DRAWING)
+    {
+        m_prevX = x;
+        m_prevY = y;
+        m_prevX2 = x;
+        m_prevY2 = y;
+    }
+
+    ToolManager* tm = Globals::Instance()->GetToolManager();
+    int penWidth = tm->GetShapeLineWidth();
+    if (penWidth < 1) penWidth = 1;
+    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
+
+    dc.SetPen(m_customPen);
+    dc.SetLogicalFunction(wxINVERT);
+    dc.DrawLine(m_prevX, m_prevY, m_prevX2, m_prevY2);
+    dc.DrawLine(m_prevX, m_prevY, x, y);
+    m_prevX2 = x;
+    m_prevY2 = y;
+
+    if(drawState == MOUSE_FINISHED_DRAWING)
+    {
+        wxMemoryDC memDC(m_Bitmap);
+        memDC.SetPen(m_customPen);
+        memDC.DrawLine(m_prevX, m_prevY, x, y);
+        SetImage(m_Bitmap.ConvertToImage());
+        Refresh();
+    }
+}
+
+void OpenPaintMDIChildFrame::DrawCurvePath(wxDC& dc, const wxPoint& start,
+                                           const wxPoint& control1,
+                                           const wxPoint& control2,
+                                           const wxPoint& end)
+{
+    wxPoint prev = start;
+    const int steps = 64;
+    for (int i = 1; i <= steps; ++i)
+    {
+        double t = static_cast<double>(i) / steps;
+        double u = 1.0 - t;
+        double x = (u * u * u * start.x) +
+                   (3.0 * u * u * t * control1.x) +
+                   (3.0 * u * t * t * control2.x) +
+                   (t * t * t * end.x);
+        double y = (u * u * u * start.y) +
+                   (3.0 * u * u * t * control1.y) +
+                   (3.0 * u * t * t * control2.y) +
+                   (t * t * t * end.y);
+        wxPoint next(static_cast<int>(std::lround(x)), static_cast<int>(std::lround(y)));
+        dc.DrawLine(prev.x, prev.y, next.x, next.y);
+        prev = next;
+    }
+}
+
+void OpenPaintMDIChildFrame::CurveTool(int x, int y, wxColour color, MouseStatus drawState)
+{
+    ToolManager* tm = Globals::Instance()->GetToolManager();
+    int penWidth = tm->GetShapeLineWidth();
+    if (penWidth < 1) penWidth = 1;
+    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
+
+    if (drawState == MOUSE_BEGIN_DRAWING)
+    {
+        if (m_curveStage == 0)
+        {
+            m_curveStart = wxPoint(x, y);
+            m_curveEnd = wxPoint(x, y);
+            m_curvePreviewControl1 = m_curveStart;
+            m_curvePreviewControl2 = m_curveEnd;
+            m_bCurvePreviewIsLine = true;
+        }
+        return;
+    }
+
+    wxClientDC dc(this);
+    dc.SetUserScale(m_dZoom, m_dZoom);
+    dc.SetPen(m_customPen);
+    dc.SetLogicalFunction(wxINVERT);
+
+    if (drawState == MOUSE_CONTINUE_DRAWING)
+    {
+        if (m_curveStage == 0)
+        {
+            dc.DrawLine(m_curveStart.x, m_curveStart.y, m_curveEnd.x, m_curveEnd.y);
+            m_curveEnd = wxPoint(x, y);
+            dc.DrawLine(m_curveStart.x, m_curveStart.y, m_curveEnd.x, m_curveEnd.y);
+            m_bCurvePreviewIsLine = true;
+        }
+        else if (m_curveStage == 1)
+        {
+            if (m_bCurvePreviewIsLine)
+            {
+                dc.DrawLine(m_curveStart.x, m_curveStart.y, m_curveEnd.x, m_curveEnd.y);
+            }
+            else
+            {
+                DrawCurvePath(dc, m_curveStart, m_curvePreviewControl1,
+                              m_curvePreviewControl2, m_curveEnd);
+            }
+            m_curvePreviewControl1 = wxPoint(x, y);
+            m_curvePreviewControl2 = wxPoint(x, y);
+            DrawCurvePath(dc, m_curveStart, m_curvePreviewControl1,
+                          m_curvePreviewControl2, m_curveEnd);
+            m_bCurvePreviewIsLine = false;
+        }
+        else if (m_curveStage == 2)
+        {
+            if (m_bCurvePreviewIsLine)
+            {
+                dc.DrawLine(m_curveStart.x, m_curveStart.y, m_curveEnd.x, m_curveEnd.y);
+            }
+            else
+            {
+                DrawCurvePath(dc, m_curveStart, m_curvePreviewControl1,
+                              m_curvePreviewControl2, m_curveEnd);
+            }
+            m_curvePreviewControl2 = wxPoint(x, y);
+            DrawCurvePath(dc, m_curveStart, m_curvePreviewControl1,
+                          m_curvePreviewControl2, m_curveEnd);
+            m_bCurvePreviewIsLine = false;
+        }
+        return;
+    }
+
+    if (drawState == MOUSE_FINISHED_DRAWING)
+    {
+        if (m_curveStage == 0)
+        {
+            m_curveEnd = wxPoint(x, y);
+            m_curveStage = 1;
+            m_bCurvePreviewIsLine = true;
+        }
+        else if (m_curveStage == 1)
+        {
+            m_curveControl1 = wxPoint(x, y);
+            m_curvePreviewControl1 = m_curveControl1;
+            m_curvePreviewControl2 = m_curveControl1;
+            m_curveStage = 2;
+        }
+        else
+        {
+            if (m_bCurvePreviewIsLine)
+            {
+                dc.DrawLine(m_curveStart.x, m_curveStart.y, m_curveEnd.x, m_curveEnd.y);
+            }
+            else
+            {
+                DrawCurvePath(dc, m_curveStart, m_curvePreviewControl1,
+                              m_curvePreviewControl2, m_curveEnd);
+            }
+
+            wxMemoryDC memDC(m_Bitmap);
+            memDC.SetPen(m_customPen);
+            DrawCurvePath(memDC, m_curveStart, m_curveControl1, wxPoint(x, y), m_curveEnd);
+            SetImage(m_Bitmap.ConvertToImage());
+            m_curveStage = 0;
+            m_bCurvePreviewIsLine = false;
+            Refresh();
+        }
+    }
+}
+
 void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStatus drawState)
 {
     wxClientDC dc(this);
@@ -1839,14 +2050,15 @@ void OpenPaintMDIChildFrame::PolylineTool(int x, int y, MouseStatus drawState)
 {
     wxClientDC dc(this);
     dc.SetUserScale(m_dZoom, m_dZoom);
+    ToolManager* tm = Globals::Instance()->GetToolManager();
+    wxColour color = tm->GetForeground();
+    int penWidth = tm->GetShapeLineWidth();
+    if (penWidth < 1) penWidth = 1;
+    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
+    dc.SetPen(m_customPen);
+    dc.SetLogicalFunction(wxINVERT);
 
     if (drawState == MOUSE_BEGIN_DRAWING)
-    {
-        // First click of a new polyline: reset the in-progress path.
-        m_drawLine.clear();
-        m_drawLine.push_back(wxPoint(x, y));
-    }
-    else
     {
         if (m_drawLine.empty())
         {
@@ -1854,49 +2066,142 @@ void OpenPaintMDIChildFrame::PolylineTool(int x, int y, MouseStatus drawState)
         }
         else
         {
-            // Continue the polyline: erase the rubber-band segment to the
-            // previous point, then add the new point and draw a new line to
-            // it from the previous point.
             wxPoint prev = m_drawLine.back();
-            dc.SetPen(m_customPen);
-            dc.SetLogicalFunction(wxINVERT);
             dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
             dc.DrawLine(prev.x, prev.y, x, y);
             m_drawLine.push_back(wxPoint(x, y));
         }
+        m_prevX2 = x;
+        m_prevY2 = y;
+        return;
     }
-    m_prevX2 = x;
-    m_prevY2 = y;
+
+    if (drawState == MOUSE_CONTINUE_DRAWING)
+    {
+        if (!m_drawLine.empty())
+        {
+            wxPoint prev = m_drawLine.back();
+            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
+            dc.DrawLine(prev.x, prev.y, x, y);
+            m_prevX2 = x;
+            m_prevY2 = y;
+        }
+        return;
+    }
 
     if (drawState == MOUSE_FINISHED_DRAWING)
     {
-        // Commit the polyline to the image.
+        if (!m_drawLine.empty())
+        {
+            wxPoint prev = m_drawLine.back();
+            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
+            if (prev != wxPoint(x, y))
+            {
+                m_drawLine.push_back(wxPoint(x, y));
+            }
+        }
+
         if (m_drawLine.size() < 2)
         {
             m_drawLine.clear();
             return;
         }
-        ToolManager* tm = Globals::Instance()->GetToolManager();
-        wxColour color = tm->GetForeground();
-        int penWidth = tm->GetShapeLineWidth();
-        if (penWidth < 1) penWidth = 1;
-        m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
 
         wxMemoryDC memDC(m_Bitmap);
         memDC.SetPen(m_customPen);
-        if (tm->GetShapesFilled())
-        {
-            memDC.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
-        }
         for (size_t i = 0; i + 1 < m_drawLine.size(); ++i)
         {
             memDC.DrawLine(m_drawLine[i].x, m_drawLine[i].y,
                            m_drawLine[i + 1].x, m_drawLine[i + 1].y);
         }
+
+        SetImage(m_Bitmap.ConvertToImage());
+        m_drawLine.clear();
+        Refresh();
+    }
+}
+
+void OpenPaintMDIChildFrame::PolygonTool(int x, int y, MouseStatus drawState)
+{
+    wxClientDC dc(this);
+    dc.SetUserScale(m_dZoom, m_dZoom);
+    ToolManager* tm = Globals::Instance()->GetToolManager();
+    wxColour color = tm->GetForeground();
+    int penWidth = tm->GetShapeLineWidth();
+    if (penWidth < 1) penWidth = 1;
+    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
+    dc.SetPen(m_customPen);
+    dc.SetLogicalFunction(wxINVERT);
+
+    if (drawState == MOUSE_BEGIN_DRAWING)
+    {
+        if (m_drawLine.empty())
+        {
+            m_drawLine.push_back(wxPoint(x, y));
+        }
+        else
+        {
+            wxPoint prev = m_drawLine.back();
+            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
+            dc.DrawLine(prev.x, prev.y, x, y);
+            m_drawLine.push_back(wxPoint(x, y));
+        }
+        m_prevX2 = x;
+        m_prevY2 = y;
+        return;
+    }
+
+    if (drawState == MOUSE_CONTINUE_DRAWING)
+    {
+        if (!m_drawLine.empty())
+        {
+            wxPoint prev = m_drawLine.back();
+            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
+            dc.DrawLine(prev.x, prev.y, x, y);
+            m_prevX2 = x;
+            m_prevY2 = y;
+        }
+        return;
+    }
+
+    if (drawState == MOUSE_FINISHED_DRAWING)
+    {
+        if (!m_drawLine.empty())
+        {
+            wxPoint prev = m_drawLine.back();
+            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
+            if (prev != wxPoint(x, y))
+            {
+                m_drawLine.push_back(wxPoint(x, y));
+            }
+        }
+
+        if (m_drawLine.size() < 2)
+        {
+            m_drawLine.clear();
+            return;
+        }
+
+        wxMemoryDC memDC(m_Bitmap);
+        memDC.SetPen(m_customPen);
         if (tm->GetShapesFilled() && m_drawLine.size() >= 3)
         {
-            // For a filled polyline, close and fill the polygon.
+            memDC.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
             memDC.DrawPolygon(static_cast<int>(m_drawLine.size()), &m_drawLine[0]);
+        }
+        else
+        {
+            for (size_t i = 0; i + 1 < m_drawLine.size(); ++i)
+            {
+                memDC.DrawLine(m_drawLine[i].x, m_drawLine[i].y,
+                               m_drawLine[i + 1].x, m_drawLine[i + 1].y);
+            }
+            if (m_drawLine.size() >= 3)
+            {
+                const wxPoint& first = m_drawLine.front();
+                const wxPoint& last = m_drawLine.back();
+                memDC.DrawLine(last.x, last.y, first.x, first.y);
+            }
         }
 
         SetImage(m_Bitmap.ConvertToImage());

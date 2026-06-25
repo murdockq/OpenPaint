@@ -84,8 +84,11 @@ TEST_CASE("ToolManager maps tools to Paint-style stock cursors", "[ToolManager]"
 
     REQUIRE(ToolManager::GetToolCursor(TOOL_SELECT) == wxCURSOR_CROSS);
     REQUIRE(ToolManager::GetToolCursor(TOOL_SELECT_LASSO) == wxCURSOR_CROSS);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_LINE) == wxCURSOR_CROSS);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_CURVE) == wxCURSOR_CROSS);
     REQUIRE(ToolManager::GetToolCursor(TOOL_RECTANGLE) == wxCURSOR_CROSS);
     REQUIRE(ToolManager::GetToolCursor(TOOL_ELLIPSE) == wxCURSOR_CROSS);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_POLYGON) == wxCURSOR_CROSS);
     REQUIRE(ToolManager::GetToolCursor(TOOL_FILL) == wxCURSOR_CROSS);
     REQUIRE(ToolManager::GetToolCursor(TOOL_PICK_COLOR) == wxCURSOR_CROSS);
     REQUIRE(ToolManager::GetToolCursor(TOOL_ERASER) == wxCURSOR_CROSS);

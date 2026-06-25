@@ -37,10 +37,13 @@ public:
 	void OnEraser( wxCommandEvent& event );
 	void OnMagnify( wxCommandEvent& event );
 	void OnSprayCan( wxCommandEvent& event );
+    void OnLine( wxCommandEvent& event );
+    void OnCurve( wxCommandEvent& event );
 	void OnRectangle( wxCommandEvent& event );
     void OnEllipse( wxCommandEvent& event );
     void OnRectangleRounded( wxCommandEvent& event );
     void OnPolyline( wxCommandEvent& event );
+    void OnPolygon( wxCommandEvent& event );
 	void OnSelect( wxCommandEvent& event );
     void OnSelectLasso( wxCommandEvent& event );
 	void OnText( wxCommandEvent& event );

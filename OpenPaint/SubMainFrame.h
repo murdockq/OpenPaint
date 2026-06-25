@@ -78,10 +78,13 @@ class SubMainFrame : public MainFrame
         virtual void OnEraser( wxCommandEvent& event );
         virtual void OnMagnify( wxCommandEvent& event );
         virtual void OnSprayCan( wxCommandEvent& event );
+        virtual void OnLine( wxCommandEvent& event );
+        virtual void OnCurve( wxCommandEvent& event );
         virtual void OnRectangle( wxCommandEvent& event );
         virtual void OnEllipse( wxCommandEvent& event );
         virtual void OnRectangleRounded( wxCommandEvent& event );
         virtual void OnPolyline( wxCommandEvent& event );
+        virtual void OnPolygon( wxCommandEvent& event );
         virtual void OnSelect( wxCommandEvent& event );
         virtual void OnSelectLasso( wxCommandEvent& event );
         virtual void OnText( wxCommandEvent& event );

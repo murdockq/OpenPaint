@@ -39,8 +39,11 @@ void SubToolPanel::EnableTools()
     m_bpButtonBrush->Enable(true);
     m_bpButtonSprayCan->Enable(true);
     m_bpButtonText->Enable(true);
+    m_bpButtonLine->Enable(true);
+    m_bpButtonCurve->Enable(true);
     m_bpButtonRectangle->Enable(true);
     m_bpButtonPolyline->Enable(true);
+    m_bpButtonPolygon->Enable(true);
     m_bpButtonEllipse->Enable(true);
     m_bpButtonRectangleRounded->Enable(true);
 
@@ -184,6 +187,28 @@ void SubToolPanel::OnRectangle( wxCommandEvent& event )
     m_bpButtonRectangle->Enable(false);
 }
 
+void SubToolPanel::OnLine( wxCommandEvent& event )
+{
+    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_LINE);
+    m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Line"));
+    ClearToolProperties();
+    AddToolPropertiesPanel(new SubShapeToolPanel(this));
+    UpdateToolPropertiesLayout();
+    EnableTools();
+    m_bpButtonLine->Enable(false);
+}
+
+void SubToolPanel::OnCurve( wxCommandEvent& event )
+{
+    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_CURVE);
+    m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Curve"));
+    ClearToolProperties();
+    AddToolPropertiesPanel(new SubShapeToolPanel(this));
+    UpdateToolPropertiesLayout();
+    EnableTools();
+    m_bpButtonCurve->Enable(false);
+}
+
 void SubToolPanel::OnEllipse( wxCommandEvent& event )
 {
     Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_ELLIPSE);
@@ -215,6 +240,17 @@ void SubToolPanel::OnPolyline( wxCommandEvent& event )
     UpdateToolPropertiesLayout();
     EnableTools();
     m_bpButtonPolyline->Enable(false);
+}
+
+void SubToolPanel::OnPolygon( wxCommandEvent& event )
+{
+    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_POLYGON);
+    m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Polygon"));
+    ClearToolProperties();
+    AddToolPropertiesPanel(new SubShapeToolPanel(this));
+    UpdateToolPropertiesLayout();
+    EnableTools();
+    m_bpButtonPolygon->Enable(false);
 }
 
 void SubToolPanel::OnSelectLasso( wxCommandEvent& event )

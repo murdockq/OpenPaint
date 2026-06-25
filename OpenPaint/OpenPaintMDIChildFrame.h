@@ -85,6 +85,13 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         int m_prevY;
         int m_prevX2;
         int m_prevY2;
+        int m_curveStage;
+        bool m_bCurvePreviewIsLine;
+        wxPoint m_curveStart;
+        wxPoint m_curveEnd;
+        wxPoint m_curveControl1;
+        wxPoint m_curvePreviewControl1;
+        wxPoint m_curvePreviewControl2;
         wxPen m_customPen;
         wxBrush m_customBrush;
 
@@ -130,9 +137,14 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void FillTool(int x, int y, wxColour color);
         void MagnifyTool(int x, int y, int x2, int y2);
         void SprayCanTool(int x, int y, wxColour color);
+        void LineTool(int x, int y, wxColour color, MouseStatus drawState);
+        void CurveTool(int x, int y, wxColour color, MouseStatus drawState);
+        void DrawCurvePath(wxDC& dc, const wxPoint& start, const wxPoint& control1,
+                           const wxPoint& control2, const wxPoint& end);
         void EllipseTool(int x, int y, wxColour color, MouseStatus drawState);
         void RectangleTool(int x, int y, wxColour color, MouseStatus drawState, bool bIsRounded = false);
         void PolylineTool(int x, int y, MouseStatus drawState);
+        void PolygonTool(int x, int y, MouseStatus drawState);
         void SelectTool(int x, int y, MouseStatus drawState);
         void LassoSelectTool(int x, int y, MouseStatus drawState);
         void TextTool(int x, int y, wxColour color);

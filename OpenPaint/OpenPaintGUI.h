@@ -94,6 +94,9 @@ class wxAuiMDIParentFrame;
 #define IDX_LINK_PROPORTION 1044
 #define IDX_OFFSET_X 1045
 #define IDX_OFFSET_Y 1046
+#define IDX_TOOL_LINE 1047
+#define IDX_TOOL_CURVE 1048
+#define IDX_TOOL_POLYGON 1049
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class MainFrame
@@ -160,7 +163,10 @@ class MainFrame : public wxAuiMDIParentFrame
 		virtual void OnMagnify( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnPencil( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnPickColor( wxCommandEvent& event ){ event.Skip(); }
+		virtual void OnLine( wxCommandEvent& event ){ event.Skip(); }
+		virtual void OnCurve( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnPolyline( wxCommandEvent& event ){ event.Skip(); }
+		virtual void OnPolygon( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnRectangle( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnRectangleRounded( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnSelect( wxCommandEvent& event ){ event.Skip(); }
@@ -241,10 +247,13 @@ class ToolPanel : public wxPanel
 		wxBitmapButton* m_bpButtonBrush;
 		wxBitmapButton* m_bpButtonSprayCan;
 		wxBitmapButton* m_bpButtonText;
+		wxBitmapButton* m_bpButtonLine;
+		wxBitmapButton* m_bpButtonCurve;
 		wxBitmapButton* m_bpButtonRectangle;
 		wxBitmapButton* m_bpButtonEllipse;
 		wxBitmapButton* m_bpButtonRectangleRounded;
 		wxBitmapButton* m_bpButtonPolyline;
+		wxBitmapButton* m_bpButtonPolygon;
 		wxBitmapButton* m_bpButtonSelectLasso;
 		wxStaticBoxSizer* m_sbSizerToolProperties;
 		wxPanel* m_panelTestTool;
@@ -259,10 +268,13 @@ class ToolPanel : public wxPanel
 		virtual void OnBrush( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnSprayCan( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnText( wxCommandEvent& event ){ event.Skip(); }
+		virtual void OnLine( wxCommandEvent& event ){ event.Skip(); }
+		virtual void OnCurve( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnRectangle( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnEllipse( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnRectangleRounded( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnPolyline( wxCommandEvent& event ){ event.Skip(); }
+		virtual void OnPolygon( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnSelectLasso( wxCommandEvent& event ){ event.Skip(); }
 		
 	

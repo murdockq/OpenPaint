@@ -580,9 +580,6 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
             case TOOL_RECTANGLE_ROUNDED:
                 RectangleTool(i,j, fColor, MOUSE_BEGIN_DRAWING, true);
                 break;
-            case TOOL_POLYLINE:
-                PolylineTool(i,j, MOUSE_BEGIN_DRAWING);
-                break;
             case TOOL_POLYGON:
                 PolygonTool(i,j, MOUSE_BEGIN_DRAWING);
                 break;
@@ -597,14 +594,11 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     }
     else if (event.LeftDClick())
     {
-        // Double-click finishes a polyline / lasso so the user can place
+        // Double-click finishes a polygon / lasso so the user can place
         // many points with single clicks and commit the shape with a
         // double-click anywhere in the canvas.
         switch(pToolManager->GetSelectedTool())
         {
-            case TOOL_POLYLINE:
-                PolylineTool(i, j, MOUSE_FINISHED_DRAWING);
-                break;
             case TOOL_POLYGON:
                 PolygonTool(i, j, MOUSE_FINISHED_DRAWING);
                 break;
@@ -650,9 +644,6 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
             case TOOL_RECTANGLE_ROUNDED:
                 RectangleTool(i,j, fColor, MOUSE_CONTINUE_DRAWING, true);
                 break;
-            case TOOL_POLYLINE:
-                PolylineTool(i,j, MOUSE_CONTINUE_DRAWING);
-                break;
             case TOOL_POLYGON:
                 PolygonTool(i,j, MOUSE_CONTINUE_DRAWING);
                 break;
@@ -695,9 +686,6 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     {
         switch(pToolManager->GetSelectedTool())
         {
-            case TOOL_POLYLINE:
-                PolylineTool(i,j, MOUSE_CONTINUE_DRAWING);
-                break;
             case TOOL_POLYGON:
                 PolygonTool(i,j, MOUSE_CONTINUE_DRAWING);
                 break;
@@ -2043,81 +2031,6 @@ void OpenPaintMDIChildFrame::SelectTool(int x, int y, MouseStatus drawState)
             m_selectionOutline.clear();
             Refresh();
         }
-    }
-}
-
-void OpenPaintMDIChildFrame::PolylineTool(int x, int y, MouseStatus drawState)
-{
-    wxClientDC dc(this);
-    dc.SetUserScale(m_dZoom, m_dZoom);
-    ToolManager* tm = Globals::Instance()->GetToolManager();
-    wxColour color = tm->GetForeground();
-    int penWidth = tm->GetShapeLineWidth();
-    if (penWidth < 1) penWidth = 1;
-    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
-    dc.SetPen(m_customPen);
-    dc.SetLogicalFunction(wxINVERT);
-
-    if (drawState == MOUSE_BEGIN_DRAWING)
-    {
-        if (m_drawLine.empty())
-        {
-            m_drawLine.push_back(wxPoint(x, y));
-        }
-        else
-        {
-            wxPoint prev = m_drawLine.back();
-            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
-            dc.DrawLine(prev.x, prev.y, x, y);
-            m_drawLine.push_back(wxPoint(x, y));
-        }
-        m_prevX2 = x;
-        m_prevY2 = y;
-        return;
-    }
-
-    if (drawState == MOUSE_CONTINUE_DRAWING)
-    {
-        if (!m_drawLine.empty())
-        {
-            wxPoint prev = m_drawLine.back();
-            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
-            dc.DrawLine(prev.x, prev.y, x, y);
-            m_prevX2 = x;
-            m_prevY2 = y;
-        }
-        return;
-    }
-
-    if (drawState == MOUSE_FINISHED_DRAWING)
-    {
-        if (!m_drawLine.empty())
-        {
-            wxPoint prev = m_drawLine.back();
-            dc.DrawLine(prev.x, prev.y, m_prevX2, m_prevY2);
-            if (prev != wxPoint(x, y))
-            {
-                m_drawLine.push_back(wxPoint(x, y));
-            }
-        }
-
-        if (m_drawLine.size() < 2)
-        {
-            m_drawLine.clear();
-            return;
-        }
-
-        wxMemoryDC memDC(m_Bitmap);
-        memDC.SetPen(m_customPen);
-        for (size_t i = 0; i + 1 < m_drawLine.size(); ++i)
-        {
-            memDC.DrawLine(m_drawLine[i].x, m_drawLine[i].y,
-                           m_drawLine[i + 1].x, m_drawLine[i + 1].y);
-        }
-
-        SetImage(m_Bitmap.ConvertToImage());
-        m_drawLine.clear();
-        Refresh();
     }
 }
 

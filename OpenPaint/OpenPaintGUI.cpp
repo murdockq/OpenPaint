@@ -284,11 +284,6 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	menuItemCurve->SetBitmap( IconLoader::Load( wxT("draw-curve"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemCurve );
 
-	wxMenuItem* menuItemPolyline;
-	menuItemPolyline = new wxMenuItem( m_menuTools, IDX_TOOL_POLYLINE, wxString( _("Polyline") ), wxEmptyString, wxITEM_NORMAL );
-	menuItemPolyline->SetBitmap( IconLoader::Load( wxT("draw-polyline"), wxSize( 16,16 ) ) );
-	m_menuTools->Append( menuItemPolyline );
-
 	wxMenuItem* menuItemPolygon;
 	menuItemPolygon = new wxMenuItem( m_menuTools, IDX_TOOL_POLYGON, wxString( _("Polygon") ), wxEmptyString, wxITEM_NORMAL );
 	menuItemPolygon->SetBitmap( IconLoader::Load( wxT("draw-polygon"), wxSize( 16,16 ) ) );
@@ -426,7 +421,6 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	this->Connect( menuItemPickColor->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPickColor ) );
 	this->Connect( menuItemLine->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnLine ) );
 	this->Connect( menuItemCurve->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnCurve ) );
-	this->Connect( menuItemPolyline->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPolyline ) );
 	this->Connect( menuItemPolygon->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPolygon ) );
 	this->Connect( menuItemRectangle->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnRectangle ) );
 	this->Connect( menuItemRectangleRounded->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnRectangleRounded ) );
@@ -489,7 +483,6 @@ MainFrame::~MainFrame()
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnMagnify ) );
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPencil ) );
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPickColor ) );
-	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnPolyline ) );
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnRectangle ) );
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnRectangleRounded ) );
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFrame::OnSelect ) );
@@ -700,9 +693,6 @@ ToolPanel::ToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const
 	m_bpButtonRectangleRounded = new wxBitmapButton( this, IDX_TOOL_RECTANGLE_ROUNDED, IconLoader::Load( wxT("draw-rectangle-rounded"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonRectangleRounded, 0, wxALL, 0 );
 
-	m_bpButtonPolyline = new wxBitmapButton( this, IDX_TOOL_POLYLINE, IconLoader::Load( wxT("draw-polyline"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
-	fgSizer2->Add( m_bpButtonPolyline, 0, wxALL, 0 );
-
 	m_bpButtonPolygon = new wxBitmapButton( this, IDX_TOOL_POLYGON, IconLoader::Load( wxT("draw-polygon"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonPolygon, 0, wxALL, 0 );
 
@@ -734,7 +724,6 @@ ToolPanel::ToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const
 	m_bpButtonRectangle->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnRectangle ), NULL, this );
 	m_bpButtonEllipse->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnEllipse ), NULL, this );
 	m_bpButtonRectangleRounded->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnRectangleRounded ), NULL, this );
-	m_bpButtonPolyline->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnPolyline ), NULL, this );
 	m_bpButtonPolygon->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnPolygon ), NULL, this );
 	m_bpButtonSelectLasso->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnSelectLasso ), NULL, this );
 }
@@ -756,7 +745,6 @@ ToolPanel::~ToolPanel()
 	m_bpButtonRectangle->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnRectangle ), NULL, this );
 	m_bpButtonEllipse->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnEllipse ), NULL, this );
 	m_bpButtonRectangleRounded->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnRectangleRounded ), NULL, this );
-	m_bpButtonPolyline->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnPolyline ), NULL, this );
 	m_bpButtonPolygon->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnPolygon ), NULL, this );
 	m_bpButtonSelectLasso->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnSelectLasso ), NULL, this );
 }

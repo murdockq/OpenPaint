@@ -83,7 +83,6 @@ class SubMainFrame : public MainFrame
         virtual void OnRectangle( wxCommandEvent& event );
         virtual void OnEllipse( wxCommandEvent& event );
         virtual void OnRectangleRounded( wxCommandEvent& event );
-        virtual void OnPolyline( wxCommandEvent& event );
         virtual void OnPolygon( wxCommandEvent& event );
         virtual void OnSelect( wxCommandEvent& event );
         virtual void OnSelectLasso( wxCommandEvent& event );

@@ -42,7 +42,6 @@ void SubToolPanel::EnableTools()
     m_bpButtonLine->Enable(true);
     m_bpButtonCurve->Enable(true);
     m_bpButtonRectangle->Enable(true);
-    m_bpButtonPolyline->Enable(true);
     m_bpButtonPolygon->Enable(true);
     m_bpButtonEllipse->Enable(true);
     m_bpButtonRectangleRounded->Enable(true);
@@ -229,17 +228,6 @@ void SubToolPanel::OnRectangleRounded( wxCommandEvent& event )
     UpdateToolPropertiesLayout();
     EnableTools();
     m_bpButtonRectangleRounded->Enable(false);
-}
-
-void SubToolPanel::OnPolyline( wxCommandEvent& event )
-{
-    Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_POLYLINE);
-    m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Polyline"));
-    ClearToolProperties();
-    AddToolPropertiesPanel(new SubShapeToolPanel(this));
-    UpdateToolPropertiesLayout();
-    EnableTools();
-    m_bpButtonPolyline->Enable(false);
 }
 
 void SubToolPanel::OnPolygon( wxCommandEvent& event )

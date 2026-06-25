@@ -75,7 +75,6 @@ class wxAuiMDIParentFrame;
 #define IDX_TOOL_MAGNIFY 1025
 #define IDX_TOOL_PENCIL 1026
 #define IDX_TOOL_PICK_COLOR 1027
-#define IDX_TOOL_POLYLINE 1028
 #define IDX_TOOL_RECTANGLE 1029
 #define IDX_TOOL_RECTANGLE_ROUNDED 1030
 #define IDX_TOOL_SELECT 1031
@@ -165,7 +164,6 @@ class MainFrame : public wxAuiMDIParentFrame
 		virtual void OnPickColor( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnLine( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnCurve( wxCommandEvent& event ){ event.Skip(); }
-		virtual void OnPolyline( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnPolygon( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnRectangle( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnRectangleRounded( wxCommandEvent& event ){ event.Skip(); }
@@ -252,7 +250,6 @@ class ToolPanel : public wxPanel
 		wxBitmapButton* m_bpButtonRectangle;
 		wxBitmapButton* m_bpButtonEllipse;
 		wxBitmapButton* m_bpButtonRectangleRounded;
-		wxBitmapButton* m_bpButtonPolyline;
 		wxBitmapButton* m_bpButtonPolygon;
 		wxBitmapButton* m_bpButtonSelectLasso;
 		wxStaticBoxSizer* m_sbSizerToolProperties;
@@ -273,7 +270,6 @@ class ToolPanel : public wxPanel
 		virtual void OnRectangle( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnEllipse( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnRectangleRounded( wxCommandEvent& event ){ event.Skip(); }
-		virtual void OnPolyline( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnPolygon( wxCommandEvent& event ){ event.Skip(); }
 		virtual void OnSelectLasso( wxCommandEvent& event ){ event.Skip(); }
 		
@@ -383,7 +379,7 @@ class SprayCanToolPanel : public wxPanel
 /// Class ShapeToolPanel
 ///
 /// Properties panel shared by Rectangle, Rounded Rectangle, Ellipse and
-/// Polyline tools. Matches the MS Paint "Outline size" and "Fill" controls.
+/// Shape tools. Matches the MS Paint "Outline size" and "Fill" controls.
 ///////////////////////////////////////////////////////////////////////////////
 class ShapeToolPanel : public wxPanel
 {

@@ -644,11 +644,6 @@ void SubMainFrame::OnRectangleRounded( wxCommandEvent& event )
     Globals::Instance()->GetToolPanel()->OnRectangleRounded(event);
 }
 
-void SubMainFrame::OnPolyline( wxCommandEvent& event )
-{
-    Globals::Instance()->GetToolPanel()->OnPolyline(event);
-}
-
 void SubMainFrame::OnPolygon( wxCommandEvent& event )
 {
     Globals::Instance()->GetToolPanel()->OnPolygon(event);

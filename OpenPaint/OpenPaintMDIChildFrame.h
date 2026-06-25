@@ -143,7 +143,6 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
                            const wxPoint& control2, const wxPoint& end);
         void EllipseTool(int x, int y, wxColour color, MouseStatus drawState);
         void RectangleTool(int x, int y, wxColour color, MouseStatus drawState, bool bIsRounded = false);
-        void PolylineTool(int x, int y, MouseStatus drawState);
         void PolygonTool(int x, int y, MouseStatus drawState);
         void SelectTool(int x, int y, MouseStatus drawState);
         void LassoSelectTool(int x, int y, MouseStatus drawState);

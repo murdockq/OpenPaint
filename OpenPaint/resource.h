@@ -44,7 +44,6 @@
 #include    "res/draw-eraser.xpm"
 #include    "res/draw-freehand.xpm"
 #include    "res/draw-polygon.xpm"
-#include   "res/draw-polyline.xpm"
 #include   "res/draw-ellipse.xpm"
 #include   "res/draw-rectangle.xpm"
 #include   "res/draw-rectangle-rounded.xpm"

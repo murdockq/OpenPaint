@@ -42,7 +42,6 @@ public:
 	void OnRectangle( wxCommandEvent& event );
     void OnEllipse( wxCommandEvent& event );
     void OnRectangleRounded( wxCommandEvent& event );
-    void OnPolyline( wxCommandEvent& event );
     void OnPolygon( wxCommandEvent& event );
 	void OnSelect( wxCommandEvent& event );
     void OnSelectLasso( wxCommandEvent& event );

@@ -37,7 +37,6 @@ const char* kAllIconNames[] = {
     "color-picker",
     "draw-line",
     "draw-curve",
-    "draw-polyline",
     "draw-polygon",
     "draw-rectangle",
     "draw-rectangle-rounded",

@@ -73,3 +73,20 @@ TEST_CASE("ToolManager::SetSelectedTool round-trips", "[ToolManager]")
     tm.SetSelectedTool(TOOL_SELECT);
     REQUIRE(tm.GetSelectedTool() == TOOL_SELECT);
 }
+
+TEST_CASE("ToolManager maps tools to Paint-style stock cursors", "[ToolManager]")
+{
+    REQUIRE(ToolManager::GetToolCursor(TOOL_PENCIL) == wxCURSOR_PENCIL);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_BRUSH) == wxCURSOR_PAINT_BRUSH);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_SPRAY_CAN) == wxCURSOR_SPRAYCAN);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_MAGNIFY) == wxCURSOR_MAGNIFIER);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_TEXT) == wxCURSOR_IBEAM);
+
+    REQUIRE(ToolManager::GetToolCursor(TOOL_SELECT) == wxCURSOR_CROSS);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_SELECT_LASSO) == wxCURSOR_CROSS);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_RECTANGLE) == wxCURSOR_CROSS);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_ELLIPSE) == wxCURSOR_CROSS);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_FILL) == wxCURSOR_CROSS);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_PICK_COLOR) == wxCURSOR_CROSS);
+    REQUIRE(ToolManager::GetToolCursor(TOOL_ERASER) == wxCURSOR_CROSS);
+}

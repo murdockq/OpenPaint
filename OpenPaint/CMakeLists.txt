@@ -17,6 +17,8 @@ else()
 endif()
 
 set(OPENPAINT_SOURCES
+    BrushSamp.cpp
+    BrushTip.cpp
     ConfigFile.cpp
     Globals.cpp
     IconLoader.cpp
@@ -45,6 +47,7 @@ set(OPENPAINT_SOURCES
 )
 
 set(OPENPAINT_HEADERS
+    BrushSamp.h
     ConfigFile.h
     Globals.h
     IconLoader.h

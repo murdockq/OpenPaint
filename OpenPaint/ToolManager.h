@@ -25,6 +25,7 @@
 #include "Globals.h"
 
 #include <wx/colour.h>
+#include <wx/gdicmn.h>
 
 enum ToolType
 {
@@ -85,6 +86,8 @@ class ToolManager
         //Tools
         ToolType GetSelectedTool();
         void SetSelectedTool(ToolType selectedTool);
+        wxStockCursor GetSelectedToolCursor() const;
+        static wxStockCursor GetToolCursor(ToolType tool);
 
         //Colors
         wxColour GetForeground();

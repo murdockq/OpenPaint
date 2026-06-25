@@ -6,6 +6,7 @@
 # settings that don't require a running application.
 
 set(OPENPAINT_CORE_SOURCES
+    ${CMAKE_SOURCE_DIR}/OpenPaint/BrushSamp.cpp
     ${CMAKE_SOURCE_DIR}/OpenPaint/ConfigFile.cpp
     ${CMAKE_SOURCE_DIR}/OpenPaint/History.h
     ${CMAKE_SOURCE_DIR}/OpenPaint/ImageOps.cpp
@@ -20,6 +21,7 @@ target_include_directories(openpaint_core PUBLIC ${CMAKE_SOURCE_DIR}/OpenPaint)
 target_compile_definitions(openpaint_core PUBLIC TIXML_USE_STL)
 
 add_executable(test_openpaint
+    test_BrushSamp.cpp
     test_ConfigFile.cpp
     test_History.cpp
     test_ImageOps.cpp
@@ -110,4 +112,40 @@ if(wxWidgets_FOUND)
     endif()
     openpaint_copy_runtime_dlls(test_openpaint_icons)
     catch_discover_tests(test_openpaint_icons)
+
+    # Brush per-tip continuity tests. The pure sampler (SampleLinePixels)
+    # is exercised in test_openpaint, but verifying that a real
+    # wxMemoryDC actually paints the centre pixel of every Bresenham
+    # step for each of the four brush tips requires a wx-linked binary
+    # with the wxDC-using BrushTip.cpp.
+    if(TARGET wx::core)
+        add_executable(test_openpaint_brush
+            test_BrushTool.cpp
+            ${CMAKE_SOURCE_DIR}/OpenPaint/BrushSamp.cpp
+            ${CMAKE_SOURCE_DIR}/OpenPaint/BrushTip.cpp
+        )
+        target_include_directories(test_openpaint_brush PRIVATE
+            ${CMAKE_SOURCE_DIR}/OpenPaint)
+        target_link_libraries(test_openpaint_brush PRIVATE
+            Catch2WithMain wx::core wx::base)
+    else()
+        add_executable(test_openpaint_brush
+            test_BrushTool.cpp
+            ${CMAKE_SOURCE_DIR}/OpenPaint/BrushSamp.cpp
+            ${CMAKE_SOURCE_DIR}/OpenPaint/BrushTip.cpp
+        )
+        target_include_directories(test_openpaint_brush PRIVATE
+            ${CMAKE_SOURCE_DIR}/OpenPaint
+            ${wxWidgets_INCLUDE_DIRS})
+        target_compile_options(test_openpaint_brush PRIVATE ${wxWidgets_CXX_FLAGS})
+        target_link_libraries(test_openpaint_brush PRIVATE
+            Catch2WithMain ${wxWidgets_LIBRARIES})
+    endif()
+    if(MSVC)
+        target_compile_options(test_openpaint_brush PRIVATE /W4 /permissive-)
+    else()
+        target_compile_options(test_openpaint_brush PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    openpaint_copy_runtime_dlls(test_openpaint_brush)
+    catch_discover_tests(test_openpaint_brush)
 endif()

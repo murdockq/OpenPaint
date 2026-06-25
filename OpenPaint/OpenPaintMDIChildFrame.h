@@ -31,6 +31,7 @@ Subclass of wxAuiMDIChildFrame
 
 #include <wx/aui/aui.h>
 #include <wx/bitmap.h>
+#include <wx/gdicmn.h>
 #include <wx/image.h>
 class wxGraphicsContext;
 class wxGenericDragImage;
@@ -71,6 +72,8 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         MouseStatus m_status;
         wxPoint m_ScrollOrigin;
         wxLongLong m_lastPixelStatusUpdate;
+        wxStockCursor m_currentCursor;
+        bool m_bUsingSprayCanCursor;
 
         // Per-frame tool state. These used to be file-scope globals shared by
         // every MDI child, which meant switching tabs in the middle of a
@@ -101,6 +104,11 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void OnSize(wxSizeEvent& event);
         void OnScroll(wxScrollWinEvent& event);
         void OnEraseBackground(wxEraseEvent& event);
+        void ApplyToolCursor(int x, int y);
+        void SetCanvasCursor(wxStockCursor cursor);
+        void SetSprayCanCursor();
+        bool IsInsideImage(int x, int y) const;
+        bool IsInsideSelection(int x, int y) const;
 
         
         void PickColorTool(int x, int y, bool bIsForeground=true);
@@ -109,6 +117,12 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         // Renders a single brush "stamp" at (x, y) using the current
         // radius and tip (round / square / vertical line / horizontal line).
         void DrawBrushTip(wxDC& dc, int x, int y, int radius, int tip);
+        // Stamps the brush tip at every integer pixel on the line from
+        // (x0, y0) to (x1, y1). Guarantees no gaps between consecutive
+        // mouse-move events regardless of the tip shape, which is
+        // essential for the 1px-thick vertical/horizontal line tips.
+        void StampBrushAlongLine(wxDC& dc, int x0, int y0, int x1, int y1,
+                                 int radius, int tip);
         void FillTool(int x, int y, wxColour color);
         void MagnifyTool(int x, int y, int x2, int y2);
         void SprayCanTool(int x, int y, wxColour color);
@@ -131,6 +145,7 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         int GetWidth();
         int GetHeight();
         wxImage GetImage(){return m_Image;};
+        void RefreshToolCursor();
 
 
         void Undo();

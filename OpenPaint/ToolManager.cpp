@@ -119,6 +119,39 @@ void ToolManager::SetSelectedTool(ToolType selectedTool)
     m_eSelectedTool = selectedTool;
 }
 
+wxStockCursor ToolManager::GetSelectedToolCursor() const
+{
+    return GetToolCursor(m_eSelectedTool);
+}
+
+wxStockCursor ToolManager::GetToolCursor(ToolType tool)
+{
+    switch (tool)
+    {
+        case TOOL_PENCIL:
+            return wxCURSOR_PENCIL;
+        case TOOL_BRUSH:
+            return wxCURSOR_PAINT_BRUSH;
+        case TOOL_SPRAY_CAN:
+            return wxCURSOR_SPRAYCAN;
+        case TOOL_MAGNIFY:
+            return wxCURSOR_MAGNIFIER;
+        case TOOL_TEXT:
+            return wxCURSOR_IBEAM;
+        case TOOL_PICK_COLOR:
+        case TOOL_FILL:
+        case TOOL_ERASER:
+        case TOOL_RECTANGLE:
+        case TOOL_POLYLINE:
+        case TOOL_ELLIPSE:
+        case TOOL_RECTANGLE_ROUNDED:
+        case TOOL_SELECT_LASSO:
+        case TOOL_SELECT:
+        default:
+            return wxCURSOR_CROSS;
+    }
+}
+
 wxColour ToolManager::GetForeground()
 {
     return m_colorForeground;

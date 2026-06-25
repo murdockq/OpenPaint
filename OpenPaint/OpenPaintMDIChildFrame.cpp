@@ -21,9 +21,12 @@
 
 #include "Globals.h"
 #include "OpenPaintMDIChildFrame.h"
+#include "BrushSamp.h"
+#include "res/draw-airbrush.xpm"
 
 #include "ToolManager.h"
 #include "SubMainFrame.h"
+#include <wx/cursor.h>
 #include <wx/dcclient.h>
 #include <wx/graphics.h>
 #include <wx/settings.h>
@@ -31,8 +34,34 @@
 #include <wx/dcmemory.h>
 #include <wx/dragimag.h>
 #include <wx/generic/dragimgg.h>
+#include <wx/imagbmp.h>
 #include <wx/timer.h>
+#include <wx/utils.h>
 #include <cmath>
+
+namespace {
+
+wxCursor CreateSprayCanCursor()
+{
+    wxImage image(IDI_ICON_DRAW_AIRBRUSH_xpm);
+    if (!image.IsOk())
+    {
+        return wxCursor(wxCURSOR_SPRAYCAN);
+    }
+
+    image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, 4);
+    image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, 27);
+    wxCursor cursor(image);
+    return cursor.IsOk() ? cursor : wxCursor(wxCURSOR_SPRAYCAN);
+}
+
+const wxCursor& SprayCanCursor()
+{
+    static wxCursor cursor = CreateSprayCanCursor();
+    return cursor;
+}
+
+} // namespace
 
 BEGIN_EVENT_TABLE(OpenPaintMDIChildFrame, wxAuiMDIChildFrame)
     EVT_CLOSE           (             OpenPaintMDIChildFrame::OnClose)
@@ -67,6 +96,8 @@ wxAuiMDIChildFrame( parent, id, title)
     SetZoom(1.0);
     m_ScrollOrigin = wxPoint(0,0);
     m_lastPixelStatusUpdate = 0;
+    m_currentCursor = wxCURSOR_NONE;
+    m_bUsingSprayCanCursor = false;
     m_status = MOUSE_NOACTION;
 
     m_bHasSelection = false;
@@ -290,6 +321,82 @@ void OpenPaintMDIChildFrame::OnPaint(wxPaintEvent& WXUNUSED(event))
     //}
 //}
 
+bool OpenPaintMDIChildFrame::IsInsideImage(int x, int y) const
+{
+    return x >= 0 && y >= 0 && x < m_Image.GetWidth() && y < m_Image.GetHeight();
+}
+
+bool OpenPaintMDIChildFrame::IsInsideSelection(int x, int y) const
+{
+    return m_bHasSelection &&
+           x >= m_iSelectionOriginX &&
+           x < m_iSelectionOriginX + m_iSelectionWidth &&
+           y >= m_iSelectionOriginY &&
+           y < m_iSelectionOriginY + m_iSelectionHeight;
+}
+
+void OpenPaintMDIChildFrame::SetCanvasCursor(wxStockCursor cursor)
+{
+    if (!m_bUsingSprayCanCursor && m_currentCursor == cursor)
+    {
+        return;
+    }
+
+    SetCursor(wxCursor(cursor));
+    m_currentCursor = cursor;
+    m_bUsingSprayCanCursor = false;
+}
+
+void OpenPaintMDIChildFrame::SetSprayCanCursor()
+{
+    if (m_bUsingSprayCanCursor)
+    {
+        return;
+    }
+
+    SetCursor(SprayCanCursor());
+    m_currentCursor = wxCURSOR_NONE;
+    m_bUsingSprayCanCursor = true;
+}
+
+void OpenPaintMDIChildFrame::ApplyToolCursor(int x, int y)
+{
+    if (!IsInsideImage(x, y))
+    {
+        SetCanvasCursor(wxCURSOR_ARROW);
+        return;
+    }
+
+    if (IsInsideSelection(x, y))
+    {
+        SetCanvasCursor(wxCURSOR_SIZING);
+        return;
+    }
+
+    ToolManager* toolManager = Globals::Instance()->GetToolManager();
+    if (!toolManager)
+    {
+        SetCanvasCursor(wxCURSOR_ARROW);
+        return;
+    }
+
+    if (toolManager->GetSelectedTool() == TOOL_SPRAY_CAN)
+    {
+        SetSprayCanCursor();
+        return;
+    }
+
+    SetCanvasCursor(toolManager->GetSelectedToolCursor());
+}
+
+void OpenPaintMDIChildFrame::RefreshToolCursor()
+{
+    wxPoint cursorPos = ScreenToClient(wxGetMousePosition());
+    wxInt32 x = (cursorPos.x - m_ScrollOrigin.x) / m_dZoom;
+    wxInt32 y = (cursorPos.y - m_ScrollOrigin.y) / m_dZoom;
+    ApplyToolCursor(x, y);
+}
+
 void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
 {
     wxInt32 i = (event.GetX()-m_ScrollOrigin.x)/m_dZoom;
@@ -310,6 +417,8 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     }
 
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
+    ApplyToolCursor(i, j);
+
     wxColour fColor = pToolManager->GetForeground();
     wxColour bColor = pToolManager->GetBackground();
 
@@ -386,17 +495,6 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     {
         //Get focus on mouse enter for mouse wheel events
         this->SetFocus();
-
-
-        if(pToolManager->GetSelectedTool() == TOOL_SELECT)
-        {
-            this->SetCursor(*wxCROSS_CURSOR);
-        }
-        else
-        {
-            this->SetCursor(*wxSTANDARD_CURSOR);
-        }
-
     }
 
     // was it pressed just now?
@@ -619,6 +717,8 @@ void OpenPaintMDIChildFrame::OnMouseWheel(wxMouseEvent& event)
 
 void OpenPaintMDIChildFrame::OnMouseLeave(wxMouseEvent& event)
 {
+    SetCanvasCursor(wxCURSOR_ARROW);
+
     if (wxAuiMDIParentFrame* parent = GetMDIParentFrame())
     {
         if (wxStatusBar* pStatusBar = parent->GetStatusBar())
@@ -1356,29 +1456,20 @@ void OpenPaintMDIChildFrame::MagnifyTool(int x, int y, int x2, int y2)
 
 void OpenPaintMDIChildFrame::DrawBrushTip(wxDC& dc, int x, int y, int radius, int tip)
 {
-    // Renders one "stamp" of the brush at (x, y) using the chosen tip shape:
-    //   0 = round:           filled circle of diameter 2*radius
-    //   1 = square:          filled square of side  2*radius
-    //   2 = vertical line:   1px-wide vertical line of height 2*radius
-    //   3 = horizontal line: 1px-wide horizontal line of width  2*radius
-    // The caller is responsible for setting the pen/brush colour.
-    dc.SetPen(*wxTRANSPARENT_PEN);
-    switch (tip)
-    {
-    case 1:
-        dc.DrawRectangle(x - radius, y - radius, radius * 2, radius * 2);
-        break;
-    case 2:
-        dc.DrawRectangle(x, y - radius, 1, radius * 2);
-        break;
-    case 3:
-        dc.DrawRectangle(x - radius, y, radius * 2, 1);
-        break;
-    case 0:
-    default:
-        dc.DrawCircle(x, y, radius);
-        break;
-    }
+    // Thin wrapper around the free-function StampBrushTip so the same
+    // per-tip stamping logic is reachable from the test binary without
+    // instantiating a full MDI child frame.
+    StampBrushTip(dc, x, y, radius, tip);
+}
+
+void OpenPaintMDIChildFrame::StampBrushAlongLine(wxDC& dc, int x0, int y0,
+                                                 int x1, int y1,
+                                                 int radius, int tip)
+{
+    // Thin wrapper around the free-function StampBrushAlongLine so the
+    // same gap-closing logic is reachable from the test binary without
+    // instantiating a full MDI child frame.
+    ::StampBrushAlongLine(dc, x0, y0, x1, y1, radius, tip);
 }
 
 void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus drawState)
@@ -1403,13 +1494,17 @@ void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus
     if (brushRadius < 1) brushRadius = 1;
     int brushTip = tm->GetBrushTip();
 
-    // Paint a tip stamp at (x, y) into the backing bitmap. Using filled
-    // shapes (per the tip) is what makes "square"/"vertical"/"horizontal"
-    // brushes render as the user picked them; the previous implementation
-    // always used wxPen + DrawLine which produced a 1-pixel-thick line
-    // regardless of the tip selection.
+    // Paint the tip along the segment from the previous mouse position
+    // to the current one. Stamping at every integer pixel between the
+    // two endpoints (rather than only at (x, y)) is what closes the gap
+    // that otherwise appears between consecutive mouse-move events,
+    // especially for the 1px-thick vertical/horizontal line tips.
+    // Using filled shapes (per the tip) is what makes "square"/"vertical"/
+    // "horizontal" brushes render as the user picked them; the
+    // pre-stamp-only implementation always rendered a 1-pixel-thick
+    // line regardless of the tip selection.
     dc.SetBrush(wxBrush(color, wxSOLID));
-    DrawBrushTip(dc, x, y, brushRadius, brushTip);
+    StampBrushAlongLine(dc, m_prevX, m_prevY, x, y, brushRadius, brushTip);
 
     m_drawLine.push_back(wxPoint(x,y));
     m_prevX = x;
@@ -1419,13 +1514,25 @@ void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {
-        // Re-stamp every recorded point so the committed stroke is
-        // consistent regardless of mouse-move event frequency.
+        // Replay the stroke onto the committed bitmap using the same
+        // pixel-by-pixel stamping the live preview used, so the saved
+        // image is bit-for-bit identical to what the user saw on screen.
         wxMemoryDC memDC(m_Bitmap);
         memDC.SetBrush(wxBrush(color, wxSOLID));
-        for (size_t i = 0; i < m_drawLine.size(); i++)
+        for (size_t i = 0; i + 1 < m_drawLine.size(); i++)
         {
-            DrawBrushTip(memDC, m_drawLine[i].x, m_drawLine[i].y, brushRadius, brushTip);
+            StampBrushAlongLine(memDC,
+                                m_drawLine[i].x, m_drawLine[i].y,
+                                m_drawLine[i+1].x, m_drawLine[i+1].y,
+                                brushRadius, brushTip);
+        }
+        // The loop above connects every recorded point to the next but
+        // does not stamp the last point itself (no "next" to walk to).
+        // Stamp it explicitly so the stroke ends at the cursor.
+        if (!m_drawLine.empty())
+        {
+            const wxPoint& tail = m_drawLine.back();
+            DrawBrushTip(memDC, tail.x, tail.y, brushRadius, brushTip);
         }
 
         SetImage(m_Bitmap.ConvertToImage());

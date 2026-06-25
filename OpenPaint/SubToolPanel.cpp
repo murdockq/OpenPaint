@@ -6,6 +6,8 @@
 #include "SubShapeToolPanel.h"
 #include "SubTextToolPanel.h"
 #include "Globals.h"
+#include "OpenPaintMDIChildFrame.h"
+#include "SubMainFrame.h"
 #include "ToolManager.h"
 #include <wx/statbox.h>
 #include <wx/image.h>
@@ -41,6 +43,15 @@ void SubToolPanel::EnableTools()
     m_bpButtonPolyline->Enable(true);
     m_bpButtonEllipse->Enable(true);
     m_bpButtonRectangleRounded->Enable(true);
+
+    if (SubMainFrame* mainFrame = Globals::Instance()->GetMainFrame())
+    {
+        if (OpenPaintMDIChildFrame* childFrame =
+                static_cast<OpenPaintMDIChildFrame*>(mainFrame->GetActiveChild()))
+        {
+            childFrame->RefreshToolCursor();
+        }
+    }
 }
 
 void SubToolPanel::ClearToolProperties()

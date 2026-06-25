@@ -61,13 +61,13 @@ const wxCursor& SprayCanCursor()
     return cursor;
 }
 
-wxPen MakeDashedToolPen(const wxColour& color, int width)
+wxPen MakeToolPreviewPen(const wxColour& color, int width)
 {
     if (width < 1)
     {
         width = 1;
     }
-    return wxPen(color, width, wxPENSTYLE_SHORT_DASH);
+    return wxPen(color, width, wxPENSTYLE_SOLID);
 }
 
 } // namespace
@@ -364,7 +364,7 @@ void OpenPaintMDIChildFrame::DrawToolPreview(wxDC& dc)
         return;
     }
 
-    dc.SetPen(MakeDashedToolPen(m_previewColor, m_previewPenWidth));
+    dc.SetPen(MakeToolPreviewPen(m_previewColor, m_previewPenWidth));
     dc.SetBrush(*wxTRANSPARENT_BRUSH);
 
     switch (m_previewTool)
@@ -374,6 +374,18 @@ void OpenPaintMDIChildFrame::DrawToolPreview(wxDC& dc)
             break;
         case TOOL_CURVE:
             DrawCurvePreview(dc);
+            break;
+        case TOOL_ELLIPSE:
+            dc.DrawEllipse(m_prevX, m_prevY,
+                           -(m_prevX - m_prevX2), -(m_prevY - m_prevY2));
+            break;
+        case TOOL_RECTANGLE:
+            dc.DrawRectangle(m_prevX, m_prevY,
+                             -(m_prevX - m_prevX2), -(m_prevY - m_prevY2));
+            break;
+        case TOOL_RECTANGLE_ROUNDED:
+            dc.DrawRoundedRectangle(m_prevX, m_prevY,
+                                    -(m_prevX - m_prevX2), -(m_prevY - m_prevY2), 10);
             break;
         case TOOL_POLYGON:
             if (!m_drawLine.empty())
@@ -1887,9 +1899,6 @@ void OpenPaintMDIChildFrame::CurveTool(int x, int y, wxColour color, MouseStatus
 
 void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStatus drawState)
 {
-    wxClientDC dc(this);
-    dc.SetUserScale(m_dZoom,m_dZoom);
-
     if(drawState == MOUSE_BEGIN_DRAWING)
     {
         m_prevX = x;
@@ -1901,38 +1910,20 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
     ToolManager* tm = Globals::Instance()->GetToolManager();
     int penWidth = tm->GetShapeLineWidth();
     if (penWidth < 1) penWidth = 1;
-    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
-    dc.SetPen(m_customPen);
-
-    // If the user has filled shapes enabled, fill with the current background
-    // colour; otherwise leave the interior transparent so only the outline
-    // shows.
-    if (tm->GetShapesFilled())
-    {
-        dc.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
-    }
-    else
-    {
-        dc.SetBrush(*wxTRANSPARENT_BRUSH);
-    }
-
-    dc.SetLogicalFunction(wxINVERT);
-
-    //Remove last draw Rectangle
-    dc.DrawEllipse(m_prevX, m_prevY, -(m_prevX-m_prevX2), -(m_prevY-m_prevY2));
-
-    //Add current rectangle
-    dc.DrawEllipse(m_prevX, m_prevY, -(m_prevX-x), -(m_prevY-y));
-
-    //Update previous rectangle second point
+    m_previewTool = TOOL_ELLIPSE;
+    m_previewColor = color;
+    m_previewPenWidth = penWidth;
     m_prevX2 = x;
     m_prevY2 = y;
+    m_bToolPreviewActive = true;
+    RefreshToolPreview();
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {
+        m_bToolPreviewActive = false;
         wxMemoryDC memDC;
         memDC.SelectObject(m_Bitmap);
-        memDC.SetPen(m_customPen);
+        memDC.SetPen(wxPen(color, penWidth, wxPENSTYLE_SOLID));
         if (tm->GetShapesFilled())
         {
             memDC.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
@@ -1951,9 +1942,6 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
 
 void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseStatus drawState, bool bIsRounded)
 {
-    wxClientDC dc(this);
-    dc.SetUserScale(m_dZoom,m_dZoom);
-
     if(drawState == MOUSE_BEGIN_DRAWING)
     {
         m_prevX = x;
@@ -1965,46 +1953,20 @@ void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseSt
     ToolManager* tm = Globals::Instance()->GetToolManager();
     int penWidth = tm->GetShapeLineWidth();
     if (penWidth < 1) penWidth = 1;
-    m_customPen = wxPen(color, penWidth, wxPENSTYLE_SOLID);
-    dc.SetPen(m_customPen);
-
-    if (tm->GetShapesFilled())
-    {
-        dc.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
-    }
-    else
-    {
-        dc.SetBrush(*wxTRANSPARENT_BRUSH);
-    }
-
-    dc.SetLogicalFunction(wxINVERT);
-
-    if(bIsRounded)
-    {
-        //Remove last draw Rectangle
-        dc.DrawRoundedRectangle(m_prevX, m_prevY, -(m_prevX-m_prevX2), -(m_prevY-m_prevY2), 10);
-
-        //Add current rectangle
-        dc.DrawRoundedRectangle(m_prevX, m_prevY, -(m_prevX-x), -(m_prevY-y), 10);
-    }
-    else
-    {
-        //Remove last draw Rectangle
-        dc.DrawRectangle(m_prevX, m_prevY, -(m_prevX-m_prevX2), -(m_prevY-m_prevY2));
-
-        //Add current rectangle
-        dc.DrawRectangle(m_prevX, m_prevY, -(m_prevX-x), -(m_prevY-y));
-    }
-
-    //Update previous rectangle second point
+    m_previewTool = bIsRounded ? TOOL_RECTANGLE_ROUNDED : TOOL_RECTANGLE;
+    m_previewColor = color;
+    m_previewPenWidth = penWidth;
     m_prevX2 = x;
     m_prevY2 = y;
+    m_bToolPreviewActive = true;
+    RefreshToolPreview();
 
     if(drawState == MOUSE_FINISHED_DRAWING)
     {
+        m_bToolPreviewActive = false;
         wxMemoryDC memDC;
         memDC.SelectObject(m_Bitmap);
-        memDC.SetPen(m_customPen);
+        memDC.SetPen(wxPen(color, penWidth, wxPENSTYLE_SOLID));
         if (tm->GetShapesFilled())
         {
             memDC.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));

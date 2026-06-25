@@ -101,6 +101,7 @@ wxAuiMDIChildFrame( parent, id, title)
     m_status = MOUSE_NOACTION;
 
     m_bHasSelection = false;
+    m_bSelectionIsLasso = false;
     m_iSelectionOriginX = -1;
     m_iSelectionOriginY = -1;
     m_iSelectionWidth = -1;
@@ -299,6 +300,8 @@ void OpenPaintMDIChildFrame::OnPaint(wxPaintEvent& WXUNUSED(event))
     dc.DrawRectangle(width, 0, (w/zoom)-width, height);
     dc.DrawRectangle(0, height, w/zoom ,(h/zoom));
 
+    DrawSelectionOutline(dc);
+
 #if 0
     //Creates anti-aliased view of image
     wxGraphicsContext *gc = wxGraphicsContext::Create(this);
@@ -309,6 +312,33 @@ void OpenPaintMDIChildFrame::OnPaint(wxPaintEvent& WXUNUSED(event))
     gc->DrawRectangle(0, height*zoom, w ,h-(height*zoom));
 #endif
 
+}
+
+void OpenPaintMDIChildFrame::DrawSelectionOutline(wxDC& dc) const
+{
+    if (!m_bHasSelection || m_iSelectionWidth <= 0 || m_iSelectionHeight <= 0)
+    {
+        return;
+    }
+
+    wxPen dottedPen(*wxBLACK, 1, wxPENSTYLE_DOT);
+    dc.SetPen(dottedPen);
+    dc.SetBrush(*wxTRANSPARENT_BRUSH);
+
+    if (m_bSelectionIsLasso && m_selectionOutline.size() >= 2)
+    {
+        for (size_t i = 0; i < m_selectionOutline.size(); ++i)
+        {
+            const wxPoint& from = m_selectionOutline[i];
+            const wxPoint& to = m_selectionOutline[(i + 1) % m_selectionOutline.size()];
+            dc.DrawLine(m_iSelectionOriginX + from.x, m_iSelectionOriginY + from.y,
+                        m_iSelectionOriginX + to.x, m_iSelectionOriginY + to.y);
+        }
+        return;
+    }
+
+    dc.DrawRectangle(m_iSelectionOriginX, m_iSelectionOriginY,
+                     m_iSelectionWidth, m_iSelectionHeight);
 }
 
 
@@ -459,6 +489,8 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 SelectTool(i,j, MOUSE_FINISHED_DRAWING);
 
                 m_bHasSelection = false;
+                m_bSelectionIsLasso = false;
+                m_selectionOutline.clear();
 
                 wxMemoryDC memDC;
                 memDC.SelectObject(m_Bitmap);
@@ -481,6 +513,7 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
         {
             m_iSelectionOriginX = i - m_iSelectionMoveX;
             m_iSelectionOriginY = j - m_iSelectionMoveY;
+            Refresh();
             return;
         }
 
@@ -984,6 +1017,9 @@ wxBitmap OpenPaintMDIChildFrame::Cut()
     wxBitmap m_TempBitmap = m_SelectedBitmap;
     //Clear the selection
     m_SelectedBitmap = wxBitmap();
+    m_bHasSelection = false;
+    m_bSelectionIsLasso = false;
+    m_selectionOutline.clear();
 
     return m_TempBitmap;
 }
@@ -1007,6 +1043,8 @@ void OpenPaintMDIChildFrame::Paste(wxBitmap bitmap)
     m_DragImage->Move(wxPoint(0,0));
     m_DragImage->Show();
     m_bHasSelection = true;
+    m_bSelectionIsLasso = false;
+    m_selectionOutline.clear();
 
     //SetImage(m_Bitmap.ConvertToImage());
     //m_Image.ConvertAlphaToMask();
@@ -1028,6 +1066,10 @@ void OpenPaintMDIChildFrame::Delete()
     memDC.SetBrush(m_customBrush);
     memDC.DrawRectangle(m_iSelectionOriginX, m_iSelectionOriginY, m_iSelectionWidth, m_iSelectionHeight);
     SetImage(m_Bitmap.ConvertToImage());
+    m_SelectedBitmap = wxBitmap();
+    m_bHasSelection = false;
+    m_bSelectionIsLasso = false;
+    m_selectionOutline.clear();
     Refresh();
 }
 
@@ -1757,7 +1799,8 @@ void OpenPaintMDIChildFrame::SelectTool(int x, int y, MouseStatus drawState)
         m_prevY2 = y;
     }
 
-    dc.SetPen(*wxBLACK_DASHED_PEN);
+    wxPen dottedPen(*wxBLACK, 1, wxPENSTYLE_DOT);
+    dc.SetPen(dottedPen);
     dc.SetBrush(*wxTRANSPARENT_BRUSH);
     dc.SetLogicalFunction(wxINVERT);
 
@@ -1785,6 +1828,9 @@ void OpenPaintMDIChildFrame::SelectTool(int x, int y, MouseStatus drawState)
             m_iSelectionMoveY = m_iSelectionOriginY;
 
             m_bHasSelection = true;
+            m_bSelectionIsLasso = false;
+            m_selectionOutline.clear();
+            Refresh();
         }
     }
 }
@@ -1875,6 +1921,10 @@ void OpenPaintMDIChildFrame::LassoSelectTool(int x, int y, MouseStatus drawState
 
     if (drawState == MOUSE_FINISHED_DRAWING)
     {
+        if (!m_drawLine.empty() && m_drawLine.back() != wxPoint(x, y))
+        {
+            m_drawLine.push_back(wxPoint(x, y));
+        }
         if (m_drawLine.size() < 3)
         {
             m_drawLine.clear();
@@ -1908,7 +1958,16 @@ void OpenPaintMDIChildFrame::LassoSelectTool(int x, int y, MouseStatus drawState
                        m_iSelectionWidth, m_iSelectionHeight));
             m_iSelectionMoveX = m_iSelectionOriginX;
             m_iSelectionMoveY = m_iSelectionOriginY;
+            m_selectionOutline.clear();
+            m_selectionOutline.reserve(m_drawLine.size());
+            for (const wxPoint& p : m_drawLine)
+            {
+                m_selectionOutline.push_back(
+                    wxPoint(p.x - m_iSelectionOriginX, p.y - m_iSelectionOriginY));
+            }
             m_bHasSelection = true;
+            m_bSelectionIsLasso = true;
+            Refresh();
         }
         m_drawLine.clear();
         return;
@@ -1921,7 +1980,8 @@ void OpenPaintMDIChildFrame::LassoSelectTool(int x, int y, MouseStatus drawState
     }
     else
     {
-        dc.SetPen(*wxBLACK_DASHED_PEN);
+        wxPen dottedPen(*wxBLACK, 1, wxPENSTYLE_DOT);
+        dc.SetPen(dottedPen);
         dc.SetLogicalFunction(wxINVERT);
         dc.DrawLine(m_prevX2, m_prevY2, x, y);
         m_drawLine.push_back(wxPoint(x, y));

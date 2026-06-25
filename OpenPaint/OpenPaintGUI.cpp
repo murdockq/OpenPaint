@@ -218,16 +218,15 @@ MainFrame::MainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_menubar1->Append( m_menuImage, _("&Image") );
 	
 	m_menuTools = new wxMenu();
-	wxMenuItem* menuItemSelect;
-	menuItemSelect = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT, wxString( _("Select") ) + wxT('\t') + wxT("S"), wxEmptyString, wxITEM_NORMAL );
-	menuItemSelect->SetBitmap( IconLoader::Load( wxT("select-rectangular"), wxSize( 16,16 ) ) );
-	m_menuTools->Append( menuItemSelect );
-
 	wxMenuItem* menuItemSelectLasso;
 	menuItemSelectLasso = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT_LASSO, wxString( _("Free-form Select") ) + wxT('\t') + wxT("L"), wxEmptyString, wxITEM_NORMAL );
 	menuItemSelectLasso->SetBitmap( IconLoader::Load( wxT("select-lasso"), wxSize( 16,16 ) ) );
 	m_menuTools->Append( menuItemSelectLasso );
-	menuItemSelectLasso->Enable( false );
+
+	wxMenuItem* menuItemSelect;
+	menuItemSelect = new wxMenuItem( m_menuTools, IDX_TOOL_SELECT, wxString( _("Select") ) + wxT('\t') + wxT("S"), wxEmptyString, wxITEM_NORMAL );
+	menuItemSelect->SetBitmap( IconLoader::Load( wxT("select-rectangular"), wxSize( 16,16 ) ) );
+	m_menuTools->Append( menuItemSelect );
 
 	m_menuTools->AppendSeparator();
 
@@ -639,6 +638,9 @@ ToolPanel::ToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const
 	fgSizer2->SetFlexibleDirection( wxBOTH );
 	fgSizer2->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
+	m_bpButtonSelectLasso = new wxBitmapButton( this, IDX_TOOL_SELECT_LASSO, IconLoader::Load( wxT("select-lasso"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+	fgSizer2->Add( m_bpButtonSelectLasso, 0, wxALL, 0 );
+
 	m_bpButtonSelect = new wxBitmapButton( this, IDX_TOOL_SELECT, IconLoader::Load( wxT("select-rectangular"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 	fgSizer2->Add( m_bpButtonSelect, 0, wxALL, 0 );
 
@@ -682,13 +684,6 @@ ToolPanel::ToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const
 
 	fgSizer2->Add( m_bpButtonPolyline, 0, wxALL, 0 );
 
-	m_bpButtonSelectLasso = new wxBitmapButton( this, IDX_TOOL_SELECT_LASSO, IconLoader::Load( wxT("select-lasso"), IconLoader::LogicalToolbarSize() ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
-	m_bpButtonSelectLasso->Hide();
-
-	m_bpButtonSelectLasso->Hide();
-
-	fgSizer2->Add( m_bpButtonSelectLasso, 0, wxALL, 0 );
-	
 	bSizer3->Add( fgSizer2, 0, 0, 5 );
 	
 	m_sbSizerToolProperties = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, _("Pencil") ), wxVERTICAL );

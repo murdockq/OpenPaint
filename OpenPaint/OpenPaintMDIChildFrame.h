@@ -33,6 +33,7 @@ Subclass of wxAuiMDIChildFrame
 #include <wx/bitmap.h>
 #include <wx/gdicmn.h>
 #include <wx/image.h>
+#include <vector>
 class wxGraphicsContext;
 class wxGenericDragImage;
 
@@ -90,8 +91,10 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         //Selection Attributes
         wxBitmap m_SelectedBitmap;
         bool m_bHasSelection;
+        bool m_bSelectionIsLasso;
         int m_iSelectionOriginX, m_iSelectionOriginY, m_iSelectionWidth, m_iSelectionHeight;
         int m_iSelectionMoveX, m_iSelectionMoveY;
+        std::vector<wxPoint> m_selectionOutline;
         wxGenericDragImage * m_DragImage;
 
         // event handlers
@@ -109,6 +112,7 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void SetSprayCanCursor();
         bool IsInsideImage(int x, int y) const;
         bool IsInsideSelection(int x, int y) const;
+        void DrawSelectionOutline(wxDC& dc) const;
 
         
         void PickColorTool(int x, int y, bool bIsForeground=true);

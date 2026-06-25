@@ -781,6 +781,12 @@ void SubMainFrame::OnSize(wxSizeEvent& event) {
 
 void SubMainFrame::OnClose( wxCloseEvent& event )
 {
+    // Persist the config while the app is still in a healthy state. The
+    // destructor also calls Save(), but the AUI/MDI teardown path on this
+    // platform can crash before OnExit()/~Globals() runs, so writing the
+    // file here guarantees settings are not lost.
+    Globals::Instance()->GetConfig()->Save();
+
     // Hide the window synchronously so it disappears the instant the user
     // clicks close. Destroy() is deferred to the next idle event, and the
     // config save in OnExit() runs after the frame is gone — without Hide()

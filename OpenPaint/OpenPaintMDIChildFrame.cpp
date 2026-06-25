@@ -238,10 +238,11 @@ void OpenPaintMDIChildFrame::SetZoom(double dZoom)
 
 void OpenPaintMDIChildFrame::OnClose(wxCloseEvent& event)
 {
-    // No Veto() — Shutdown() will Destroy() the frame. Vetoing and then
-    // destroying leaves wx in an inconsistent state and can produce warnings.
+    // No Veto() — let the default close handler Destroy() the frame. Calling
+    // Destroy() ourselves while the MDI notebook is already tearing down the
+    // child can double-free the window.
     wxLogDebug(wxT("OnClose"));
-    this->Shutdown();
+    event.Skip();
 }
 
 void OpenPaintMDIChildFrame::OnPaint(wxPaintEvent& WXUNUSED(event))

@@ -23,6 +23,8 @@
 #include "ConfigFile.h"
 #include "ToolManager.h"
 #include <wx/msgdlg.h>
+#include <wx/stdpaths.h>
+#include <wx/filename.h>
 
 Globals* Globals::m_pInstance = 0;// initialize pointer
 
@@ -42,7 +44,20 @@ Globals::Globals()
     , m_pColorPanel(nullptr)
     , m_pToolManager(nullptr)
 {
-    m_pConfig = new ConfigFile("config.xml", "OpenPaintData");
+    // Store the config in the per-user data directory (e.g.
+    // %APPDATA%\OpenPaint on Windows, ~/Library/Application Support/OpenPaint
+    // on macOS, ~/.local/share/OpenPaint on Linux) instead of the current
+    // working directory. The working directory may be read-only, transient, or
+    // different on every launch, which caused settings to be lost or writes to
+    // fail.
+    const wxString userDataDir = wxStandardPaths::Get().GetUserDataDir();
+    if (!wxFileName::DirExists(userDataDir))
+    {
+        wxFileName::Mkdir(userDataDir, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+    }
+
+    const wxString configPath = wxFileName(userDataDir, wxT("config.xml")).GetFullPath();
+    m_pConfig = new ConfigFile(configPath.ToStdString(), "OpenPaintData");
     m_pToolManager = new ToolManager();
 
     m_strCurrentDir = wxGetCwd();

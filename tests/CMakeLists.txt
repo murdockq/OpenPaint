@@ -63,6 +63,7 @@ if(wxWidgets_FOUND)
     else()
         add_executable(test_openpaint_webp test_Webp.cpp)
         target_include_directories(test_openpaint_webp PRIVATE ${wxWidgets_INCLUDE_DIRS})
+        target_compile_definitions(test_openpaint_webp PRIVATE ${wxWidgets_DEFINITIONS})
         target_compile_options(test_openpaint_webp PRIVATE ${wxWidgets_CXX_FLAGS})
         target_link_libraries(test_openpaint_webp PRIVATE
             openpaint_core Catch2WithMain ${wxWidgets_LIBRARIES})
@@ -101,6 +102,7 @@ if(wxWidgets_FOUND)
             ${CMAKE_SOURCE_DIR}/OpenPaint
             ${wxWidgets_INCLUDE_DIRS}
             ${CMAKE_CURRENT_BINARY_DIR}/generated)
+        target_compile_definitions(test_openpaint_icons PRIVATE ${wxWidgets_DEFINITIONS})
         target_compile_options(test_openpaint_icons PRIVATE ${wxWidgets_CXX_FLAGS})
         target_link_libraries(test_openpaint_icons PRIVATE
             Catch2WithMain ${wxWidgets_LIBRARIES})
@@ -137,6 +139,7 @@ if(wxWidgets_FOUND)
         target_include_directories(test_openpaint_brush PRIVATE
             ${CMAKE_SOURCE_DIR}/OpenPaint
             ${wxWidgets_INCLUDE_DIRS})
+        target_compile_definitions(test_openpaint_brush PRIVATE ${wxWidgets_DEFINITIONS})
         target_compile_options(test_openpaint_brush PRIVATE ${wxWidgets_CXX_FLAGS})
         target_link_libraries(test_openpaint_brush PRIVATE
             Catch2WithMain ${wxWidgets_LIBRARIES})

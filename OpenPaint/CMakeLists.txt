@@ -91,11 +91,15 @@ if(WIN32)
     list(APPEND OPENPAINT_PLATFORM_SOURCES OpenPaint.rc)
 endif()
 
-add_executable(openpaint WIN32
+add_executable(openpaint
     ${OPENPAINT_SOURCES}
     ${OPENPAINT_HEADERS}
     ${OPENPAINT_PLATFORM_SOURCES}
 )
+
+if(WIN32)
+    set_target_properties(openpaint PROPERTIES WIN32_EXECUTABLE TRUE)
+endif()
 
 if(OPENPAINT_WX_MODULE_MODE)
     target_include_directories(openpaint PRIVATE ${wxWidgets_INCLUDE_DIRS})

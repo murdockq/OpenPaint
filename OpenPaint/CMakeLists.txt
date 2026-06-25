@@ -95,6 +95,7 @@ target_include_directories(openpaint PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 target_compile_definitions(openpaint PRIVATE TIXML_USE_STL)
+openpaint_copy_runtime_dlls(openpaint)
 
 # Copy the SVG icons next to the binary so the loader can find them at
 # runtime without requiring the source tree to be present. On multi-config

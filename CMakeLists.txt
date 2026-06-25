@@ -17,6 +17,46 @@ option(OPENPAINT_BUILD_APP   "Build the OpenPaint GUI application" ON)
 option(OPENPAINT_BUILD_TESTS "Build the unit tests"               ON)
 option(OPENPAINT_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
+function(openpaint_copy_runtime_dlls target_name)
+    if(WIN32)
+        set(openpaint_applocal_script "")
+        if(DEFINED CMAKE_TOOLCHAIN_FILE)
+            get_filename_component(openpaint_toolchain_dir "${CMAKE_TOOLCHAIN_FILE}" DIRECTORY)
+            set(openpaint_applocal_script
+                "${openpaint_toolchain_dir}/msbuild/applocal.ps1")
+        endif()
+
+        set(openpaint_installed_prefix "")
+        if(DEFINED VCPKG_INSTALLED_DIR AND DEFINED VCPKG_TARGET_TRIPLET)
+            set(openpaint_installed_prefix
+                "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}")
+        elseif(CMAKE_PREFIX_PATH)
+            list(GET CMAKE_PREFIX_PATH 0 openpaint_installed_prefix)
+        endif()
+
+        # Catch2 discovers tests by launching the executable during the build.
+        # When dependencies come from vcpkg, use its recursive applocal helper
+        # so wxWidgets' transitive DLLs are copied as well.
+        if(EXISTS "${openpaint_applocal_script}" AND openpaint_installed_prefix)
+            add_custom_command(TARGET ${target_name} POST_BUILD
+                COMMAND powershell.exe -ExecutionPolicy Bypass -NoProfile -File
+                    "${openpaint_applocal_script}"
+                    "$<TARGET_FILE:${target_name}>"
+                    "${openpaint_installed_prefix}/$<IF:$<CONFIG:Debug>,debug/bin,bin>"
+                    "" ""
+                COMMENT "Copying runtime DLLs next to ${target_name}"
+            )
+        else()
+            add_custom_command(TARGET ${target_name} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy -t "$<TARGET_FILE_DIR:${target_name}>"
+                    $<TARGET_RUNTIME_DLLS:${target_name}>
+                COMMAND_EXPAND_LISTS
+                COMMENT "Copying runtime DLLs next to ${target_name}"
+            )
+        endif()
+    endif()
+endfunction()
+
 if(OPENPAINT_BUILD_APP)
     add_subdirectory(OpenPaint)
 endif()

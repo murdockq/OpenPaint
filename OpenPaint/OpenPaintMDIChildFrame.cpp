@@ -1,7 +1,6 @@
 #include "Globals.h"
 #include "OpenPaintMDIChildFrame.h"
 #include "BrushSamp.h"
-#include "res/draw-airbrush.xpm"
 
 #include "ToolManager.h"
 #include "SubMainFrame.h"

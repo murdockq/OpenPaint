@@ -8,6 +8,7 @@
 #include "ToolManager.h"
 
 #include <limits>
+#include <vector>
 
 #include <wx/filefn.h>
 #include <wx/image.h>
@@ -852,7 +853,7 @@ void SubMainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
     wxAboutDialogInfo info;
 
     info.SetName(wxT("OpenPaint"));
-    info.SetVersion(wxT("1.3.0"));
+    info.SetVersion(wxT("2.0.0"));
     info.SetDescription(wxT("The open alternative to classic painting."));
     info.SetCopyright(wxT("(C) 2007-2026 OpenPaint"));
     info.AddDeveloper(wxT("OpenPaint"));

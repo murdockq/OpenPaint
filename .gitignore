@@ -5,6 +5,7 @@
 /out/
 /cmake-build-*/
 *_build/
+build_*/
 
 # CMake generated files
 CMakeCache.txt

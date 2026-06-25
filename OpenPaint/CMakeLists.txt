@@ -12,8 +12,7 @@ if(wxWidgets_FOUND)
 else()
     find_package(wxWidgets REQUIRED MODULE COMPONENTS aui xml adv html core base)
     set(OPENPAINT_WX_TARGETS ${wxWidgets_LIBRARIES})
-    target_include_directories(openpaint PRIVATE ${wxWidgets_INCLUDE_DIRS})
-    target_compile_options(openpaint PRIVATE ${wxWidgets_CXX_FLAGS})
+    set(OPENPAINT_WX_MODULE_MODE TRUE)
 endif()
 
 set(OPENPAINT_SOURCES
@@ -87,11 +86,22 @@ list(APPEND OPENPAINT_HEADERS
     "${CMAKE_CURRENT_BINARY_DIR}/generated/IconPaths.h"
 )
 
+set(OPENPAINT_PLATFORM_SOURCES)
+if(WIN32)
+    list(APPEND OPENPAINT_PLATFORM_SOURCES OpenPaint.rc)
+endif()
+
 add_executable(openpaint WIN32
     ${OPENPAINT_SOURCES}
     ${OPENPAINT_HEADERS}
-    OpenPaint.rc
+    ${OPENPAINT_PLATFORM_SOURCES}
 )
+
+if(OPENPAINT_WX_MODULE_MODE)
+    target_include_directories(openpaint PRIVATE ${wxWidgets_INCLUDE_DIRS})
+    target_compile_definitions(openpaint PRIVATE ${wxWidgets_DEFINITIONS})
+    target_compile_options(openpaint PRIVATE ${wxWidgets_CXX_FLAGS})
+endif()
 
 target_include_directories(openpaint PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}

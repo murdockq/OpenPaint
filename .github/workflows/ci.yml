@@ -51,7 +51,13 @@ jobs:
 
       - name: Install wxWidgets (macOS)
         if: runner.os == 'macOS'
+        env:
+          HOMEBREW_NO_REQUIRE_TAP_TRUST: '1'
         run: brew install wxwidgets
+
+      - name: Set VCPKG_ROOT (Windows)
+        if: runner.os == 'Windows'
+        run: echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" >> $env:GITHUB_ENV
 
       - name: Cache vcpkg (Windows)
         if: runner.os == 'Windows'
@@ -70,7 +76,7 @@ jobs:
 
       - name: Configure CMake (Windows)
         if: runner.os == 'Windows'
-        run: cmake -B build -DOPENPAINT_BUILD_APP=ON -DOPENPAINT_BUILD_TESTS=OFF -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+        run: cmake -B build -DOPENPAINT_BUILD_APP=ON -DOPENPAINT_BUILD_TESTS=OFF -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
 
       - name: Build app
         run: cmake --build build --config Release

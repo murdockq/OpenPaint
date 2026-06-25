@@ -9,8 +9,10 @@ class ColorPairCtrl : public wxPanel
 protected:
     wxColour m_foreground;
     wxColour m_background;
+    wxColour m_alternate;
     int m_buttonSize;
     int m_offset;
+    int m_padding;
 
     void OnPaint( wxPaintEvent& event );
     void OnLeftDown( wxMouseEvent& event );
@@ -22,8 +24,10 @@ public:
 
     void SetFGColour( const wxColour& color );
     void SetBGColour( const wxColour& color );
+    void SetAltColour( const wxColour& color );
     wxColour GetFGColour() const { return m_foreground; }
     wxColour GetBGColour() const { return m_background; }
+    wxColour GetAltColour() const { return m_alternate; }
 };
 
 #endif // __ColorPairCtrl__

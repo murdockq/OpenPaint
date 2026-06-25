@@ -31,6 +31,7 @@ ToolManager::ToolManager()
     SetSelectedTool(TOOL_PENCIL);
     m_colorForeground = wxColour( 0, 0, 0 );
     m_colorBackground = wxColour( 255, 255, 255 );
+    m_colorAlternate = wxColour();
     m_brushRadius = 10;
     m_brushTip = 0; // round
 
@@ -182,15 +183,30 @@ void ToolManager::SetBackground(wxColour backgroundColor)
     }
 }
 
+wxColour ToolManager::GetAlternate()
+{
+    return m_colorAlternate;
+}
 
-wxColour ToolManager::PickColor(const wxColour& initialColor)
+void ToolManager::SetAlternate(wxColour alternateColor)
+{
+    m_colorAlternate = alternateColor;
+    if (SubColorPanel* p = Globals::Instance()->GetColorPanel())
+    {
+        p->UpdateColors();
+    }
+}
+
+
+wxColour ToolManager::PickColor(const wxColour& initialColor, bool preserveInvalidInitial)
 {
     // Default to the current foreground so cancelling the dialog is a no-op
     // rather than clobbering the colour with an invalid wxColour.
-    wxColour returnColor = initialColor.IsOk() ? initialColor : m_colorForeground;
+    wxColour dialogColor = initialColor.IsOk() ? initialColor : m_colorForeground;
+    wxColour returnColor = preserveInvalidInitial ? initialColor : dialogColor;
     wxColourData data;
     data.SetChooseFull(true);
-    data.SetColour(returnColor);
+    data.SetColour(dialogColor);
     for (int i = 0; i < 16; i++)
     {
         wxColour colour(i*16, i*16, i*16);

@@ -15,4 +15,5 @@ void SubColorPanel::UpdateColors()
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     m_colourPickerPair->SetFGColour(pToolManager->GetForeground());
     m_colourPickerPair->SetBGColour(pToolManager->GetBackground());
+    m_colourPickerPair->SetAltColour(pToolManager->GetAlternate());
 }

@@ -525,8 +525,8 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     ApplyToolCursor(i, j);
 
-    wxColour fColor = pToolManager->GetForeground();
-    wxColour bColor = pToolManager->GetBackground();
+    wxColour fColor = event.ControlDown() ? pToolManager->GetAlternate() : pToolManager->GetForeground();
+    wxColour bColor = event.ControlDown() ? pToolManager->GetAlternate() : pToolManager->GetBackground();
 
     if(m_bHasSelection)
     {
@@ -615,7 +615,7 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 SelectTool(i,j, MOUSE_BEGIN_DRAWING);
                 break;
             case TOOL_PICK_COLOR:
-                PickColorTool(i,j, true);
+                PickColorTool(i,j, true, event.ControlDown());
                 break;
             case TOOL_PENCIL:
                 PencilTool(i,j, fColor, MOUSE_BEGIN_DRAWING);
@@ -646,16 +646,16 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 CurveTool(i,j, fColor, MOUSE_BEGIN_DRAWING);
                 break;
             case TOOL_ELLIPSE:
-                EllipseTool(i,j, fColor, MOUSE_BEGIN_DRAWING);
+                EllipseTool(i,j, fColor, MOUSE_BEGIN_DRAWING, bColor);
                 break;
             case TOOL_RECTANGLE:
-                RectangleTool(i,j, fColor, MOUSE_BEGIN_DRAWING);
+                RectangleTool(i,j, fColor, MOUSE_BEGIN_DRAWING, false, bColor);
                 break;
             case TOOL_RECTANGLE_ROUNDED:
-                RectangleTool(i,j, fColor, MOUSE_BEGIN_DRAWING, true);
+                RectangleTool(i,j, fColor, MOUSE_BEGIN_DRAWING, true, bColor);
                 break;
             case TOOL_POLYGON:
-                PolygonTool(i,j, MOUSE_BEGIN_DRAWING);
+                PolygonTool(i,j, MOUSE_BEGIN_DRAWING, fColor, bColor);
                 break;
             case TOOL_SELECT_LASSO:
                 LassoSelectTool(i,j, MOUSE_BEGIN_DRAWING);
@@ -674,7 +674,7 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
         switch(pToolManager->GetSelectedTool())
         {
             case TOOL_POLYGON:
-                PolygonTool(i, j, MOUSE_FINISHED_DRAWING);
+                PolygonTool(i, j, MOUSE_FINISHED_DRAWING, fColor, bColor);
                 break;
             case TOOL_SELECT_LASSO:
                 LassoSelectTool(i, j, MOUSE_FINISHED_DRAWING);
@@ -710,16 +710,16 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 CurveTool(i,j, fColor, MOUSE_CONTINUE_DRAWING);
                 break;
             case TOOL_ELLIPSE:
-                EllipseTool(i,j, fColor, MOUSE_CONTINUE_DRAWING);
+                EllipseTool(i,j, fColor, MOUSE_CONTINUE_DRAWING, bColor);
                 break;
             case TOOL_RECTANGLE:
-                RectangleTool(i,j, fColor, MOUSE_CONTINUE_DRAWING);
+                RectangleTool(i,j, fColor, MOUSE_CONTINUE_DRAWING, false, bColor);
                 break;
             case TOOL_RECTANGLE_ROUNDED:
-                RectangleTool(i,j, fColor, MOUSE_CONTINUE_DRAWING, true);
+                RectangleTool(i,j, fColor, MOUSE_CONTINUE_DRAWING, true, bColor);
                 break;
             case TOOL_POLYGON:
-                PolygonTool(i,j, MOUSE_CONTINUE_DRAWING);
+                PolygonTool(i,j, MOUSE_CONTINUE_DRAWING, fColor, bColor);
                 break;
             case TOOL_SELECT_LASSO:
                 LassoSelectTool(i,j, MOUSE_CONTINUE_DRAWING);
@@ -746,13 +746,13 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 CurveTool(i,j, fColor, MOUSE_FINISHED_DRAWING);
                 break;
             case TOOL_ELLIPSE:
-                EllipseTool(i,j, fColor, MOUSE_FINISHED_DRAWING);
+                EllipseTool(i,j, fColor, MOUSE_FINISHED_DRAWING, bColor);
                 break;
             case TOOL_RECTANGLE:
-                RectangleTool(i,j, fColor, MOUSE_FINISHED_DRAWING);
+                RectangleTool(i,j, fColor, MOUSE_FINISHED_DRAWING, false, bColor);
                 break;
             case TOOL_RECTANGLE_ROUNDED:
-                RectangleTool(i,j, fColor, MOUSE_FINISHED_DRAWING, true);
+                RectangleTool(i,j, fColor, MOUSE_FINISHED_DRAWING, true, bColor);
                 break;
         }
     }
@@ -761,7 +761,7 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
         switch(pToolManager->GetSelectedTool())
         {
             case TOOL_POLYGON:
-                PolygonTool(i,j, MOUSE_CONTINUE_DRAWING);
+                PolygonTool(i,j, MOUSE_CONTINUE_DRAWING, fColor, bColor);
                 break;
             default:
                 break;
@@ -773,7 +773,7 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
         switch(pToolManager->GetSelectedTool())
         {
             case TOOL_PICK_COLOR:
-                PickColorTool(i,j, false);
+                PickColorTool(i,j, false, event.ControlDown());
                 break;
             case TOOL_PENCIL:
                 PencilTool(i,j, bColor, MOUSE_BEGIN_DRAWING);
@@ -1537,7 +1537,7 @@ void OpenPaintMDIChildFrame::FillTool(int x, int y, wxColour color)
 // any non-trivial region. Removed. The active flood fill is performed by
 // wxMemoryDC::FloodFill inside the single-arg FillTool() overload.
 
-void OpenPaintMDIChildFrame::PickColorTool(int x, int y, bool bIsForeground)
+void OpenPaintMDIChildFrame::PickColorTool(int x, int y, bool bIsForeground, bool bIsAlternate)
 {
     // The user may click outside the canvas (margin, scrollbar area, etc.).
     // Clamp to the image bounds so we don't read past the buffer.
@@ -1550,7 +1550,11 @@ void OpenPaintMDIChildFrame::PickColorTool(int x, int y, bool bIsForeground)
 
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
 
-    if(bIsForeground)
+    if(bIsAlternate)
+    {
+        pToolManager->SetAlternate(colorPicked);
+    }
+    else if(bIsForeground)
     {
         pToolManager->SetForeground(colorPicked);
     }
@@ -1897,7 +1901,7 @@ void OpenPaintMDIChildFrame::CurveTool(int x, int y, wxColour color, MouseStatus
     }
 }
 
-void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStatus drawState)
+void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStatus drawState, wxColour fillColor)
 {
     if(drawState == MOUSE_BEGIN_DRAWING)
     {
@@ -1908,6 +1912,10 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
     }
 
     ToolManager* tm = Globals::Instance()->GetToolManager();
+    if (!fillColor.IsOk())
+    {
+        fillColor = tm->GetBackground();
+    }
     int penWidth = tm->GetShapeLineWidth();
     if (penWidth < 1) penWidth = 1;
     m_previewTool = TOOL_ELLIPSE;
@@ -1926,7 +1934,7 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
         memDC.SetPen(wxPen(color, penWidth, wxPENSTYLE_SOLID));
         if (tm->GetShapesFilled())
         {
-            memDC.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
+            memDC.SetBrush(wxBrush(fillColor, wxBRUSHSTYLE_SOLID));
         }
         else
         {
@@ -1940,7 +1948,7 @@ void OpenPaintMDIChildFrame::EllipseTool(int x, int y, wxColour color, MouseStat
     }
 }
 
-void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseStatus drawState, bool bIsRounded)
+void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseStatus drawState, bool bIsRounded, wxColour fillColor)
 {
     if(drawState == MOUSE_BEGIN_DRAWING)
     {
@@ -1951,6 +1959,10 @@ void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseSt
     }
 
     ToolManager* tm = Globals::Instance()->GetToolManager();
+    if (!fillColor.IsOk())
+    {
+        fillColor = tm->GetBackground();
+    }
     int penWidth = tm->GetShapeLineWidth();
     if (penWidth < 1) penWidth = 1;
     m_previewTool = bIsRounded ? TOOL_RECTANGLE_ROUNDED : TOOL_RECTANGLE;
@@ -1969,7 +1981,7 @@ void OpenPaintMDIChildFrame::RectangleTool(int x, int y, wxColour color, MouseSt
         memDC.SetPen(wxPen(color, penWidth, wxPENSTYLE_SOLID));
         if (tm->GetShapesFilled())
         {
-            memDC.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
+            memDC.SetBrush(wxBrush(fillColor, wxBRUSHSTYLE_SOLID));
         }
         else
         {
@@ -2039,10 +2051,17 @@ void OpenPaintMDIChildFrame::SelectTool(int x, int y, MouseStatus drawState)
     }
 }
 
-void OpenPaintMDIChildFrame::PolygonTool(int x, int y, MouseStatus drawState)
+void OpenPaintMDIChildFrame::PolygonTool(int x, int y, MouseStatus drawState, wxColour color, wxColour fillColor)
 {
     ToolManager* tm = Globals::Instance()->GetToolManager();
-    wxColour color = tm->GetForeground();
+    if (!color.IsOk())
+    {
+        color = tm->GetForeground();
+    }
+    if (!fillColor.IsOk())
+    {
+        fillColor = tm->GetBackground();
+    }
     int penWidth = tm->GetShapeLineWidth();
     if (penWidth < 1) penWidth = 1;
     m_previewTool = TOOL_POLYGON;
@@ -2102,7 +2121,7 @@ void OpenPaintMDIChildFrame::PolygonTool(int x, int y, MouseStatus drawState)
         memDC.SetPen(wxPen(color, penWidth, wxPENSTYLE_SOLID));
         if (tm->GetShapesFilled() && m_drawLine.size() >= 3)
         {
-            memDC.SetBrush(wxBrush(tm->GetBackground(), wxBRUSHSTYLE_SOLID));
+            memDC.SetBrush(wxBrush(fillColor, wxBRUSHSTYLE_SOLID));
             memDC.DrawPolygon(static_cast<int>(m_drawLine.size()), &m_drawLine[0]);
         }
         else

@@ -62,6 +62,13 @@ void PaletteCtrl::OnPalette( wxMouseEvent& event )
     }
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
 
+    if(event.ControlDown())
+    {
+        pToolManager->SetAlternate(eventWindow->GetBackgroundColour());
+        Refresh();
+        return;
+    }
+
     if(event.GetEventType() == wxEVT_LEFT_DCLICK)
     {
         pToolManager->SetForeground(pToolManager->PickColor(pToolManager->GetForeground()));
@@ -84,6 +91,12 @@ void PaletteCtrl::OnForeground( wxMouseEvent& event )
         return;
     }
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
+
+    if( event.ControlDown() )
+    {
+        pToolManager->SetAlternate(eventWindow->GetBackgroundColour());
+        return;
+    }
 
     if( m_bPickerMode )
     {
@@ -112,5 +125,10 @@ void PaletteCtrl::OnBackground( wxMouseEvent& event )
         return;
     }
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
+    if( event.ControlDown() )
+    {
+        pToolManager->SetAlternate(eventWindow->GetBackgroundColour());
+        return;
+    }
     pToolManager->SetBackground(eventWindow->GetBackgroundColour());
 }

@@ -55,6 +55,7 @@ class ToolManager
         ToolType m_eSelectedTool;
         wxColour m_colorForeground;
         wxColour m_colorBackground;
+        wxColour m_colorAlternate;
 
         // Brush settings driven by the BrushToolPanel UI; BrushTool reads the
         // radius at draw time so the spinner/tip combobox actually affect
@@ -96,7 +97,9 @@ class ToolManager
         void SetForeground(wxColour foregroundColor);
         wxColour GetBackground();
         void SetBackground(wxColour backgroundColor);
-        wxColour PickColor(const wxColour& initialColor = wxColour());
+        wxColour GetAlternate();
+        void SetAlternate(wxColour alternateColor);
+        wxColour PickColor(const wxColour& initialColor = wxColour(), bool preserveInvalidInitial = false);
 
         // Brush settings
         int GetBrushRadius() const { return m_brushRadius; }

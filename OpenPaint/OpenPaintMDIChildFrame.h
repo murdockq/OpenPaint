@@ -128,7 +128,7 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void RefreshToolPreview();
 
         
-        void PickColorTool(int x, int y, bool bIsForeground=true);
+        void PickColorTool(int x, int y, bool bIsForeground=true, bool bIsAlternate=false);
         void PencilTool(int x, int y, wxColour color, MouseStatus drawState);
         void BrushTool(int x, int y, wxColour color, MouseStatus drawState);
         // Renders a single brush "stamp" at (x, y) using the current
@@ -148,9 +148,9 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void DrawCurvePath(wxDC& dc, const wxPoint& start, const wxPoint& control1,
                            const wxPoint& control2, const wxPoint& end);
         void DrawCurvePreview(wxDC& dc);
-        void EllipseTool(int x, int y, wxColour color, MouseStatus drawState);
-        void RectangleTool(int x, int y, wxColour color, MouseStatus drawState, bool bIsRounded = false);
-        void PolygonTool(int x, int y, MouseStatus drawState);
+        void EllipseTool(int x, int y, wxColour color, MouseStatus drawState, wxColour fillColor = wxColour());
+        void RectangleTool(int x, int y, wxColour color, MouseStatus drawState, bool bIsRounded = false, wxColour fillColor = wxColour());
+        void PolygonTool(int x, int y, MouseStatus drawState, wxColour color = wxColour(), wxColour fillColor = wxColour());
         void SelectTool(int x, int y, MouseStatus drawState);
         void LassoSelectTool(int x, int y, MouseStatus drawState);
         void TextTool(int x, int y, wxColour color);

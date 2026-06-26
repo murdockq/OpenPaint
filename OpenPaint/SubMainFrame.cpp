@@ -93,6 +93,9 @@ SubMainFrame::~SubMainFrame()
 {
     // The AUI manager is owned by us and must be uninitialised and freed,
     // otherwise we leak the manager (and every pane it owns) on shutdown.
+    // MDI children are closed in OnClose() before this destructor runs,
+    // so by the time we get here the wxAuiNotebook has no pages and its
+    // teardown does not try to dereference already-destroyed MDI children.
     if (m_mAuiManager)
     {
         m_mAuiManager->UnInit();
@@ -824,6 +827,32 @@ void SubMainFrame::OnClose( wxCloseEvent& event )
     // platform can crash before OnExit()/~Globals() runs, so writing the
     // file here guarantees settings are not lost.
     Globals::Instance()->GetConfig()->Save();
+
+    // Close every MDI child up front. The base wxAuiMDIParentFrame
+    // destructor tears the wxAuiNotebook down before the MDI children
+    // run, and each MDI child's destructor then tries to remove its
+    // page from the now-defunct notebook, which segfaults inside
+    // wxAuiNotebook::RemoveEmptyTabFrames on Linux GTK. Closing them
+    // here (while the notebook is still healthy) avoids the race.
+    // GetActiveChild() only returns the focused tab, and the MDI
+    // children are pages of the wxAuiNotebook rather than direct
+    // children of the client window, so walk the notebook's pages to
+    // catch every MDI child including ones that were created but never
+    // activated.
+    if (wxAuiNotebook* notebook = this->GetNotebook())
+    {
+        const size_t pageCount = notebook->GetPageCount();
+        for (size_t i = pageCount; i > 0; --i)
+        {
+            OpenPaintMDIChildFrame* child =
+                wxDynamicCast(notebook->GetPage(i - 1),
+                              OpenPaintMDIChildFrame);
+            if (child && !child->Close())
+            {
+                child->Destroy();
+            }
+        }
+    }
 
     // Hide the window synchronously so it disappears the instant the user
     // clicks close. Destroy() is deferred to the next idle event, and the

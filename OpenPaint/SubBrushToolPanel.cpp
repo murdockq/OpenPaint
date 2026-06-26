@@ -5,11 +5,9 @@
 SubBrushToolPanel::SubBrushToolPanel( wxWindow* parent )
     : BrushToolPanel( parent )
 {
-    // Seed the controls with the current ToolManager state so the UI
-    // reflects the same brush settings that BrushTool will read.
     ToolManager* tm = Globals::Instance()->GetToolManager();
     m_spinCtrlRadius->SetValue(tm->GetBrushRadius());
-    m_comboBoxTip->SetSelection(tm->GetBrushTip());
+    SelectTip(tm->GetBrushTip());
 }
 
 void SubBrushToolPanel::OnWidth( wxSpinEvent& event )
@@ -19,6 +17,16 @@ void SubBrushToolPanel::OnWidth( wxSpinEvent& event )
 
 void SubBrushToolPanel::OnTip( wxCommandEvent& event )
 {
-    Globals::Instance()->GetToolManager()->SetBrushTip(m_comboBoxTip->GetSelection());
+    int tip = 0;
+    switch (event.GetId())
+    {
+    case IDX_BRUSH_TIP_ROUND:  tip = 0; break;
+    case IDX_BRUSH_TIP_SQUARE: tip = 1; break;
+    case IDX_BRUSH_TIP_VLINE:  tip = 2; break;
+    case IDX_BRUSH_TIP_HLINE:  tip = 3; break;
+    default: return;
+    }
+    Globals::Instance()->GetToolManager()->SetBrushTip(tip);
+    SelectTip(tip);
 }
 

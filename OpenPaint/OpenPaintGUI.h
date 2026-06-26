@@ -97,6 +97,11 @@ class wxAuiMDIParentFrame;
 #define IDX_TOOL_CURVE 1048
 #define IDX_TOOL_POLYGON 1049
 
+#define IDX_BRUSH_TIP_ROUND  2500
+#define IDX_BRUSH_TIP_SQUARE 2501
+#define IDX_BRUSH_TIP_VLINE  2502
+#define IDX_BRUSH_TIP_HLINE  2503
+
 ///////////////////////////////////////////////////////////////////////////////
 /// Class MainFrame
 ///////////////////////////////////////////////////////////////////////////////
@@ -292,12 +297,18 @@ class BrushToolPanel : public wxPanel
 		wxStaticText* m_staticText1;
 		wxSpinCtrl* m_spinCtrlRadius;
 		wxStaticText* m_staticText2;
-		wxComboBox* m_comboBoxTip;
+		wxBitmapButton* m_btnTipRound;
+		wxBitmapButton* m_btnTipSquare;
+		wxBitmapButton* m_btnTipVLine;
+		wxBitmapButton* m_btnTipHLine;
+		int m_selectedTip;
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnWidth( wxSpinEvent& event ){ event.Skip(); }
 		virtual void OnTip( wxCommandEvent& event ){ event.Skip(); }
 
+		void SelectTip(int tip);
+		static wxBitmap CreateTipBitmap(int tip, int size);
 
 	public:
 
@@ -414,7 +425,7 @@ class TextToolPanel : public wxPanel
 
 	protected:
 		wxStaticText* m_staticTextFont;
-		wxTextCtrl* m_textCtrlFont;
+		wxButton* m_textCtrlFont;
 		wxStaticText* m_staticTextSize;
 		wxSpinCtrl* m_spinCtrlSize;
 		wxCheckBox* m_checkBoxBold;

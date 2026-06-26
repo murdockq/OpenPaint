@@ -123,6 +123,14 @@ void SubMainFrame::Init()
 
     SubToolPanel * panelTool = new SubToolPanel(this);
     m_mAuiManager->AddPane(panelTool, wxLEFT, wxT("Tools"));
+    // Clamp the pane's best width to the tool-button grid so the
+    // tool-properties panel doesn't stretch the pane on first show.
+    {
+        wxAuiPaneInfo& toolPane = m_mAuiManager->GetPane(panelTool);
+        int gridW = panelTool->GetToolGridWidth();
+        if (gridW > 0 && toolPane.best_size.x > gridW)
+            toolPane.BestSize(gridW, toolPane.best_size.y);
+    }
     Globals::Instance()->SetToolPanel(panelTool);
 
     SubColorPanel * panelColor = new SubColorPanel( this);

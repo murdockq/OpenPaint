@@ -17,13 +17,25 @@ SubToolPanel::SubToolPanel( wxWindow* parent )
 :
 ToolPanel( parent )
 {
-    //wxBitmap m_SmallBitmap = wxICON( IDI_ICON_COLOR_FILL );
-    //if ( m_SmallBitmap.Ok() )
-    //{
-    //    wxImage m_SmallImage = m_SmallBitmap.ConvertToImage();
-    //    m_SmallImage = m_SmallImage.Scale( 22, 22);
-    //    m_bpButtonFill->SetBitmapLabel(wxBitmap(m_SmallImage));
-    //}
+    // The base-class constructor calls Fit(), which sizes this panel to
+    // the two-column tool-button grid. Capture that width before adding
+    // the (wider) tool-properties panel so we can clamp everything to it.
+    m_toolGridWidth = GetSize().GetWidth();
+
+    ClearToolProperties();
+    AddToolPropertiesPanel(new SubPencilToolPanel(this));
+    m_bpButtonPencil->Enable(false);
+
+    // Prevent the properties content from stretching the pane wider than
+    // the button grid. Setting max size on the panel, the static box, and
+    // each added sub-panel covers the sizer layout, the static-box frame,
+    // and the AUI pane sizing.
+    if (m_toolGridWidth > 0)
+    {
+        SetMaxSize(wxSize(m_toolGridWidth, -1));
+        m_sbSizerToolProperties->GetStaticBox()->SetMaxSize(
+            wxSize(m_toolGridWidth, -1));
+    }
 }
 
 void SubToolPanel::EnableTools()
@@ -86,6 +98,10 @@ void SubToolPanel::UpdateToolPropertiesLayout()
     {
         wxAuiPaneInfo& pane = aui->GetPane(this);
         pane.best_size = GetBestSize();
+        // Clamp the pane width to the button grid so switching tools
+        // doesn't widen the pane beyond the two-column button layout.
+        if (m_toolGridWidth > 0 && pane.best_size.x > m_toolGridWidth)
+            pane.best_size.x = m_toolGridWidth;
         aui->Update();
     }
 }
@@ -97,6 +113,13 @@ void SubToolPanel::AddToolPropertiesPanel(wxWindow* panel)
     // actually visible inside the tool-properties box.
     panel->Show();
     m_sbSizerToolProperties->Add(panel);
+
+    // Clamp the properties panel width to the tool-button grid so the
+    // tool pane doesn't stretch wider than its two-column button layout.
+    if (m_toolGridWidth > 0)
+    {
+        panel->SetMaxSize(wxSize(m_toolGridWidth, -1));
+    }
 }
 
 void SubToolPanel::OnPickColor( wxCommandEvent& event )

@@ -20,6 +20,7 @@
 #include "PaletteCtrl.h"
 #include "ColorPairCtrl.h"
 
+#include "BrushSamp.h"
 #include "IconLoader.h"
 #include "OpenPaintGUI.h"
 
@@ -750,7 +751,42 @@ ToolPanel::~ToolPanel()
 	m_bpButtonSelectLasso->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanel::OnSelectLasso ), NULL, this );
 }
 
-BrushToolPanel::BrushToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
+namespace
+{
+    const int BRUSH_TIP_BTN_SIZE = 28;
+    const int BRUSH_TIP_PREVIEW_RADIUS = 4;
+}
+
+wxBitmap BrushToolPanel::CreateTipBitmap(int tip, int size)
+{
+    wxBitmap bmp(size, size);
+    wxMemoryDC dc(bmp);
+    dc.SetBackground(*wxLIGHT_GREY_BRUSH);
+    dc.Clear();
+    dc.SetBrush(*wxBLACK_BRUSH);
+    int cx = size / 2;
+    int cy = size / 2;
+    StampBrushTip(dc, cx, cy, BRUSH_TIP_PREVIEW_RADIUS, tip);
+    dc.SelectObject(wxNullBitmap);
+    return bmp;
+}
+
+void BrushToolPanel::SelectTip(int tip)
+{
+    if (tip < 0) tip = 0;
+    if (tip > 3) tip = 3;
+    m_selectedTip = tip;
+
+    wxColour selCol = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+    wxColour defCol = wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE);
+
+    m_btnTipRound->SetBackgroundColour(tip == 0 ? selCol : defCol);
+    m_btnTipSquare->SetBackgroundColour(tip == 1 ? selCol : defCol);
+    m_btnTipVLine->SetBackgroundColour(tip == 2 ? selCol : defCol);
+    m_btnTipHLine->SetBackgroundColour(tip == 3 ? selCol : defCol);
+}
+
+BrushToolPanel::BrushToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style ), m_selectedTip(0)
 {
 	this->Hide();
 	
@@ -777,12 +813,24 @@ BrushToolPanel::BrushToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& 
 	m_staticText2->Wrap( -1 );
 	fgSizer4->Add( m_staticText2, 0, wxALL|wxEXPAND, 5 );
 
-	m_comboBoxTip = new wxComboBox( this, wxID_ANY, _("Round"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY );
-	m_comboBoxTip->Append( _("Round") );
-	m_comboBoxTip->Append( _("Square") );
-	m_comboBoxTip->Append( _("Vertical Line") );
-	m_comboBoxTip->Append( _("Horizontal Line") );
-	fgSizer4->Add( m_comboBoxTip, 0, wxALL|wxEXPAND, 5 );
+	wxGridSizer* tipGrid = new wxGridSizer( 4, 1, 2, 2 );
+	wxSize btnSize(BRUSH_TIP_BTN_SIZE, BRUSH_TIP_BTN_SIZE);
+
+	wxBitmap bmpRound   = CreateTipBitmap(0, BRUSH_TIP_BTN_SIZE);
+	wxBitmap bmpSquare  = CreateTipBitmap(1, BRUSH_TIP_BTN_SIZE);
+	wxBitmap bmpVLine   = CreateTipBitmap(2, BRUSH_TIP_BTN_SIZE);
+	wxBitmap bmpHLine   = CreateTipBitmap(3, BRUSH_TIP_BTN_SIZE);
+
+	m_btnTipRound  = new wxBitmapButton( this, IDX_BRUSH_TIP_ROUND,  bmpRound,  wxDefaultPosition, btnSize, wxBU_AUTODRAW );
+	m_btnTipSquare = new wxBitmapButton( this, IDX_BRUSH_TIP_SQUARE, bmpSquare, wxDefaultPosition, btnSize, wxBU_AUTODRAW );
+	m_btnTipVLine  = new wxBitmapButton( this, IDX_BRUSH_TIP_VLINE,  bmpVLine,  wxDefaultPosition, btnSize, wxBU_AUTODRAW );
+	m_btnTipHLine  = new wxBitmapButton( this, IDX_BRUSH_TIP_HLINE,  bmpHLine,  wxDefaultPosition, btnSize, wxBU_AUTODRAW );
+
+	tipGrid->Add( m_btnTipRound,  0, wxALL, 2 );
+	tipGrid->Add( m_btnTipSquare, 0, wxALL, 2 );
+	tipGrid->Add( m_btnTipVLine,  0, wxALL, 2 );
+	tipGrid->Add( m_btnTipHLine,  0, wxALL, 2 );
+	fgSizer4->Add( tipGrid, 0, wxALL|wxEXPAND, 5 );
 
 	bSizer3->Add( fgSizer4, 1, wxEXPAND, 5 );
 	
@@ -791,14 +839,20 @@ BrushToolPanel::BrushToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& 
 	
 	// Connect Events
 	m_spinCtrlRadius->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( BrushToolPanel::OnWidth ), NULL, this );
-	m_comboBoxTip->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
+	m_btnTipRound->Connect(  wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
+	m_btnTipSquare->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
+	m_btnTipVLine->Connect(  wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
+	m_btnTipHLine->Connect(  wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
 }
 
 BrushToolPanel::~BrushToolPanel()
 {
 	// Disconnect Events
 	m_spinCtrlRadius->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( BrushToolPanel::OnWidth ), NULL, this );
-	m_comboBoxTip->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
+	m_btnTipRound->Disconnect(  wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
+	m_btnTipSquare->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
+	m_btnTipVLine->Disconnect(  wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
+	m_btnTipHLine->Disconnect(  wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
 }
 
 PencilToolPanel::PencilToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
@@ -951,7 +1005,7 @@ TextToolPanel::TextToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& po
 	m_staticTextFont->Wrap( -1 );
 	fg->Add( m_staticTextFont, 0, wxALL|wxEXPAND, 5 );
 
-	m_textCtrlFont = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrlFont = new wxButton( this, wxID_ANY, _("Font..."), wxDefaultPosition, wxDefaultSize, 0 );
 	fg->Add( m_textCtrlFont, 0, wxALL|wxEXPAND, 5 );
 
 	m_staticTextSize = new wxStaticText( this, wxID_ANY, _("Size"), wxDefaultPosition, wxDefaultSize, 0 );
@@ -974,7 +1028,7 @@ TextToolPanel::TextToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& po
 	this->SetSizer( bSizer );
 	this->Layout();
 
-	m_textCtrlFont->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( TextToolPanel::OnFont ), NULL, this );
+	m_textCtrlFont->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TextToolPanel::OnFont ), NULL, this );
 	m_spinCtrlSize->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( TextToolPanel::OnSize ), NULL, this );
 	m_checkBoxBold->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnBold ), NULL, this );
 	m_checkBoxItalic->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnItalic ), NULL, this );
@@ -983,7 +1037,7 @@ TextToolPanel::TextToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& po
 
 TextToolPanel::~TextToolPanel()
 {
-	m_textCtrlFont->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( TextToolPanel::OnFont ), NULL, this );
+	m_textCtrlFont->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TextToolPanel::OnFont ), NULL, this );
 	m_spinCtrlSize->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( TextToolPanel::OnSize ), NULL, this );
 	m_checkBoxBold->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnBold ), NULL, this );
 	m_checkBoxItalic->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnItalic ), NULL, this );

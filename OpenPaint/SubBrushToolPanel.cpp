@@ -1,18 +1,19 @@
 #include "SubBrushToolPanel.h"
 #include "Globals.h"
+#include "SizePicker.h"
 #include "ToolManager.h"
 
 SubBrushToolPanel::SubBrushToolPanel( wxWindow* parent )
     : BrushToolPanel( parent )
 {
     ToolManager* tm = Globals::Instance()->GetToolManager();
-    m_spinCtrlRadius->SetValue(tm->GetBrushRadius());
+    m_sizePicker->SetValue(tm->GetBrushRadius());
     SelectTip(tm->GetBrushTip());
 }
 
 void SubBrushToolPanel::OnWidth( wxSpinEvent& event )
 {
-    Globals::Instance()->GetToolManager()->SetBrushRadius(m_spinCtrlRadius->GetValue());
+    Globals::Instance()->GetToolManager()->SetBrushRadius(m_sizePicker->GetValue());
 }
 
 void SubBrushToolPanel::OnTip( wxCommandEvent& event )

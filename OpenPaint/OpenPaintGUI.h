@@ -14,6 +14,7 @@
 
 class PaletteCtrl;
 class ColorPairCtrl;
+class SizePickerButton;
 class wxAuiMDIParentFrame;
 
 #include "wx/aui/aui.h"
@@ -295,7 +296,7 @@ class BrushToolPanel : public wxPanel
 
 	protected:
 		wxStaticText* m_staticText1;
-		wxSpinCtrl* m_spinCtrlRadius;
+		SizePickerButton* m_sizePicker;
 		wxStaticText* m_staticText2;
 		wxBitmapButton* m_btnTipRound;
 		wxBitmapButton* m_btnTipSquare;
@@ -328,7 +329,7 @@ class PencilToolPanel : public wxPanel
 
 	protected:
 		wxStaticText* m_staticTextSize;
-		wxSpinCtrl* m_spinCtrlSize;
+		SizePickerButton* m_sizePicker;
 
 		// Virtual event handlers
 		virtual void OnSize( wxSpinEvent& event ){ event.Skip(); }
@@ -351,7 +352,7 @@ class EraserToolPanel : public wxPanel
 
 	protected:
 		wxStaticText* m_staticTextSize;
-		wxSpinCtrl* m_spinCtrlSize;
+		SizePickerButton* m_sizePicker;
 
 		// Virtual event handlers
 		virtual void OnSize( wxSpinEvent& event ){ event.Skip(); }
@@ -374,7 +375,7 @@ class SprayCanToolPanel : public wxPanel
 
 	protected:
 		wxStaticText* m_staticTextSize;
-		wxSpinCtrl* m_spinCtrlSize;
+		SizePickerButton* m_sizePicker;
 
 		// Virtual event handlers
 		virtual void OnSize( wxSpinEvent& event ){ event.Skip(); }
@@ -398,7 +399,7 @@ class ShapeToolPanel : public wxPanel
 
 	protected:
 		wxStaticText* m_staticTextWidth;
-		wxSpinCtrl* m_spinCtrlWidth;
+		SizePickerButton* m_sizePicker;
 		wxCheckBox* m_checkBoxFilled;
 
 		// Virtual event handlers
@@ -427,7 +428,7 @@ class TextToolPanel : public wxPanel
 		wxStaticText* m_staticTextFont;
 		wxButton* m_textCtrlFont;
 		wxStaticText* m_staticTextSize;
-		wxSpinCtrl* m_spinCtrlSize;
+		SizePickerButton* m_sizePicker;
 		wxCheckBox* m_checkBoxBold;
 		wxCheckBox* m_checkBoxItalic;
 		wxCheckBox* m_checkBoxUnderline;

@@ -23,6 +23,7 @@
 #include "BrushSamp.h"
 #include "IconLoader.h"
 #include "OpenPaintGUI.h"
+#include "SizePicker.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -806,8 +807,8 @@ BrushToolPanel::BrushToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& 
 	m_staticText1->Wrap( -1 );
 	fgSizer4->Add( m_staticText1, 0, wxALL|wxEXPAND, 5 );
 
-	m_spinCtrlRadius = new wxSpinCtrl( this, wxID_ANY, wxT("10"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 10 );
-	fgSizer4->Add( m_spinCtrlRadius, 0, wxALL|wxEXPAND, 5 );
+	m_sizePicker = new SizePickerButton( this, wxID_ANY, 10, 1, 100, _("Radius") );
+	fgSizer4->Add( m_sizePicker, 0, wxALL|wxEXPAND, 5 );
 
 	m_staticText2 = new wxStaticText( this, wxID_ANY, _("Tip"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText2->Wrap( -1 );
@@ -838,7 +839,7 @@ BrushToolPanel::BrushToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& 
 	this->Layout();
 	
 	// Connect Events
-	m_spinCtrlRadius->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( BrushToolPanel::OnWidth ), NULL, this );
+	m_sizePicker->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( BrushToolPanel::OnWidth ), NULL, this );
 	m_btnTipRound->Connect(  wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
 	m_btnTipSquare->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
 	m_btnTipVLine->Connect(  wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
@@ -848,7 +849,7 @@ BrushToolPanel::BrushToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& 
 BrushToolPanel::~BrushToolPanel()
 {
 	// Disconnect Events
-	m_spinCtrlRadius->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( BrushToolPanel::OnWidth ), NULL, this );
+	m_sizePicker->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( BrushToolPanel::OnWidth ), NULL, this );
 	m_btnTipRound->Disconnect(  wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
 	m_btnTipSquare->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
 	m_btnTipVLine->Disconnect(  wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( BrushToolPanel::OnTip ), NULL, this );
@@ -872,19 +873,19 @@ PencilToolPanel::PencilToolPanel( wxWindow* parent, wxWindowID id, const wxPoint
 	m_staticTextSize->Wrap( -1 );
 	fg->Add( m_staticTextSize, 0, wxALL|wxEXPAND, 5 );
 
-	m_spinCtrlSize = new wxSpinCtrl( this, wxID_ANY, wxT("1"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 30, 1 );
-	fg->Add( m_spinCtrlSize, 0, wxALL|wxEXPAND, 5 );
+	m_sizePicker = new SizePickerButton( this, wxID_ANY, 1, 1, 30, _("Size") );
+	fg->Add( m_sizePicker, 0, wxALL|wxEXPAND, 5 );
 
 	bSizer->Add( fg, 1, wxEXPAND, 5 );
 	this->SetSizer( bSizer );
 	this->Layout();
 
-	m_spinCtrlSize->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( PencilToolPanel::OnSize ), NULL, this );
+	m_sizePicker->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( PencilToolPanel::OnSize ), NULL, this );
 }
 
 PencilToolPanel::~PencilToolPanel()
 {
-	m_spinCtrlSize->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( PencilToolPanel::OnSize ), NULL, this );
+	m_sizePicker->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( PencilToolPanel::OnSize ), NULL, this );
 }
 
 EraserToolPanel::EraserToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
@@ -904,19 +905,19 @@ EraserToolPanel::EraserToolPanel( wxWindow* parent, wxWindowID id, const wxPoint
 	m_staticTextSize->Wrap( -1 );
 	fg->Add( m_staticTextSize, 0, wxALL|wxEXPAND, 5 );
 
-	m_spinCtrlSize = new wxSpinCtrl( this, wxID_ANY, wxT("5"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 50, 5 );
-	fg->Add( m_spinCtrlSize, 0, wxALL|wxEXPAND, 5 );
+	m_sizePicker = new SizePickerButton( this, wxID_ANY, 5, 1, 50, _("Size") );
+	fg->Add( m_sizePicker, 0, wxALL|wxEXPAND, 5 );
 
 	bSizer->Add( fg, 1, wxEXPAND, 5 );
 	this->SetSizer( bSizer );
 	this->Layout();
 
-	m_spinCtrlSize->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( EraserToolPanel::OnSize ), NULL, this );
+	m_sizePicker->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( EraserToolPanel::OnSize ), NULL, this );
 }
 
 EraserToolPanel::~EraserToolPanel()
 {
-	m_spinCtrlSize->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( EraserToolPanel::OnSize ), NULL, this );
+	m_sizePicker->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( EraserToolPanel::OnSize ), NULL, this );
 }
 
 SprayCanToolPanel::SprayCanToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
@@ -936,19 +937,19 @@ SprayCanToolPanel::SprayCanToolPanel( wxWindow* parent, wxWindowID id, const wxP
 	m_staticTextSize->Wrap( -1 );
 	fg->Add( m_staticTextSize, 0, wxALL|wxEXPAND, 5 );
 
-	m_spinCtrlSize = new wxSpinCtrl( this, wxID_ANY, wxT("10"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 50, 10 );
-	fg->Add( m_spinCtrlSize, 0, wxALL|wxEXPAND, 5 );
+	m_sizePicker = new SizePickerButton( this, wxID_ANY, 10, 1, 50, _("Size") );
+	fg->Add( m_sizePicker, 0, wxALL|wxEXPAND, 5 );
 
 	bSizer->Add( fg, 1, wxEXPAND, 5 );
 	this->SetSizer( bSizer );
 	this->Layout();
 
-	m_spinCtrlSize->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( SprayCanToolPanel::OnSize ), NULL, this );
+	m_sizePicker->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( SprayCanToolPanel::OnSize ), NULL, this );
 }
 
 SprayCanToolPanel::~SprayCanToolPanel()
 {
-	m_spinCtrlSize->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( SprayCanToolPanel::OnSize ), NULL, this );
+	m_sizePicker->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( SprayCanToolPanel::OnSize ), NULL, this );
 }
 
 ShapeToolPanel::ShapeToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
@@ -968,8 +969,8 @@ ShapeToolPanel::ShapeToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& 
 	m_staticTextWidth->Wrap( -1 );
 	fg->Add( m_staticTextWidth, 0, wxALL|wxEXPAND, 5 );
 
-	m_spinCtrlWidth = new wxSpinCtrl( this, wxID_ANY, wxT("1"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 30, 1 );
-	fg->Add( m_spinCtrlWidth, 0, wxALL|wxEXPAND, 5 );
+	m_sizePicker = new SizePickerButton( this, wxID_ANY, 1, 1, 30, _("Outline width") );
+	fg->Add( m_sizePicker, 0, wxALL|wxEXPAND, 5 );
 
 	m_checkBoxFilled = new wxCheckBox( this, wxID_ANY, _("Fill with background"), wxDefaultPosition, wxDefaultSize, 0 );
 	fg->Add( m_checkBoxFilled, 0, wxALL|wxEXPAND, 5 );
@@ -978,13 +979,13 @@ ShapeToolPanel::ShapeToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& 
 	this->SetSizer( bSizer );
 	this->Layout();
 
-	m_spinCtrlWidth->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ShapeToolPanel::OnWidth ), NULL, this );
+	m_sizePicker->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ShapeToolPanel::OnWidth ), NULL, this );
 	m_checkBoxFilled->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ShapeToolPanel::OnFilled ), NULL, this );
 }
 
 ShapeToolPanel::~ShapeToolPanel()
 {
-	m_spinCtrlWidth->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ShapeToolPanel::OnWidth ), NULL, this );
+	m_sizePicker->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( ShapeToolPanel::OnWidth ), NULL, this );
 	m_checkBoxFilled->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( ShapeToolPanel::OnFilled ), NULL, this );
 }
 
@@ -1012,8 +1013,8 @@ TextToolPanel::TextToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& po
 	m_staticTextSize->Wrap( -1 );
 	fg->Add( m_staticTextSize, 0, wxALL|wxEXPAND, 5 );
 
-	m_spinCtrlSize = new wxSpinCtrl( this, wxID_ANY, wxT("12"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 4, 200, 12 );
-	fg->Add( m_spinCtrlSize, 0, wxALL|wxEXPAND, 5 );
+	m_sizePicker = new SizePickerButton( this, wxID_ANY, 12, 4, 200, _("Size") );
+	fg->Add( m_sizePicker, 0, wxALL|wxEXPAND, 5 );
 
 	m_checkBoxBold = new wxCheckBox( this, wxID_ANY, _("Bold"), wxDefaultPosition, wxDefaultSize, 0 );
 	fg->Add( m_checkBoxBold, 0, wxALL, 5 );
@@ -1029,7 +1030,7 @@ TextToolPanel::TextToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& po
 	this->Layout();
 
 	m_textCtrlFont->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TextToolPanel::OnFont ), NULL, this );
-	m_spinCtrlSize->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( TextToolPanel::OnSize ), NULL, this );
+	m_sizePicker->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( TextToolPanel::OnSize ), NULL, this );
 	m_checkBoxBold->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnBold ), NULL, this );
 	m_checkBoxItalic->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnItalic ), NULL, this );
 	m_checkBoxUnderline->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnUnderline ), NULL, this );
@@ -1038,7 +1039,7 @@ TextToolPanel::TextToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& po
 TextToolPanel::~TextToolPanel()
 {
 	m_textCtrlFont->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TextToolPanel::OnFont ), NULL, this );
-	m_spinCtrlSize->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( TextToolPanel::OnSize ), NULL, this );
+	m_sizePicker->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( TextToolPanel::OnSize ), NULL, this );
 	m_checkBoxBold->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnBold ), NULL, this );
 	m_checkBoxItalic->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnItalic ), NULL, this );
 	m_checkBoxUnderline->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( TextToolPanel::OnUnderline ), NULL, this );

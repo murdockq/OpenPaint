@@ -1,15 +1,16 @@
 #include "SubSprayCanToolPanel.h"
 #include "Globals.h"
+#include "SizePicker.h"
 #include "ToolManager.h"
 
 SubSprayCanToolPanel::SubSprayCanToolPanel( wxWindow* parent )
     : SprayCanToolPanel( parent )
 {
     ToolManager* tm = Globals::Instance()->GetToolManager();
-    m_spinCtrlSize->SetValue(tm->GetSprayCanSize());
+    m_sizePicker->SetValue(tm->GetSprayCanSize());
 }
 
 void SubSprayCanToolPanel::OnSize( wxSpinEvent& event )
 {
-    Globals::Instance()->GetToolManager()->SetSprayCanSize(m_spinCtrlSize->GetValue());
+    Globals::Instance()->GetToolManager()->SetSprayCanSize(m_sizePicker->GetValue());
 }

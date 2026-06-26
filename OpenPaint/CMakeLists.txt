@@ -25,6 +25,7 @@ set(OPENPAINT_SOURCES
     OpenPaintGUI.cpp
     OpenPaintMainApp.cpp
     OpenPaintMDIChildFrame.cpp
+    SizePicker.cpp
     SubBrushToolPanel.cpp
     SubEraserToolPanel.cpp
     SubPencilToolPanel.cpp

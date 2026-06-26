@@ -1,5 +1,6 @@
 #include "SubTextToolPanel.h"
 #include "Globals.h"
+#include "SizePicker.h"
 #include "ToolManager.h"
 
 #include <wx/fontdlg.h>
@@ -13,7 +14,7 @@ SubTextToolPanel::SubTextToolPanel( wxWindow* parent )
         m_textCtrlFont->SetLabel(_("Font..."));
     else
         m_textCtrlFont->SetLabel(face);
-    m_spinCtrlSize->SetValue(tm->GetTextFontSize());
+    m_sizePicker->SetValue(tm->GetTextFontSize());
     m_checkBoxBold->SetValue(tm->GetTextFontBold());
     m_checkBoxItalic->SetValue(tm->GetTextFontItalic());
     m_checkBoxUnderline->SetValue(tm->GetTextFontUnderline());
@@ -43,7 +44,7 @@ void SubTextToolPanel::OnFont( wxCommandEvent& event )
     tm->SetTextFontUnderline(chosen.GetUnderlined());
 
     m_textCtrlFont->SetLabel(chosen.GetFaceName());
-    m_spinCtrlSize->SetValue(chosen.GetPointSize());
+    m_sizePicker->SetValue(chosen.GetPointSize());
     m_checkBoxBold->SetValue(chosen.GetWeight() == wxFONTWEIGHT_BOLD);
     m_checkBoxItalic->SetValue(chosen.GetStyle() == wxFONTSTYLE_ITALIC);
     m_checkBoxUnderline->SetValue(chosen.GetUnderlined());
@@ -51,7 +52,7 @@ void SubTextToolPanel::OnFont( wxCommandEvent& event )
 
 void SubTextToolPanel::OnSize( wxSpinEvent& event )
 {
-    Globals::Instance()->GetToolManager()->SetTextFontSize(m_spinCtrlSize->GetValue());
+    Globals::Instance()->GetToolManager()->SetTextFontSize(m_sizePicker->GetValue());
 }
 
 void SubTextToolPanel::OnBold( wxCommandEvent& event )

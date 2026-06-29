@@ -1,6 +1,6 @@
 OpenPaint
 =========
-[![CI](https://github.com/murdockq/OpenPaint/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/murdockq/OpenPaint/actions/workflows/ci.yml)
+[![Release](https://github.com/murdockq/OpenPaint/actions/workflows/release.yml/badge.svg)](https://github.com/murdockq/OpenPaint/actions/workflows/release.yml)
 
 The cross-platform open source alternative to MS Paint. 
 

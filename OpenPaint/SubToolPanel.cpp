@@ -267,7 +267,7 @@ void SubToolPanel::OnPolygon( wxCommandEvent& event )
 void SubToolPanel::OnSelectLasso( wxCommandEvent& event )
 {
 	Globals::Instance()->GetToolManager()->SetSelectedTool(TOOL_SELECT_LASSO);
-    m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Lasso Select"));
+    m_sbSizerToolProperties->GetStaticBox()->SetLabel(wxT("Free-form Select"));
     ClearToolProperties();
     UpdateToolPropertiesLayout();
     EnableTools();

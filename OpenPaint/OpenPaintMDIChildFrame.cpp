@@ -18,7 +18,9 @@
 #include <wx/imagbmp.h>
 #include <wx/timer.h>
 #include <wx/utils.h>
+#include <algorithm>
 #include <cmath>
+#include <random>
 
 namespace {
 
@@ -51,6 +53,75 @@ wxPen MakeToolPreviewPen(const wxColour& color, int width)
     return wxPen(color, width, wxPENSTYLE_SOLID);
 }
 
+std::vector<wxPoint> BuildPolygonOutlinePoints(const std::vector<wxPoint>& vertices)
+{
+    std::vector<wxPoint> outline;
+    if (vertices.size() < 2)
+    {
+        return outline;
+    }
+
+    for (size_t i = 0; i < vertices.size(); ++i)
+    {
+        const wxPoint& from = vertices[i];
+        const wxPoint& to = vertices[(i + 1) % vertices.size()];
+        int dx = std::abs(to.x - from.x);
+        int dy = std::abs(to.y - from.y);
+        int steps = std::max(dx, dy);
+        if (steps == 0)
+        {
+            if (outline.empty() || outline.back() != from)
+            {
+                outline.push_back(from);
+            }
+            continue;
+        }
+
+        for (int step = 0; step < steps; ++step)
+        {
+            int x = from.x + ((to.x - from.x) * step) / steps;
+            int y = from.y + ((to.y - from.y) * step) / steps;
+            wxPoint point(x, y);
+            if (outline.empty() || outline.back() != point)
+            {
+                outline.push_back(point);
+            }
+        }
+    }
+
+    return outline;
+}
+
+wxRegion BuildPolygonRegion(const std::vector<wxPoint>& vertices)
+{
+    if (vertices.size() < 3)
+    {
+        return wxRegion();
+    }
+    return wxRegion(static_cast<size_t>(vertices.size()), &vertices[0]);
+}
+
+wxBitmap NormalizeClipboardBitmap(const wxBitmap& bitmap)
+{
+    if (!bitmap.IsOk())
+    {
+        return bitmap;
+    }
+
+    wxImage image = bitmap.ConvertToImage();
+    if (!image.IsOk())
+    {
+        return bitmap;
+    }
+
+    if (image.HasAlpha())
+    {
+        image.ConvertAlphaToMask();
+    }
+
+    return wxBitmap(image);
+}
+
 } // namespace
 
 BEGIN_EVENT_TABLE(OpenPaintMDIChildFrame, wxAuiMDIChildFrame)
@@ -70,6 +141,7 @@ BEGIN_EVENT_TABLE(OpenPaintMDIChildFrame, wxAuiMDIChildFrame)
     EVT_ENTER_WINDOW    (             OpenPaintMDIChildFrame::OnMouse)
     EVT_LEAVE_WINDOW    (             OpenPaintMDIChildFrame::OnMouseLeave)
     EVT_ERASE_BACKGROUND(             OpenPaintMDIChildFrame::OnEraseBackground)
+    EVT_TIMER           ( wxID_ANY,   OpenPaintMDIChildFrame::OnSelectionTimer)
 END_EVENT_TABLE()
 
 OpenPaintMDIChildFrame::OpenPaintMDIChildFrame( wxAuiMDIParentFrame* parent, int id, wxString title, int iWidth, int iHeight)
@@ -99,6 +171,7 @@ wxAuiMDIChildFrame( parent, id, title)
     m_iSelectionMoveX = -1;
     m_iSelectionMoveY = -1;
     m_DragImage = NULL;
+    m_selectionDashOffset = 0;
 
     // Per-frame tool state initialisation (replaces the old file-scope
     // globals that were shared between every MDI child).
@@ -288,6 +361,10 @@ void OpenPaintMDIChildFrame::OnPaint(wxPaintEvent& WXUNUSED(event))
 
     dc.SetUserScale(zoom,zoom);
     dc.DrawBitmap(m_Bitmap, m_ScrollOrigin.x/zoom, m_ScrollOrigin.y/zoom);
+    if (m_bHasSelection && m_bSelectionFloating && m_SelectedBitmap.IsOk() && !m_DragImage)
+    {
+        dc.DrawBitmap(m_SelectedBitmap, m_iSelectionOriginX, m_iSelectionOriginY, true);
+    }
     // Draw the grey "canvas surround" outside the image on every platform.
     // The original code wrapped this in #ifndef __WXGTK__ which made the
     // canvas area look broken on Linux; just draw it unconditionally.
@@ -318,24 +395,194 @@ void OpenPaintMDIChildFrame::DrawSelectionOutline(wxDC& dc) const
         return;
     }
 
-    wxPen dottedPen(*wxBLACK, 1, wxPENSTYLE_DOT);
-    dc.SetPen(dottedPen);
+    dc.SetPen(*wxTRANSPARENT_PEN);
     dc.SetBrush(*wxTRANSPARENT_BRUSH);
 
-    if (m_bSelectionIsLasso && m_selectionOutline.size() >= 2)
+    std::vector<wxPoint> outlinePoints;
+    if (m_bSelectionIsLasso && !m_selectionOutline.empty())
     {
-        for (size_t i = 0; i < m_selectionOutline.size(); ++i)
+        outlinePoints = m_selectionOutline;
+    }
+    else
+    {
+        outlinePoints.reserve(static_cast<size_t>((m_iSelectionWidth + m_iSelectionHeight) * 2));
+        for (int x = 0; x < m_iSelectionWidth; ++x)
         {
-            const wxPoint& from = m_selectionOutline[i];
-            const wxPoint& to = m_selectionOutline[(i + 1) % m_selectionOutline.size()];
-            dc.DrawLine(m_iSelectionOriginX + from.x, m_iSelectionOriginY + from.y,
-                        m_iSelectionOriginX + to.x, m_iSelectionOriginY + to.y);
+            outlinePoints.push_back(wxPoint(x, 0));
         }
+        for (int y = 0; y < m_iSelectionHeight; ++y)
+        {
+            outlinePoints.push_back(wxPoint(m_iSelectionWidth - 1, y));
+        }
+        for (int x = m_iSelectionWidth - 1; x >= 0; --x)
+        {
+            outlinePoints.push_back(wxPoint(x, m_iSelectionHeight - 1));
+        }
+        for (int y = m_iSelectionHeight - 1; y >= 0; --y)
+        {
+            outlinePoints.push_back(wxPoint(0, y));
+        }
+    }
+
+    for (size_t index = 0; index < outlinePoints.size(); ++index)
+    {
+        const wxPoint& point = outlinePoints[index];
+        dc.SetPen((((static_cast<int>(index) + m_selectionDashOffset) / 4) % 2) == 0
+                      ? *wxBLACK_PEN
+                      : *wxWHITE_PEN);
+        dc.DrawPoint(m_iSelectionOriginX + point.x, m_iSelectionOriginY + point.y);
+    }
+}
+
+void OpenPaintMDIChildFrame::ClearSelection()
+{
+    if (m_DragImage)
+    {
+        m_DragImage->EndDrag();
+        delete m_DragImage;
+        m_DragImage = NULL;
+    }
+
+    StopSelectionAnimation();
+    m_SelectedBitmap = wxBitmap();
+    m_bHasSelection = false;
+    m_bSelectionIsLasso = false;
+    m_bSelectionFloating = false;
+    m_iSelectionOriginX = -1;
+    m_iSelectionOriginY = -1;
+    m_iSelectionWidth = -1;
+    m_iSelectionHeight = -1;
+    m_iSelectionMoveX = -1;
+    m_iSelectionMoveY = -1;
+    m_selectionOutline.clear();
+    m_selectionRegion = wxRegion();
+}
+
+void OpenPaintMDIChildFrame::CommitSelection()
+{
+    if (!m_bHasSelection || !m_SelectedBitmap.IsOk())
+    {
+        ClearSelection();
+        Refresh();
         return;
     }
 
-    dc.DrawRectangle(m_iSelectionOriginX, m_iSelectionOriginY,
-                     m_iSelectionWidth, m_iSelectionHeight);
+    if (m_DragImage)
+    {
+        m_DragImage->EndDrag();
+        delete m_DragImage;
+        m_DragImage = NULL;
+    }
+
+    wxMemoryDC memDC;
+    memDC.SelectObject(m_Bitmap);
+    memDC.DrawBitmap(m_SelectedBitmap, m_iSelectionOriginX, m_iSelectionOriginY, true);
+    SetImage(m_Bitmap.ConvertToImage());
+    ClearSelection();
+    Refresh();
+}
+
+void OpenPaintMDIChildFrame::StartSelectionAnimation()
+{
+    m_selectionDashOffset = 0;
+    if (!m_selectionTimer.IsRunning())
+    {
+        m_selectionTimer.SetOwner(this);
+        m_selectionTimer.Start(120);
+    }
+}
+
+void OpenPaintMDIChildFrame::StopSelectionAnimation()
+{
+    if (m_selectionTimer.IsRunning())
+    {
+        m_selectionTimer.Stop();
+    }
+}
+
+bool OpenPaintMDIChildFrame::IsSelectionPixel(int localX, int localY) const
+{
+    if (localX < 0 || localY < 0 || localX >= m_iSelectionWidth || localY >= m_iSelectionHeight)
+    {
+        return false;
+    }
+
+    if (!m_bSelectionIsLasso || !m_selectionRegion.IsOk())
+    {
+        return true;
+    }
+
+    return m_selectionRegion.Contains(localX, localY) == wxInRegion;
+}
+
+void OpenPaintMDIChildFrame::BuildSelectionBitmapFromRegion()
+{
+    if (m_iSelectionWidth <= 0 || m_iSelectionHeight <= 0)
+    {
+        m_SelectedBitmap = wxBitmap();
+        return;
+    }
+
+    wxImage selectedImage(m_iSelectionWidth, m_iSelectionHeight, true);
+    selectedImage.SetRGB(wxRect(0, 0, m_iSelectionWidth, m_iSelectionHeight), 255, 255, 255);
+    selectedImage.InitAlpha();
+
+    for (int y = 0; y < m_iSelectionHeight; ++y)
+    {
+        for (int x = 0; x < m_iSelectionWidth; ++x)
+        {
+            if (!IsSelectionPixel(x, y))
+            {
+                selectedImage.SetAlpha(x, y, wxIMAGE_ALPHA_TRANSPARENT);
+                continue;
+            }
+
+            int sourceX = m_iSelectionOriginX + x;
+            int sourceY = m_iSelectionOriginY + y;
+            selectedImage.SetRGB(x, y,
+                                 m_Image.GetRed(sourceX, sourceY),
+                                 m_Image.GetGreen(sourceX, sourceY),
+                                 m_Image.GetBlue(sourceX, sourceY));
+            selectedImage.SetAlpha(x, y, wxIMAGE_ALPHA_OPAQUE);
+        }
+    }
+
+    m_SelectedBitmap = wxBitmap(selectedImage);
+}
+
+void OpenPaintMDIChildFrame::FillSelectionRegion(const wxColour& color)
+{
+    wxMemoryDC memDC;
+    memDC.SelectObject(m_Bitmap);
+    memDC.SetPen(wxPen(color, 1, wxPENSTYLE_SOLID));
+    memDC.SetBrush(wxBrush(color, wxBRUSHSTYLE_SOLID));
+
+    if (m_bSelectionIsLasso && m_selectionRegion.IsOk())
+    {
+        wxRegion clipRegion(m_selectionRegion);
+        clipRegion.Offset(m_iSelectionOriginX, m_iSelectionOriginY);
+        memDC.SetDeviceClippingRegion(clipRegion);
+        memDC.DrawRectangle(m_iSelectionOriginX, m_iSelectionOriginY,
+                            m_iSelectionWidth, m_iSelectionHeight);
+        memDC.DestroyClippingRegion();
+    }
+    else
+    {
+        memDC.DrawRectangle(m_iSelectionOriginX, m_iSelectionOriginY,
+                            m_iSelectionWidth, m_iSelectionHeight);
+    }
+}
+
+void OpenPaintMDIChildFrame::OnSelectionTimer(wxTimerEvent& WXUNUSED(event))
+{
+    if (!m_bHasSelection)
+    {
+        StopSelectionAnimation();
+        return;
+    }
+
+    m_selectionDashOffset = (m_selectionDashOffset + 1) % 8;
+    Refresh(false);
 }
 
 void OpenPaintMDIChildFrame::DrawToolPreview(wxDC& dc)
@@ -415,11 +662,14 @@ bool OpenPaintMDIChildFrame::IsInsideImage(int x, int y) const
 
 bool OpenPaintMDIChildFrame::IsInsideSelection(int x, int y) const
 {
-    return m_bHasSelection &&
-           x >= m_iSelectionOriginX &&
-           x < m_iSelectionOriginX + m_iSelectionWidth &&
-           y >= m_iSelectionOriginY &&
-           y < m_iSelectionOriginY + m_iSelectionHeight;
+    if (!m_bHasSelection)
+    {
+        return false;
+    }
+
+    int localX = x - m_iSelectionOriginX;
+    int localY = y - m_iSelectionOriginY;
+    return IsSelectionPixel(localX, localY);
 }
 
 void OpenPaintMDIChildFrame::SetCanvasCursor(wxStockCursor cursor)
@@ -512,13 +762,18 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     if(m_bHasSelection)
     {
         //Check if selection is clicked
-        if(i >= m_iSelectionOriginX  && i < m_iSelectionOriginX+ m_iSelectionWidth
-            && j >= m_iSelectionOriginY && j < m_iSelectionOriginY+ m_iSelectionHeight)
+        if(IsInsideSelection(i, j))
         {
             if(event.LeftDown())//&& !m_DragImage)
             {
                 m_iSelectionMoveX = i - m_iSelectionOriginX;
                 m_iSelectionMoveY = j - m_iSelectionOriginY;
+                if (!m_bSelectionFloating)
+                {
+                    FillSelectionRegion(pToolManager->GetBackground());
+                    m_bSelectionFloating = true;
+                    Refresh();
+                }
                 // Free any prior drag image before allocating a new one,
                 // otherwise repeated drags leak one wxGenericDragImage each.
                 if (m_DragImage)
@@ -535,25 +790,21 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
         }
         else //outside of selection
         {
-            if(event.LeftDown() && m_DragImage)
+            if(event.LeftDown())
             {
-                m_DragImage->EndDrag();
-                delete m_DragImage;
-                m_DragImage = NULL;
+                CommitSelection();
 
-                //Clear Selection Tool
-                SelectTool(i,j, MOUSE_BEGIN_DRAWING);
-                SelectTool(i,j, MOUSE_FINISHED_DRAWING);
+                if (pToolManager->GetSelectedTool() == TOOL_SELECT)
+                {
+                    SelectTool(i, j, MOUSE_BEGIN_DRAWING);
+                    return;
+                }
+                if (pToolManager->GetSelectedTool() == TOOL_SELECT_LASSO)
+                {
+                    LassoSelectTool(i, j, MOUSE_BEGIN_DRAWING);
+                    return;
+                }
 
-                m_bHasSelection = false;
-                m_bSelectionIsLasso = false;
-                m_selectionOutline.clear();
-
-                wxMemoryDC memDC;
-                memDC.SelectObject(m_Bitmap);
-                memDC.DrawBitmap(m_SelectedBitmap, m_iSelectionOriginX, m_iSelectionOriginY);
-                SetImage(m_Bitmap.ConvertToImage());
-                Refresh();
                 return;
             }
 
@@ -570,6 +821,12 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
         {
             m_iSelectionOriginX = i - m_iSelectionMoveX;
             m_iSelectionOriginY = j - m_iSelectionMoveY;
+            if (m_DragImage)
+            {
+                m_DragImage->EndDrag();
+                delete m_DragImage;
+                m_DragImage = NULL;
+            }
             Refresh();
             return;
         }
@@ -649,16 +906,12 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
     }
     else if (event.LeftDClick())
     {
-        // Double-click finishes a polygon / lasso so the user can place
-        // many points with single clicks and commit the shape with a
-        // double-click anywhere in the canvas.
+        // Double-click still finishes polygons. Free-form selection now acts
+        // like MS Paint and commits on mouse release instead of double-click.
         switch(pToolManager->GetSelectedTool())
         {
             case TOOL_POLYGON:
                 PolygonTool(i, j, MOUSE_FINISHED_DRAWING, fColor, bColor);
-                break;
-            case TOOL_SELECT_LASSO:
-                LassoSelectTool(i, j, MOUSE_FINISHED_DRAWING);
                 break;
             default:
                 break;
@@ -734,6 +987,9 @@ void OpenPaintMDIChildFrame::OnMouse(wxMouseEvent& event)
                 break;
             case TOOL_RECTANGLE_ROUNDED:
                 RectangleTool(i,j, fColor, MOUSE_FINISHED_DRAWING, true, bColor);
+                break;
+            case TOOL_SELECT_LASSO:
+                LassoSelectTool(i,j, MOUSE_FINISHED_DRAWING);
                 break;
         }
     }
@@ -1088,24 +1344,12 @@ wxBitmap OpenPaintMDIChildFrame::Cut()
 {
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     wxColour bColor = pToolManager->GetBackground();
-
-    m_customPen = wxPen(bColor, 1, wxPENSTYLE_SOLID);
-    m_customBrush = wxBrush(bColor, wxBRUSHSTYLE_SOLID);
-
-    wxMemoryDC memDC;
-    memDC.SelectObject(m_Bitmap);
-    memDC.SetPen(m_customPen);
-    memDC.SetBrush(m_customBrush);
-    memDC.DrawRectangle(m_iSelectionOriginX, m_iSelectionOriginY, m_iSelectionWidth, m_iSelectionHeight);
+    FillSelectionRegion(bColor);
     SetImage(m_Bitmap.ConvertToImage());
     Refresh();
 
     wxBitmap m_TempBitmap = m_SelectedBitmap;
-    //Clear the selection
-    m_SelectedBitmap = wxBitmap();
-    m_bHasSelection = false;
-    m_bSelectionIsLasso = false;
-    m_selectionOutline.clear();
+    ClearSelection();
 
     return m_TempBitmap;
 }
@@ -1117,45 +1361,36 @@ wxBitmap OpenPaintMDIChildFrame::Copy()
 
 void OpenPaintMDIChildFrame::Paste(wxBitmap bitmap)
 {
-    m_SelectedBitmap = bitmap;
-    // Delete any prior drag image so repeated pastes don't leak one each.
-    if (m_DragImage)
-    {
-        m_DragImage->EndDrag();
-        delete m_DragImage;
-    }
-    m_DragImage = new wxGenericDragImage(m_SelectedBitmap);
-    m_DragImage->BeginDrag(wxPoint(0, 0), this);
-    m_DragImage->Move(wxPoint(0,0));
-    m_DragImage->Show();
+    ClearSelection();
+    m_SelectedBitmap = NormalizeClipboardBitmap(bitmap);
     m_bHasSelection = true;
     m_bSelectionIsLasso = false;
-    m_selectionOutline.clear();
+    m_bSelectionFloating = true;
+    m_iSelectionWidth = m_SelectedBitmap.GetWidth();
+    m_iSelectionHeight = m_SelectedBitmap.GetHeight();
+    m_iSelectionMoveX = m_iSelectionWidth / 2;
+    m_iSelectionMoveY = m_iSelectionHeight / 2;
 
-    //SetImage(m_Bitmap.ConvertToImage());
-    //m_Image.ConvertAlphaToMask();
-    //m_Bitmap =  wxBitmap(m_Image);
-    //Refresh();
+    wxPoint cursorPos = ScreenToClient(wxGetMousePosition());
+    int pasteX = static_cast<int>((cursorPos.x - m_ScrollOrigin.x) / m_dZoom) - m_iSelectionMoveX;
+    int pasteY = static_cast<int>((cursorPos.y - m_ScrollOrigin.y) / m_dZoom) - m_iSelectionMoveY;
+
+    int maxX = std::max(0, m_Image.GetWidth() - m_iSelectionWidth);
+    int maxY = std::max(0, m_Image.GetHeight() - m_iSelectionHeight);
+    m_iSelectionOriginX = std::max(0, std::min(pasteX, maxX));
+    m_iSelectionOriginY = std::max(0, std::min(pasteY, maxY));
+    m_selectionOutline.clear();
+    StartSelectionAnimation();
+    Refresh();
 }
 
 void OpenPaintMDIChildFrame::Delete()
 {
     ToolManager * pToolManager = Globals::Instance()->GetToolManager();
     wxColour bColor = pToolManager->GetBackground();
-
-    m_customPen = wxPen(bColor, 1, wxPENSTYLE_SOLID);
-    m_customBrush = wxBrush(bColor, wxBRUSHSTYLE_SOLID);
-
-    wxMemoryDC memDC;
-    memDC.SelectObject(m_Bitmap);
-    memDC.SetPen(m_customPen);
-    memDC.SetBrush(m_customBrush);
-    memDC.DrawRectangle(m_iSelectionOriginX, m_iSelectionOriginY, m_iSelectionWidth, m_iSelectionHeight);
+    FillSelectionRegion(bColor);
     SetImage(m_Bitmap.ConvertToImage());
-    m_SelectedBitmap = wxBitmap();
-    m_bHasSelection = false;
-    m_bSelectionIsLasso = false;
-    m_selectionOutline.clear();
+    ClearSelection();
     Refresh();
 }
 
@@ -1674,61 +1909,27 @@ void OpenPaintMDIChildFrame::BrushTool(int x, int y, wxColour color, MouseStatus
 
 void OpenPaintMDIChildFrame::SprayCanTool(int x, int y, wxColour color)
 {
-    srand((unsigned)time(0)+x+y);
-
-    // Read the spray-can size from the ToolManager so the size spinner in
-    // the Spray Can properties panel affects how wide the spray pattern is.
     ToolManager* tm = Globals::Instance()->GetToolManager();
     int spraySize = tm->GetSprayCanSize();
     if (spraySize < 1) spraySize = 1;
 
-    //SQUARE SPRAY
-    int random_integer1,random_integer2;
-    int lowest=-spraySize, highest=spraySize;
-    int range=(highest-lowest)+1;
+    static std::mt19937 rng(std::random_device{}());
+    std::uniform_int_distribution<int> dist(-spraySize, spraySize);
+
     const int w = m_Image.GetWidth();
     const int h = m_Image.GetHeight();
-    for(int index=0; index<20; index++){
-        random_integer1 = lowest+int(range*rand()/(RAND_MAX + 1.0));
-        random_integer2 = lowest+int(range*rand()/(RAND_MAX + 1.0));
-
-        // Use inclusive bounds so pixels at the very edge of the canvas are
-        // reachable, and reject anything outside the image buffer.
-        if( x+random_integer1 >= 0 &&
-            x+random_integer1 <  w &&
-            y+random_integer2 >= 0 &&
-            y+random_integer2 <  h)
+    for (int index = 0; index < 20; ++index)
+    {
+        int dx = dist(rng);
+        int dy = dist(rng);
+        int px = x + dx;
+        int py = y + dy;
+        if (px >= 0 && px < w && py >= 0 && py < h)
         {
-            m_Image.SetRGB(x+random_integer1, y+random_integer2, color.Red(), color.Green(), color.Blue());
+            m_Image.SetRGB(px, py, color.Red(), color.Green(), color.Blue());
         }
-
     }
 
-    //ROUND SPRAY
-    //double random_angle,random_radius;
-    //int random_integerX,random_integerY; 
-    //int lowest=0, highest= M_PI; 
-    //int range_angle = (highest-lowest); 
-    //lowest=-10, highest = 10;
-    //int range_radius = (highest-lowest);
-
-    //for(int index=0; index < 30; index++){ 
-    //    random_angle = double(range_angle*rand()/(RAND_MAX + 1.0));
-    //    random_radius = lowest+double(range_radius*rand()/(RAND_MAX + 1.0));
-
-    //    random_integerX = cos(random_angle)*random_radius;
-    //    random_integerY = sin(random_angle)*random_radius;
-
-    //    if( x+random_integerX > 0 &&
-    //        x+random_integerX < m_Image.GetWidth() &&
-    //        y+random_integerY > 0 &&
-    //        y+random_integerY < m_Image.GetHeight())
-    //    {
-    //        m_Image.SetRGB(x+random_integerX, y+random_integerY, color.Red(), color.Green(), color.Blue());
-    //    }
-
-    //} 
-    
     m_Bitmap = wxBitmap(m_Image);
     Refresh();
 }
@@ -2015,6 +2216,7 @@ void OpenPaintMDIChildFrame::SelectTool(int x, int y, MouseStatus drawState)
     {
         if(m_prevX != x && m_prevY != y)//Make sure at least one pixel is selected
         {
+            ClearSelection();
             m_iSelectionOriginX = std::min(m_prevX,x);
             m_iSelectionOriginY = std::min(m_prevY,y);
             m_iSelectionWidth = abs(m_prevX-x);
@@ -2026,7 +2228,9 @@ void OpenPaintMDIChildFrame::SelectTool(int x, int y, MouseStatus drawState)
 
             m_bHasSelection = true;
             m_bSelectionIsLasso = false;
+            m_bSelectionFloating = false;
             m_selectionOutline.clear();
+            StartSelectionAnimation();
             Refresh();
         }
     }
@@ -2130,6 +2334,7 @@ void OpenPaintMDIChildFrame::LassoSelectTool(int x, int y, MouseStatus drawState
 {
     if (drawState == MOUSE_BEGIN_DRAWING)
     {
+        ClearSelection();
         m_drawLine.clear();
         m_drawLine.push_back(wxPoint(x, y));
         m_prevX2 = x;
@@ -2155,9 +2360,9 @@ void OpenPaintMDIChildFrame::LassoSelectTool(int x, int y, MouseStatus drawState
             RefreshToolPreview();
             return;
         }
-        // Build the lasso selection: bounding box around the polygon, then
-        // capture the rectangular sub-bitmap and the polygon path so future
-        // operations (Cut, Copy, Paste, drag-move) can use it.
+        // Build the free-form selection: bounding box around the polygon,
+        // then capture a bitmap masked to the polygon so later operations
+        // only affect the traced area.
         int minX = m_drawLine[0].x, minY = m_drawLine[0].y;
         int maxX = minX, maxY = minY;
         for (const wxPoint& p : m_drawLine)
@@ -2170,17 +2375,14 @@ void OpenPaintMDIChildFrame::LassoSelectTool(int x, int y, MouseStatus drawState
         // Clamp to image bounds.
         if (minX < 0) minX = 0;
         if (minY < 0) minY = 0;
-        if (maxX > m_Image.GetWidth())  maxX = m_Image.GetWidth();
-        if (maxY > m_Image.GetHeight()) maxY = m_Image.GetHeight();
+        if (maxX >= m_Image.GetWidth())  maxX = m_Image.GetWidth() - 1;
+        if (maxY >= m_Image.GetHeight()) maxY = m_Image.GetHeight() - 1;
         m_iSelectionOriginX = minX;
         m_iSelectionOriginY = minY;
-        m_iSelectionWidth  = maxX - minX;
-        m_iSelectionHeight = maxY - minY;
+        m_iSelectionWidth  = (maxX - minX) + 1;
+        m_iSelectionHeight = (maxY - minY) + 1;
         if (m_iSelectionWidth > 0 && m_iSelectionHeight > 0)
         {
-            m_SelectedBitmap = m_Bitmap.GetSubBitmap(
-                wxRect(m_iSelectionOriginX, m_iSelectionOriginY,
-                       m_iSelectionWidth, m_iSelectionHeight));
             m_iSelectionMoveX = m_iSelectionOriginX;
             m_iSelectionMoveY = m_iSelectionOriginY;
             m_selectionOutline.clear();
@@ -2190,15 +2392,20 @@ void OpenPaintMDIChildFrame::LassoSelectTool(int x, int y, MouseStatus drawState
                 m_selectionOutline.push_back(
                     wxPoint(p.x - m_iSelectionOriginX, p.y - m_iSelectionOriginY));
             }
+            m_selectionOutline = BuildPolygonOutlinePoints(m_selectionOutline);
+            m_selectionRegion = BuildPolygonRegion(m_selectionOutline);
             m_bHasSelection = true;
             m_bSelectionIsLasso = true;
+            m_bSelectionFloating = false;
+            BuildSelectionBitmapFromRegion();
+            StartSelectionAnimation();
             Refresh();
         }
         m_drawLine.clear();
         return;
     }
 
-    // CONTINUE_DRAWING: extend the lasso and rubber-band the new segment.
+    // CONTINUE_DRAWING: extend the free-form trace and rubber-band the new segment.
     if (m_drawLine.empty())
     {
         m_drawLine.push_back(wxPoint(x, y));

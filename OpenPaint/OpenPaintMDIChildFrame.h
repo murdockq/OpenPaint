@@ -11,6 +11,8 @@ Subclass of wxAuiMDIChildFrame
 #include <wx/bitmap.h>
 #include <wx/gdicmn.h>
 #include <wx/image.h>
+#include <wx/region.h>
+#include <wx/timer.h>
 #include <vector>
 class wxGraphicsContext;
 class wxGenericDragImage;
@@ -81,10 +83,14 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         wxBitmap m_SelectedBitmap;
         bool m_bHasSelection;
         bool m_bSelectionIsLasso;
+        bool m_bSelectionFloating;
         int m_iSelectionOriginX, m_iSelectionOriginY, m_iSelectionWidth, m_iSelectionHeight;
         int m_iSelectionMoveX, m_iSelectionMoveY;
         std::vector<wxPoint> m_selectionOutline;
+        wxRegion m_selectionRegion;
         wxGenericDragImage * m_DragImage;
+        wxTimer m_selectionTimer;
+        int m_selectionDashOffset;
 
         // event handlers
         void OnClose(wxCloseEvent& event);
@@ -96,12 +102,20 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void OnSize(wxSizeEvent& event);
         void OnScroll(wxScrollWinEvent& event);
         void OnEraseBackground(wxEraseEvent& event);
+        void OnSelectionTimer(wxTimerEvent& event);
         void ApplyToolCursor(int x, int y);
         void SetCanvasCursor(wxStockCursor cursor);
         void SetSprayCanCursor();
         bool IsInsideImage(int x, int y) const;
         bool IsInsideSelection(int x, int y) const;
         void DrawSelectionOutline(wxDC& dc) const;
+        void ClearSelection();
+        void CommitSelection();
+        void StartSelectionAnimation();
+        void StopSelectionAnimation();
+        bool IsSelectionPixel(int localX, int localY) const;
+        void BuildSelectionBitmapFromRegion();
+        void FillSelectionRegion(const wxColour& color);
         void DrawToolPreview(wxDC& dc);
         void RefreshToolPreview();
 

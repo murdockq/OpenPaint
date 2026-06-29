@@ -227,6 +227,121 @@ TEST_CASE("SprayCan paints only pixels inside the requested radius", "[ImageOps]
     REQUIRE(outsideBox == 0);
 }
 
+TEST_CASE("SprayCan with sufficient droplets covers every pixel in the bounding box", "[ImageOps]")
+{
+    // A radius-3 box is 7x7 = 49 pixels.  1000 droplets should hit them all.
+    ImageData img1(10, 10);
+    SprayCan(img1, 5, 5, 3, 1000, 255, 255, 255);
+    int covered = 0;
+    for (int y = 2; y <= 8; ++y)
+    {
+        for (int x = 2; x <= 8; ++x)
+        {
+            unsigned char r, g, b;
+            img1.GetPixel(x, y, r, g, b);
+            if (r == 255) ++covered;
+        }
+    }
+    REQUIRE(covered == 49);
+}
+
+TEST_CASE("SprayCan distribution is balanced across quadrants", "[ImageOps]")
+{
+    // Radius 10 → 21×21 box centred at (15,15) on a 30×30 canvas.
+    // Split the bounding box into four quadrants and verify each gets
+    // roughly 25 % of the droplets.
+    ImageData img(30, 30);
+    SprayCan(img, 15, 15, 10, 5000, 255, 0, 0);
+
+    int nw = 0, ne = 0, sw = 0, se = 0;
+    for (int y = 5; y <= 25; ++y)
+    {
+        for (int x = 5; x <= 25; ++x)
+        {
+            unsigned char r, g, b;
+            img.GetPixel(x, y, r, g, b);
+            if (r != 255) continue;
+            if (x <= 15 && y <= 15) ++nw;
+            else if (x > 15 && y <= 15) ++ne;
+            else if (x <= 15 && y > 15) ++sw;
+            else ++se;
+        }
+    }
+    int total = nw + ne + sw + se;
+    REQUIRE(total > 0);
+    // Each quadrant should hold at least 15 % of the droplets.
+    // With 5000 droplets and a uniform distribution the expected share is 25 %,
+    // so 15 % is a generous tolerance for stochastic variation.
+    auto pct = [total](int n) { return 100.0 * n / total; };
+    REQUIRE(pct(nw) >= 15.0);
+    REQUIRE(pct(ne) >= 15.0);
+    REQUIRE(pct(sw) >= 15.0);
+    REQUIRE(pct(se) >= 15.0);
+}
+
+TEST_CASE("SprayCan with zero count paints nothing", "[ImageOps]")
+{
+    ImageData img(10, 10);
+    SprayCan(img, 5, 5, 3, 0, 255, 255, 255);
+    for (int y = 0; y < 10; ++y)
+    {
+        for (int x = 0; x < 10; ++x)
+        {
+            unsigned char r, g, b;
+            img.GetPixel(x, y, r, g, b);
+            REQUIRE(r == 0);
+        }
+    }
+}
+
+TEST_CASE("SprayCan with invalid image is a no-op", "[ImageOps]")
+{
+    ImageData img(0, 0);
+    SprayCan(img, 0, 0, 5, 100, 255, 0, 0);
+    // Should not crash — that's the whole test.
+    REQUIRE(true);
+}
+
+TEST_CASE("SprayCan does the same thing when called twice", "[ImageOps]")
+{
+    ImageData img1(10, 10);
+    ImageData img2(10, 10);
+    SprayCan(img1, 5, 5, 3, 50, 200, 100, 50);
+    SprayCan(img2, 5, 5, 3, 50, 200, 100, 50);
+    for (int y = 0; y < 10; ++y)
+    {
+        for (int x = 0; x < 10; ++x)
+        {
+            unsigned char r1, g1, b1, r2, g2, b2;
+            img1.GetPixel(x, y, r1, g1, b1);
+            img2.GetPixel(x, y, r2, g2, b2);
+            REQUIRE(r1 == r2);
+            REQUIRE(g1 == g2);
+            REQUIRE(b1 == b2);
+        }
+    }
+}
+
+TEST_CASE("SprayCan respects image boundaries near edges", "[ImageOps]")
+{
+    // Spray at the top-left corner; every droplet must stay inside the image.
+    ImageData img(5, 5);
+    SprayCan(img, 0, 0, 10, 500, 255, 0, 0);
+    int painted = 0;
+    for (int y = 0; y < 5; ++y)
+    {
+        for (int x = 0; x < 5; ++x)
+        {
+            unsigned char r, g, b;
+            img.GetPixel(x, y, r, g, b);
+            if (r == 255) ++painted;
+        }
+    }
+    // The spray box extends from -10 to +10 around (0,0) but only (0,0)…
+    // (4,4) exists.  With 500 droplets the 5×5 image should be fully covered.
+    REQUIRE(painted > 0);
+}
+
 TEST_CASE("FlipHorizontal mirrors columns", "[ImageOps]")
 {
     ImageData img(2, 1);

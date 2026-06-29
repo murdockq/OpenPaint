@@ -115,16 +115,16 @@ target_include_directories(openpaint PRIVATE
 target_compile_definitions(openpaint PRIVATE TIXML_USE_STL)
 openpaint_copy_runtime_dlls(openpaint)
 
-# Copy the SVG icons next to the binary so the loader can find them at
+# Copy the runtime resources next to the binary so the loader can find them at
 # runtime without requiring the source tree to be present. On multi-config
 # generators the binary lives under <build>/<config>/, so we resolve the
 # directory from the target itself.
 add_custom_command(TARGET openpaint POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory
-        "$<TARGET_FILE_DIR:openpaint>/res/svg"
+        "$<TARGET_FILE_DIR:openpaint>/res"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_CURRENT_SOURCE_DIR}/res/svg"
-        "$<TARGET_FILE_DIR:openpaint>/res/svg"
+        "${CMAKE_CURRENT_SOURCE_DIR}/res"
+        "$<TARGET_FILE_DIR:openpaint>/res"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_SOURCE_DIR}/LICENSE"
         "$<TARGET_FILE_DIR:openpaint>/LICENSE"

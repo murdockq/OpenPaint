@@ -1,7 +1,7 @@
-// CMake-generated header that pins the on-disk locations of the SVG and
+// CMake-generated header that pins the source-tree locations of the SVG and
 // XPM icon directories. Updated by configure_file in OpenPaint/CMakeLists.txt
-// so the helper module can locate its source files regardless of the
-// working directory the binary is launched from.
+// so the helper module can fall back to them during local development/tests
+// when the runtime resources are not next to the binary yet.
 
 #ifndef __OPENPAINT_ICON_PATHS__
 #define __OPENPAINT_ICON_PATHS__

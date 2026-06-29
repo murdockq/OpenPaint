@@ -280,16 +280,20 @@ void SubMainFrame::OnTabRightUp(wxAuiNotebookEvent& event)
     menu.Append(IDX_TAB_MENU_SPLIT_RIGHT, wxT("Split Right"));
     menu.Append(IDX_TAB_MENU_SPLIT_BOTTOM, wxT("Split Below"));
     menu.Append(IDX_TAB_MENU_SPLIT_LEFT, wxT("Split Left"));
+#if wxCHECK_VERSION(3, 3, 0)
     menu.Append(IDX_TAB_MENU_UNSPLIT_ALL, wxT("Merge All Tab Groups"));
     menu.AppendSeparator();
     menu.AppendCheckItem(IDX_TAB_MENU_PIN, wxT("Pin Tab"));
     menu.AppendCheckItem(IDX_TAB_MENU_LOCK, wxT("Lock Tab"));
+#endif
 
     const size_t pageIndex = static_cast<size_t>(tabIndex);
     const size_t pageCount = notebook->GetPageCount();
+#if wxCHECK_VERSION(3, 3, 0)
     const wxAuiTabKind kind = notebook->GetPageKind(pageIndex);
     menu.Check(IDX_TAB_MENU_PIN, kind == wxAuiTabKind::Pinned);
     menu.Check(IDX_TAB_MENU_LOCK, kind == wxAuiTabKind::Locked);
+#endif
 
     menu.Enable(IDX_TAB_MENU_CLOSE_OTHERS, pageCount > 1);
     menu.Enable(IDX_TAB_MENU_CLOSE_ALL, pageCount > 0);
@@ -356,6 +360,7 @@ void SubMainFrame::OnTabMenu(wxCommandEvent& event)
         case IDX_TAB_MENU_SPLIT_LEFT:
             notebook->Split(page, wxLEFT);
             break;
+#if wxCHECK_VERSION(3, 3, 0)
         case IDX_TAB_MENU_UNSPLIT_ALL:
             notebook->UnsplitAll();
             break;
@@ -371,6 +376,7 @@ void SubMainFrame::OnTabMenu(wxCommandEvent& event)
                     ? wxAuiTabKind::Normal
                     : wxAuiTabKind::Locked);
             break;
+#endif
         default:
             break;
     }

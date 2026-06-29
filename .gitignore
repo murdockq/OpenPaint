@@ -1,0 +1,3 @@
+build*/
+Installer/bin/
+Installer/*.exe

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Openpaint by murdockq</title>
+    <title>OpenPaint by murdockq</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -15,76 +15,84 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Openpaint</h1>
-        <p>OpenPaint - The cross-platform open source alternative to MS Paint.</p>
+        <h1>OpenPaint</h1>
+        <p>OpenPaint is the cross-platform, open source alternative to MS Paint for Windows, macOS, and Linux.</p>
 
-        <p class="view"><a href="https://github.com/murdockq/OpenPaint">View the Project on GitHub <small>murdockq/OpenPaint</small></a></p>
+        <p class="view"><a href="https://github.com/murdockq/OpenPaint">View the project on GitHub <small>murdockq/OpenPaint</small></a></p>
 
 
         <ul>
-          <li><a href="https://github.com/murdockq/OpenPaint/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/murdockq/OpenPaint/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/murdockq/OpenPaint">View On <strong>GitHub</strong></a></li>
+          <li><a href="https://github.com/murdockq/OpenPaint/releases/download/v2.0.6/OpenPaint_Setup_2.0.6.exe">Download <strong>Windows</strong></a></li>
+          <li><a href="https://github.com/murdockq/OpenPaint/releases/download/v2.0.6/OpenPaint_2.0.6_macOS.dmg">Download <strong>macOS</strong></a></li>
+          <li><a href="https://github.com/murdockq/OpenPaint/releases/download/v2.0.6/OpenPaint_2.0.6_Linux.tar.gz">Download <strong>Linux</strong></a></li>
         </ul>
       </header>
-      <section>
+<section>
         <h1>OpenPaint</h1>
 
-<p>The cross-platform open source alternative to MS Paint. </p>
+<p>OpenPaint keeps the classic look and feel of paint, but will never add AI features, instead modernizing with image tabs and cross-platform support.</p>
 
-<h2>About</h2>
+<h2>Screenshot</h2>
 
-<p>Open Paint is an open source image editor for all major operating systems. The goal of this application is to create a simple to use image editor that has all the functionality an average computer user would need.  This leaves GIMP and Paint.NET for professional users and allows the project to focus on ease of use and intuitive interface over feature completeness.</p>
+<p><img src="OpenPaintScreenshot.jpg" alt="OpenPaint screenshot showing the multi-tab editing interface, drawing tools, and color palette"></p>
 
-<h2>Features</h2>
+<h2>Latest release</h2>
+
+<p><strong>OpenPaint v2.0.6</strong> was published on June 26, 2026 by the GitHub Actions release workflow.</p>
 
 <ul>
-<li>Familiar layout</li>
-<li>Multiple tabs for each image</li>
-<li>Support for most major image types (BMP, PNG, JPEG, GIF, PCX, PNM, TIF, IFF, XPM, ICO, CUR, ANI)</li>
-<li>Tools like pencil, paintbrush, fill, text, eye dropper, eraser, magnify, selection, shapes and more...</li>
-<li>Image options for resize, scale, rotating, flipping and more...</li>
-<li>Filters for invert, blur, pixelize, grayscale, monotone and more...</li>
-</ul><h2>Download</h2>
+<li><a href="https://github.com/murdockq/OpenPaint/releases/download/v2.0.6/OpenPaint_Setup_2.0.6.exe">Windows installer (.exe)</a></li>
+<li><a href="https://github.com/murdockq/OpenPaint/releases/download/v2.0.6/OpenPaint_2.0.6_macOS.dmg">macOS disk image (.dmg)</a></li>
+<li><a href="https://github.com/murdockq/OpenPaint/releases/download/v2.0.6/OpenPaint_2.0.6_Linux.tar.gz">Linux archive (.tar.gz)</a></li>
+<li><a href="https://github.com/murdockq/OpenPaint/releases/tag/v2.0.6">Release notes and checksums</a></li>
+</ul>
 
-<p><a href="https://github.com/downloads/murdockq/OpenPaint/OpenPaint_v1.2_Beta.exe">OpenPaint v1.2 Beta</a></p>
+<h2>Feature highlights</h2>
 
-<h2>Screenshots</h2>
+<ul>
+<li>Cross-platform packaged releases for Windows, macOS, and Linux</li>
+<li>Tabbed multi-document editing with split tab groups for side-by-side work</li>
+<li>Rectangular and free-form selection tools with floating selection support</li>
+<li>Pencil, brush, airbrush, line, curve, polygon, text, fill, magnifier, eyedropper, and eraser tools</li>
+<li>Rectangle, rounded rectangle, and ellipse shape tools with adjustable line widths</li>
+<li>Resize, scale, flip, 90-degree rotate, and arbitrary-angle rotate operations</li>
+<li>Histogram view, zoom controls, undo/redo, and broad bitmap format support</li>
+</ul>
 
-<p><img src="https://sourceforge.net/dbimage.php?id=211528" alt="Screenshot 1"></p>
+<h2>Supported formats</h2>
+
+<p>OpenPaint currently supports BMP, PNG, JPEG, GIF, WEBP, PCX, PNM, TIF, XPM, ICO, and CUR image files.</p>
 
 <h2>Requirements</h2>
 
 <ul>
-<li>
-<p>Windows All:</p>
+<li>Windows builds from source use <a href="https://vcpkg.io/">vcpkg</a> for wxWidgets.</li>
+<li>Linux builds need <code>libwxgtk3.2-dev</code>.</li>
+<li>macOS builds need <code>wxwidgets</code> from Homebrew.</li>
+</ul>
+
+<h2>Build from source</h2>
+
+<p>OpenPaint uses CMake and wxWidgets.</p>
+
+<pre><code>cmake -B build
+cmake --build build --config Release
+</code></pre>
+
+<p>To build and run the test suite:</p>
+
+<pre><code>cmake -B build -DOPENPAINT_BUILD_TESTS=ON
+cmake --build build
+ctest --test-dir build --output-on-failure
+</code></pre>
+
+<h2>Project links</h2>
 
 <ul>
-<li>This program uses libraries that may not be on your system. 
-If you get an error like:
-"This application failed to start because the application configuration is incorrect. Reinstalling the application may fix this problem"
-You should install this:
-<a href="http://www.microsoft.com/downloads/details.aspx?familyid=200B2FD9-AE1A-4A14-984D-389C36F85647&amp;displaylang=en">Microsoft Visual C++ 2005 SP1 Redistributable Package</a>
-</li>
-</ul>
-</li>
-<li>
-<p>Windows 2000:</p>
-
-<ul>
-<li>This program uses GDI+ which became standard on XP and Vista.
-If you are using Windows 2000 you will need to install GDI+ from this link.
-<a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=6A63AB9C-DF12-4D41-933C-BE590FEAA05A&amp;displaylang=en">Platform SDK Redistributable: GDI+</a>
-</li>
-</ul>
-</li>
-<li>
-<p>Linux and OS X:</p>
-
-<ul>
-<li>These ports have been built but need to be packaged and tested before they will be available.</li>
-</ul>
-</li>
+<li><a href="https://github.com/murdockq/OpenPaint/releases">All releases</a></li>
+<li><a href="https://github.com/murdockq/OpenPaint/actions/workflows/release.yml">Release workflow</a></li>
+<li><a href="https://github.com/murdockq/OpenPaint/actions/workflows/ci.yml">Continuous integration</a></li>
+<li><a href="https://github.com/murdockq/OpenPaint/issues">Issue tracker</a></li>
 </ul>
       </section>
       <footer>

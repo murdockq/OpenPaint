@@ -7,6 +7,7 @@
 
 #include "ToolManager.h"
 #include "SubMainFrame.h"
+#include <wx/bmpbndl.h>
 #include <wx/cursor.h>
 #include <wx/dcclient.h>
 #include <wx/graphics.h>
@@ -320,9 +321,52 @@ void OpenPaintMDIChildFrame::UpdateStatusBar()
 //Set title thumbnail icon
 void OpenPaintMDIChildFrame::SetThumbIcon()
 {
-    wxIcon iconThumb; 
-    iconThumb.CopyFromBitmap(wxBitmap(m_Image.Scale(22, 22,wxIMAGE_QUALITY_HIGH)));
+    if (!m_Image.IsOk())
+    {
+        return;
+    }
+
+    // 16x16 is the standard AUI tab art size on Windows; a 22x22 source
+    // gets downscaled at draw time but the alpha channel can be lost,
+    // which renders the icon as a blank square.
+    wxImage scaledImage = m_Image.Scale(16, 16, wxIMAGE_QUALITY_HIGH);
+    if (!scaledImage.IsOk())
+    {
+        return;
+    }
+
+    // A tab icon on Windows needs an alpha channel. If the source image
+    // doesn't have one (e.g. an opaque BMP), give it a fully-opaque
+    // alpha mask so the icon isn't drawn as a black square.
+    if (!scaledImage.HasAlpha())
+    {
+        scaledImage.InitAlpha();
+    }
+
+    wxBitmap bmp(scaledImage);
+    if (!bmp.IsOk())
+    {
+        return;
+    }
+
+    wxIcon iconThumb;
+    iconThumb.CopyFromBitmap(bmp);
     SetIcon(iconThumb);
+
+    // wxAuiMDIChildFrame::SetIcon() does not reliably refresh the tab
+    // art on Windows. The notebook page bitmap is the actual source of
+    // truth for what the tab renders, so set it directly as well.
+    if (wxAuiMDIParentFrame* parent = GetMDIParentFrame())
+    {
+        if (wxAuiNotebook* notebook = parent->GetNotebook())
+        {
+            const size_t pageIndex = notebook->GetPageIndex(this);
+            if (pageIndex != static_cast<size_t>(wxNOT_FOUND))
+            {
+                notebook->SetPageBitmap(pageIndex, wxBitmapBundle(bmp));
+            }
+        }
+    }
 }
 
 void OpenPaintMDIChildFrame::SetZoom(double dZoom)

@@ -524,7 +524,11 @@ ColorPanel::ColorPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, con
 	sbSizer4 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxEmptyString ), wxVERTICAL );
 	
 	wxFlexGridSizer* fgSizer3;
-	fgSizer3 = new wxFlexGridSizer( 2, 10, 0, 0 );
+	// Rows must be 0 (flexible) — the palette has 20 colour swatches in a
+	// 10-column layout. A fixed (2, 10) grid holds exactly 20 items; one
+	// more would trip the same wxWidgets >= 3.3 assert. The generated
+	// form had both dimensions fixed.
+	fgSizer3 = new wxFlexGridSizer( 0, 10, 0, 0 );
 	fgSizer3->SetFlexibleDirection( wxBOTH );
 	fgSizer3->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
@@ -647,7 +651,11 @@ ToolPanel::ToolPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const
 	bSizer3 = new wxBoxSizer( wxVERTICAL );
 	
 	wxFlexGridSizer* fgSizer2;
-	fgSizer2 = new wxFlexGridSizer( 2, 2, 0, 0 );
+	// Rows must be 0 (flexible) — the tool panel adds 16 buttons in a
+	// 2-column layout. A fixed (2, 2) grid only holds 4 items and trips
+	// a wxWidgets >= 3.3 "too many items" assert the moment the 5th
+	// button is added. The generated form had both dimensions fixed.
+	fgSizer2 = new wxFlexGridSizer( 0, 2, 0, 0 );
 	fgSizer2->SetFlexibleDirection( wxBOTH );
 	fgSizer2->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	

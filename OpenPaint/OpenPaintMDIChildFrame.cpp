@@ -331,9 +331,17 @@ void OpenPaintMDIChildFrame::SetZoom(double dZoom)
 
     UpdateStatusBar();
 
-    // Send Size Event
-    wxSizeEvent sizeEvent( GetSize(), GetId() );
-    GetEventHandler()->ProcessEvent( sizeEvent );
+    // Resize the canvas to match the zoomed image size directly.
+    // Do NOT synthesise a wxSizeEvent here — OnSize() already updates the
+    // scrollbars, and calling SetSize() from inside OnSize() causes an
+    // infinite size-event recursion on Windows.
+    int scrollWidth = m_Image.GetWidth()*m_dZoom;
+    int scrollHeight = m_Image.GetHeight()*m_dZoom;
+    SetSize(scrollWidth, scrollHeight);
+
+    wxSize size = GetSize();
+    UpdateScrollbars(size.GetWidth(), size.GetHeight());
+
     Refresh();
 }
 
@@ -355,6 +363,16 @@ void OpenPaintMDIChildFrame::OnPaint(wxPaintEvent& WXUNUSED(event))
     int height = m_Bitmap.GetHeight();
 
     double zoom = m_dZoom;
+    // Defensive clamp: wxDC::SetUserScale routes through wxRound(), which
+    // asserts in wxWidgets >= 3.3 when the scaled coordinate falls outside
+    // INT32 range. A garbage or uninitialised m_dZoom would feed a huge or
+    // NaN value in here and trip that assert on the first paint after the
+    // child frame is created. Clamp to a sane zoom range before use.
+    if (!(zoom > 0.0) || !(zoom < 100.0))
+    {
+        zoom = 1.0;
+        m_dZoom = 1.0;
+    }
     int w, h;
     GetClientSize(&w, &h);
 
@@ -1109,13 +1127,14 @@ void OpenPaintMDIChildFrame::OnSize(wxSizeEvent& event)
 {
     wxCoord w = event.GetSize().GetX();
     wxCoord h = event.GetSize().GetY();
+    UpdateScrollbars(w, h);
+}
 
+void OpenPaintMDIChildFrame::UpdateScrollbars(int w, int h)
+{
     int scrollWidth = m_Image.GetWidth()*m_dZoom;
     int scrollHeight = m_Image.GetHeight()*m_dZoom;
 
-    SetSize(scrollWidth,scrollHeight);
-    //GetParent()->Fit();
-    
     //TODO:HasScrollbar not returning true
     //if(HasScrollbar(wxVERTICAL))
     {
@@ -1145,7 +1164,6 @@ void OpenPaintMDIChildFrame::OnSize(wxSizeEvent& event)
     {
         m_ScrollOrigin.y = -GetScrollPos(wxVERTICAL);
     }
-
 }
 
 void OpenPaintMDIChildFrame::OnScroll(wxScrollWinEvent& event)

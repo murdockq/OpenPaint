@@ -49,7 +49,7 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         double GetZoom(){return m_dZoom;};
         void SetZoom(double dZoom);
 
-        double m_dZoom;
+        double m_dZoom = 1.0;
         MouseStatus m_status;
         wxPoint m_ScrollOrigin;
         wxLongLong m_lastPixelStatusUpdate;
@@ -60,37 +60,51 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         // every MDI child, which meant switching tabs in the middle of a
         // drawing operation could corrupt the rubber-band state of the other
         // tab. Keeping them per-frame is the fix.
+        // Same caveat as the selection members above: default-initialise so
+        // an early paint event during construction can't read garbage.
         std::vector<wxPoint> m_drawLine;
-        int m_prevX;
-        int m_prevY;
-        int m_prevX2;
-        int m_prevY2;
-        int m_curveStage;
-        bool m_bCurvePreviewIsLine;
+        int m_prevX = 0;
+        int m_prevY = 0;
+        int m_prevX2 = 0;
+        int m_prevY2 = 0;
+        int m_curveStage = 0;
+        bool m_bCurvePreviewIsLine = false;
         wxPoint m_curveStart;
         wxPoint m_curveEnd;
         wxPoint m_curveControl1;
         wxPoint m_curvePreviewControl1;
         wxPoint m_curvePreviewControl2;
-        bool m_bToolPreviewActive;
-        int m_previewTool;
+        bool m_bToolPreviewActive = false;
+        int m_previewTool = 0;
         wxColour m_previewColor;
-        int m_previewPenWidth;
+        int m_previewPenWidth = 1;
         wxPen m_customPen;
         wxBrush m_customBrush;
 
         //Selection Attributes
+        // Members that are read by OnPaint / DrawSelectionOutline / DrawToolPreview
+        // must be default-initialised here, NOT in the constructor body. The
+        // base wxAuiMDIChildFrame constructor plus our own SetZoom(1.0) call
+        // can post a paint event that the message loop dispatches before the
+        // rest of the derived constructor body has run; if these members are
+        // uninitialised at that point, DrawSelectionOutline's guard falls
+        // through and the for loop iterates up to INT_MAX times, hanging the
+        // UI thread inside std::vector::push_back.
         wxBitmap m_SelectedBitmap;
-        bool m_bHasSelection;
-        bool m_bSelectionIsLasso;
-        bool m_bSelectionFloating;
-        int m_iSelectionOriginX, m_iSelectionOriginY, m_iSelectionWidth, m_iSelectionHeight;
-        int m_iSelectionMoveX, m_iSelectionMoveY;
+        bool m_bHasSelection = false;
+        bool m_bSelectionIsLasso = false;
+        bool m_bSelectionFloating = false;
+        int m_iSelectionOriginX = -1;
+        int m_iSelectionOriginY = -1;
+        int m_iSelectionWidth = -1;
+        int m_iSelectionHeight = -1;
+        int m_iSelectionMoveX = -1;
+        int m_iSelectionMoveY = -1;
         std::vector<wxPoint> m_selectionOutline;
         wxRegion m_selectionRegion;
-        wxGenericDragImage * m_DragImage;
+        wxGenericDragImage * m_DragImage = nullptr;
         wxTimer m_selectionTimer;
-        int m_selectionDashOffset;
+        int m_selectionDashOffset = 0;
 
         // event handlers
         void OnClose(wxCloseEvent& event);
@@ -100,6 +114,7 @@ class OpenPaintMDIChildFrame : public wxAuiMDIChildFrame
         void OnMouseWheel(wxMouseEvent& event);
         void OnMouseLeave(wxMouseEvent& event);
         void OnSize(wxSizeEvent& event);
+        void UpdateScrollbars(int w, int h);
         void OnScroll(wxScrollWinEvent& event);
         void OnEraseBackground(wxEraseEvent& event);
         void OnSelectionTimer(wxTimerEvent& event);

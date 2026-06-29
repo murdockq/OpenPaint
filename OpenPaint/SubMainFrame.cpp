@@ -22,6 +22,7 @@
 #include <wx/strconv.h>
 #include <wx/imaglist.h>
 #include <wx/clrpicker.h>
+#include <wx/menu.h>
 #include <wx/filename.h>
 #include <wx/clipbrd.h>
 #include <wx/fontdlg.h>
@@ -63,8 +64,10 @@ BEGIN_EVENT_TABLE(SubMainFrame, MainFrame)
     EVT_MENU( IDX_MENU_HISTORYOPEN+7, SubMainFrame::HistoryOpen )
     EVT_MENU( IDX_MENU_HISTORYOPEN+8, SubMainFrame::HistoryOpen )
     EVT_MENU( IDX_MENU_HISTORYOPEN+9, SubMainFrame::HistoryOpen )
+    EVT_MENU_RANGE(SubMainFrame::IDX_TAB_MENU_SAVE, SubMainFrame::IDX_TAB_MENU_LOCK, SubMainFrame::OnTabMenu)
     EVT_SIZE(SubMainFrame::OnSize)
     EVT_AUI_PANE_CLOSE(SubMainFrame::OnAuiPaneClose)
+    EVT_AUINOTEBOOK_TAB_RIGHT_UP(wxID_ANY, SubMainFrame::OnTabRightUp)
     EVT_MENU_OPEN(SubMainFrame::OnMenuOpen)
 END_EVENT_TABLE()
 
@@ -72,6 +75,8 @@ SubMainFrame::SubMainFrame( wxWindow* parent, int id, wxString title, wxPoint po
 :
 MainFrame( parent, id, title, pos, size, style )
 {
+    m_contextTabIndex = wxNOT_FOUND;
+    m_ownsAuiManager = false;
 
     //Set the target fro droping file onto the application
     SetDropTarget(new DnDFile());
@@ -91,32 +96,44 @@ MainFrame( parent, id, title, pos, size, style )
 
 SubMainFrame::~SubMainFrame()
 {
-    // The AUI manager is owned by us and must be uninitialised and freed,
-    // otherwise we leak the manager (and every pane it owns) on shutdown.
-    // MDI children are closed in OnClose() before this destructor runs,
-    // so by the time we get here the wxAuiNotebook has no pages and its
-    // teardown does not try to dereference already-destroyed MDI children.
-    if (m_mAuiManager)
+    // Only uninitialise and free the AUI manager if we actually own it.
+    // wxAuiMDIParentFrame already manages the MDI client window through
+    // its own internal wxAuiManager, which Init() picks up via
+    // wxAuiManager::GetManager(); that one is owned by the frame and must
+    // not be deleted here. MDI children are closed in OnClose() before
+    // this destructor runs, so the notebook is empty by the time we
+    // tear down our own manager (if any).
+    if (m_mAuiManager && m_ownsAuiManager)
     {
         m_mAuiManager->UnInit();
         delete m_mAuiManager;
-        m_mAuiManager = nullptr;
     }
+    m_mAuiManager = nullptr;
+    m_ownsAuiManager = false;
 }
 
 void SubMainFrame::Init()
 {
-    m_mAuiManager = new wxAuiManager(this);
+    // wxAuiMDIParentFrame already manages the MDI client window through
+    // its own internal wxAuiManager. Adding it to a second manager on the
+    // same frame triggers a "pane with that name already exists" assertion
+    // in wxWidgets >= 3.3, and silently corrupts layout in earlier builds.
+    // Use the frame's existing manager so tool/color panes share the same
+    // layout as the MDI client, instead of creating a competing one.
+    m_mAuiManager = wxAuiManager::GetManager(this);
+    if (m_mAuiManager)
+    {
+        m_ownsAuiManager = false;
+    }
+    else
+    {
+        m_mAuiManager = new wxAuiManager(this);
+        m_ownsAuiManager = true;
+    }
 
     wxAuiMDIClientWindow* client_window = this->GetClientWindow();
 
     wxASSERT_MSG(client_window, wxT("Client window is NULL!"));
-
-    m_mAuiManager->AddPane(client_window,
-                wxAuiPaneInfo().Name(wxT("mdiclient")).
-                CenterPane().PaneBorder(false));
-
-    //client_window->AddPage(sourcePanel, wxT("Pane Caption"));
 
     GetToolBar()->EnableTool(wxID_UNDO, false);
     GetToolBar()->EnableTool(wxID_REDO, false);
@@ -156,6 +173,207 @@ void SubMainFrame::Init()
 #endif
 
     m_mAuiManager->Update();
+}
+
+wxAuiNotebook* SubMainFrame::GetTabNotebook() const
+{
+    return GetNotebook();
+}
+
+OpenPaintMDIChildFrame* SubMainFrame::GetChildFrameAt(size_t pageIndex) const
+{
+    wxAuiNotebook* notebook = GetTabNotebook();
+    if (!notebook || pageIndex >= notebook->GetPageCount())
+    {
+        return nullptr;
+    }
+
+    return wxDynamicCast(notebook->GetPage(pageIndex), OpenPaintMDIChildFrame);
+}
+
+bool SubMainFrame::ActivateTab(size_t pageIndex)
+{
+    wxAuiNotebook* notebook = GetTabNotebook();
+    if (!notebook || pageIndex >= notebook->GetPageCount())
+    {
+        return false;
+    }
+
+    notebook->SetSelection(pageIndex);
+    return true;
+}
+
+bool SubMainFrame::CloseTab(size_t pageIndex)
+{
+    OpenPaintMDIChildFrame* child = GetChildFrameAt(pageIndex);
+    if (!child || !ActivateTab(pageIndex))
+    {
+        return false;
+    }
+
+    if (!child->Close())
+    {
+        child->Destroy();
+    }
+    return true;
+}
+
+void SubMainFrame::CloseOtherTabs(size_t pageIndex)
+{
+    wxAuiNotebook* notebook = GetTabNotebook();
+    if (!notebook || pageIndex >= notebook->GetPageCount())
+    {
+        return;
+    }
+
+    for (size_t i = notebook->GetPageCount(); i > 0; --i)
+    {
+        const size_t current = i - 1;
+        if (current != pageIndex)
+        {
+            CloseTab(current);
+        }
+    }
+}
+
+void SubMainFrame::CloseAllTabs()
+{
+    wxAuiNotebook* notebook = GetTabNotebook();
+    if (!notebook)
+    {
+        return;
+    }
+
+    for (size_t i = notebook->GetPageCount(); i > 0; --i)
+    {
+        CloseTab(i - 1);
+    }
+}
+
+int SubMainFrame::GetContextTabIndex() const
+{
+    return m_contextTabIndex;
+}
+
+void SubMainFrame::OnTabRightUp(wxAuiNotebookEvent& event)
+{
+    wxAuiNotebook* notebook = GetTabNotebook();
+    const int tabIndex = event.GetSelection();
+    if (!notebook || tabIndex == wxNOT_FOUND)
+    {
+        event.Skip();
+        return;
+    }
+
+    m_contextTabIndex = tabIndex;
+    ActivateTab(static_cast<size_t>(tabIndex));
+
+    wxMenu menu;
+    menu.Append(IDX_TAB_MENU_SAVE, wxT("Save"));
+    menu.Append(IDX_TAB_MENU_SAVE_AS, wxT("Save As..."));
+    menu.AppendSeparator();
+    menu.Append(IDX_TAB_MENU_CLOSE, wxT("Close"));
+    menu.Append(IDX_TAB_MENU_CLOSE_OTHERS, wxT("Close Others"));
+    menu.Append(IDX_TAB_MENU_CLOSE_ALL, wxT("Close All"));
+    menu.AppendSeparator();
+    menu.Append(IDX_TAB_MENU_SPLIT_TOP, wxT("Split Above"));
+    menu.Append(IDX_TAB_MENU_SPLIT_RIGHT, wxT("Split Right"));
+    menu.Append(IDX_TAB_MENU_SPLIT_BOTTOM, wxT("Split Below"));
+    menu.Append(IDX_TAB_MENU_SPLIT_LEFT, wxT("Split Left"));
+    menu.Append(IDX_TAB_MENU_UNSPLIT_ALL, wxT("Merge All Tab Groups"));
+    menu.AppendSeparator();
+    menu.AppendCheckItem(IDX_TAB_MENU_PIN, wxT("Pin Tab"));
+    menu.AppendCheckItem(IDX_TAB_MENU_LOCK, wxT("Lock Tab"));
+
+    const size_t pageIndex = static_cast<size_t>(tabIndex);
+    const size_t pageCount = notebook->GetPageCount();
+    const wxAuiTabKind kind = notebook->GetPageKind(pageIndex);
+    menu.Check(IDX_TAB_MENU_PIN, kind == wxAuiTabKind::Pinned);
+    menu.Check(IDX_TAB_MENU_LOCK, kind == wxAuiTabKind::Locked);
+
+    menu.Enable(IDX_TAB_MENU_CLOSE_OTHERS, pageCount > 1);
+    menu.Enable(IDX_TAB_MENU_CLOSE_ALL, pageCount > 0);
+
+    PopupMenu(&menu);
+    m_contextTabIndex = wxNOT_FOUND;
+}
+
+void SubMainFrame::OnTabMenu(wxCommandEvent& event)
+{
+    wxAuiNotebook* notebook = GetTabNotebook();
+    const int pageIndex = GetContextTabIndex();
+    if (!notebook || pageIndex == wxNOT_FOUND ||
+        static_cast<size_t>(pageIndex) >= notebook->GetPageCount())
+    {
+        return;
+    }
+
+    const size_t page = static_cast<size_t>(pageIndex);
+    ActivateTab(page);
+
+    OpenPaintMDIChildFrame* child = GetChildFrameAt(page);
+    if (!child)
+    {
+        return;
+    }
+
+    switch (event.GetId())
+    {
+        case IDX_TAB_MENU_SAVE:
+        {
+            const wxString filename = child->GetFilename();
+            if (filename.empty())
+            {
+                SaveAs();
+            }
+            else if (child->Save())
+            {
+                AddFileToHistory(filename);
+            }
+            break;
+        }
+        case IDX_TAB_MENU_SAVE_AS:
+            SaveAs();
+            break;
+        case IDX_TAB_MENU_CLOSE:
+            CloseTab(page);
+            break;
+        case IDX_TAB_MENU_CLOSE_OTHERS:
+            CloseOtherTabs(page);
+            break;
+        case IDX_TAB_MENU_CLOSE_ALL:
+            CloseAllTabs();
+            break;
+        case IDX_TAB_MENU_SPLIT_TOP:
+            notebook->Split(page, wxTOP);
+            break;
+        case IDX_TAB_MENU_SPLIT_RIGHT:
+            notebook->Split(page, wxRIGHT);
+            break;
+        case IDX_TAB_MENU_SPLIT_BOTTOM:
+            notebook->Split(page, wxBOTTOM);
+            break;
+        case IDX_TAB_MENU_SPLIT_LEFT:
+            notebook->Split(page, wxLEFT);
+            break;
+        case IDX_TAB_MENU_UNSPLIT_ALL:
+            notebook->UnsplitAll();
+            break;
+        case IDX_TAB_MENU_PIN:
+            notebook->SetPageKind(page,
+                notebook->GetPageKind(page) == wxAuiTabKind::Pinned
+                    ? wxAuiTabKind::Normal
+                    : wxAuiTabKind::Pinned);
+            break;
+        case IDX_TAB_MENU_LOCK:
+            notebook->SetPageKind(page,
+                notebook->GetPageKind(page) == wxAuiTabKind::Locked
+                    ? wxAuiTabKind::Normal
+                    : wxAuiTabKind::Locked);
+            break;
+        default:
+            break;
+    }
 }
 
 void SubMainFrame::UpdateHistory()

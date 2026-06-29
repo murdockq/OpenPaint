@@ -7,6 +7,10 @@ The cross-platform open source alternative to MS Paint.
 ## About ##
 Open Paint is an open source image editor for all major operating systems. The goal of this application is to create a simple to use image editor that has all the functionality an average computer user would need.  This leaves GIMP and Paint.NET for professional users and allows the project to focus on ease of use and intuitive interface over feature completeness.
 
+## Screenshot ##
+
+![OpenPaint screenshot showing the multi-tab editing interface, drawing tools, and color palette](https://murdockq.github.io/OpenPaint/OpenPaintScreenshot.jpg)
+
 ## Features ##
 
  * Familiar layout

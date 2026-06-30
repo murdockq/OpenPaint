@@ -785,9 +785,19 @@ void SubMainFrame::OnHistogram( wxCommandEvent& event )
     // and the wxGenericDragImage inside Paste. Show the frame instead so the
     // histogram is actually visible and doesn't leak.
     OpenPaintMDIChildFrame *newFrame = new OpenPaintMDIChildFrame(this, wxID_ANY, wxT("Histogram"), kHistWidth, kHistHeight);
+
+    // OpenPaintMDIChildFrame has no public SetImage/wxImage constructor, so
+    // route the rendered histogram through the existing Open() file path.
+    // Write a temp BMP, load it, then drop the temp file.
+    wxString tmpPath = wxFileName::CreateTempFileName(wxT("op_hist_")) + wxT(".bmp");
+    if (histImage.SaveFile(tmpPath, wxBITMAP_TYPE_BMP))
+    {
+        newFrame->Open(tmpPath);
+        newFrame->SetTitle(wxT("Histogram"));
+        wxRemoveFile(tmpPath);
+    }
     newFrame->Show();
     wxLogDebug("count:%d min:%d max:%d", static_cast<int>(table.size()), minValue, maxValue);
-    (void)histImage; // histogram bitmap would be drawn here in a future pass
 }
 
 void SubMainFrame::OnFullscreen( wxCommandEvent& event )
